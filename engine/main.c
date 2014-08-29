@@ -1,4 +1,3 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*-  */
 #include <mono/jit/jit.h>
 #include <mono/metadata/environment.h>
 #include <mono/metadata/mono-config.h>
