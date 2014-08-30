@@ -34,7 +34,7 @@
  */
 
 #include <stdlib.h>
-#include <stdio.h>
+#include <assert.h>
 #include "grid.h"
 
 static tile new_tile(void);
@@ -57,10 +57,9 @@ out_nt:
 }
 
 grid new_grid(unsigned int width, unsigned int height) {
-	if (width < 1 || height < 1) {
-		fprintf(stderr, "error in new_grid, bad params: [%u,%u]",
-				width, height);
-	}
+	// test invariants
+	assert(width > 0);
+	assert(height > 0);
 
 	/* For error handling later if an allocation fails.
 	 * It holds references to the rightmost Tile in each
