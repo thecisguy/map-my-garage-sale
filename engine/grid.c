@@ -35,25 +35,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "grid.h"
 
-struct tile {
-	struct tile *up;
-	struct tile *right;
-	struct tile *left;
-	struct tile *down;
-};
-
-struct grid {
-	struct tile *origin;
-	unsigned int height;
-	unsigned int width;
-};
-
-typedef struct tile *tile;
-typedef struct grid *grid;
+static tile new_tile(void);
 
 /* Creates a new tile on the heap, initializing its pointers to NULL */
-tile new_tile(void) {
+static tile new_tile(void) {
 	tile nt = malloc(sizeof(struct tile));
 	if (nt == NULL)
 		goto out_nt;
@@ -69,13 +56,6 @@ out_nt:
 	return NULL;
 }
 
-/* Allocates and initializes a new Grid.
- * 
- * As all Grids are rectangular, this method accepts width
- * and height parameters for its dimensions.
- *
- * The resulting Grid will have width columns and height rows.
- */
 grid new_grid(unsigned int width, unsigned int height) {
 	if (width < 1 || height < 1) {
 		fprintf(stderr, "error in new_grid, bad params: [%u,%u]",
