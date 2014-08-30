@@ -153,3 +153,26 @@ out_ng:;
        // If we jumped here, there is nothing for us to free.
        return NULL;
 }
+
+void del_grid(grid g) {
+	/* we need to free every tile, then the struct grid itself
+	 * in the outer loop, we scan top-down
+	 */
+	tile l = g->origin;
+	while (l != NULL) {
+		tile below = l->down;
+
+		// in the inner loop, we scan left-right
+		tile now = l;
+		while (now != NULL) {
+			tile next = now->right;
+			free(now);
+			now = next;
+		}
+
+		l = below;
+	}
+	
+	// now we just need to free the grid
+	free(g);
+}

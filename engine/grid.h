@@ -28,3 +28,6 @@ typedef struct grid *grid;
  * The resulting Grid will have width columns and height rows.
  */
 grid new_grid(unsigned int width, unsigned int height);
+
+/* Deallocates a Grid. */
+void del_grid(grid g);
