@@ -25,8 +25,8 @@
  * G H I
  *
  * A is the origin Tile, it is at [0, 0].
- * C is at [0, 3].
- * H is at [3, 2].
+ * C is at [0, 2].
+ * H is at [2, 1].
  *
  * All of the memory occupied by a Grid exists on the heap.
  * You must destroy a Grid by calling its destructor to avoid
@@ -37,10 +37,10 @@
 #include <assert.h>
 #include "grid.h"
 
-static tile new_tile(void);
+static tile new_tile(unsigned int row, unsigned int column);
 
 /* Creates a new tile on the heap, initializing its pointers to NULL */
-static tile new_tile(void) {
+static tile new_tile(unsigned int row, unsigned int column) {
 	tile nt = malloc(sizeof(struct tile));
 	if (nt == NULL)
 		goto out_nt;
@@ -49,6 +49,9 @@ static tile new_tile(void) {
 	nt->down = NULL;
 	nt->left = NULL;
 	nt->right = NULL;
+
+	nt->row = row;
+	nt->column = column;
 
 	return nt;
 
@@ -80,6 +83,10 @@ grid new_grid(unsigned int width, unsigned int height) {
 	ng->height = height;
 	ng->width = width;
 
+	ng->lookup = malloc(sizeof(tile *) * height * width);
+	if (ng->lookup == NULL)
+		goto out_lookup;
+
 	// Now we descend through the graph.
 	// Each pass through this loop completes a single row.
 	for (int j = 0; j < height; j++) {
@@ -91,15 +98,17 @@ grid new_grid(unsigned int width, unsigned int height) {
 		if (j == 0) {
 			// create origin tile
 			rightends[j] = ng->origin;
-			ng->origin = new_tile();
+			ng->origin = new_tile(j, 0);
 			if (ng->origin == NULL)
 				goto out_tiles;
+			ng->lookup[0] = ng->origin;
 			above = NULL;
 			farleft = ng->origin;
 		} else {
-			tile newrow = new_tile();
+			tile newrow = new_tile(j, 0);
 			if (newrow == NULL)
 				goto out_tiles;
+			ng->lookup[j * width] = newrow;
 			rightends[j] = newrow;
 			farleft->down = newrow;
 			newrow->up = farleft;
@@ -111,7 +120,8 @@ grid new_grid(unsigned int width, unsigned int height) {
 		// extending from the tile we just created.
 		tile t = farleft;
 		for (int i = 1; i < width; i++, rightends[j] = t) {
-			tile n = new_tile();
+			tile n = new_tile(j, i);
+			ng->lookup[j * width + i] = n;
 			if (n == NULL)
 				goto out_tiles;
 			n->up = above;
@@ -129,7 +139,7 @@ grid new_grid(unsigned int width, unsigned int height) {
 // Error handling routines:
 out_tiles:;
 	/* If we jumped here, then we need to delete every tile
-	 * structure we allocated and the grid structure itself.
+	 * structure we allocated, and the lookup table.
 	 * We accomplish this by traversing rightends, deleting every
 	 * row we completed as well as whatever portion of the current
 	 * row we have finished.
@@ -148,14 +158,20 @@ out_tiles:;
 		}
 		endi++;
 	}
+	free(ng->lookup);
+
+out_lookup:;
+	// If we jumped here, we need only free the struct grid.
 	free(ng);
+
 out_ng:;
        // If we jumped here, there is nothing for us to free.
        return NULL;
 }
 
 void del_grid(grid g) {
-	/* we need to free every tile, then the struct grid itself
+	/* we need to free every tile, then the lookup table,
+	 * then the struct grid itself
 	 * in the outer loop, we scan top-down
 	 */
 	tile l = g->origin;
@@ -173,6 +189,15 @@ void del_grid(grid g) {
 		l = below;
 	}
 	
-	// now we just need to free the grid
+	// now we just need to free the rest
+	free(g->lookup);
 	free(g);
+}
+
+tile grid_lookup(grid g, unsigned int row, unsigned int column) {
+	// test invariants
+	assert(row < g->height);
+	assert(column < g->width);
+
+	return g->lookup[row * g->width + column];
 }

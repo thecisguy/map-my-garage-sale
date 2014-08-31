@@ -4,21 +4,24 @@
  * and the methods used to interact with them.
  */
 
+typedef struct tile *tile;
+typedef struct grid *grid;
+
 struct tile {
-	struct tile *up;
-	struct tile *right;
-	struct tile *left;
-	struct tile *down;
+	tile up;
+	tile right;
+	tile left;
+	tile down;
+	unsigned int row;
+	unsigned int column;
 };
 
 struct grid {
-	struct tile *origin;
+	tile origin;
 	unsigned int height;
 	unsigned int width;
+	tile *lookup;
 };
-
-typedef struct tile *tile;
-typedef struct grid *grid;
 
 /* Allocates and initializes a new Grid.
  * 
@@ -31,3 +34,8 @@ grid new_grid(unsigned int width, unsigned int height);
 
 /* Deallocates a Grid. */
 void del_grid(grid g);
+
+/* Conveninece method for the lookup table.
+ * Returns the Tile located at the specified coordinates.
+ */
+tile grid_lookup(grid g, unsigned int row, unsigned int column);
