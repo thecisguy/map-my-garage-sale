@@ -6,6 +6,7 @@
 
 typedef struct tile *tile;
 typedef struct grid *grid;
+typedef struct stand *stand;
 
 struct tile {
 	tile up;
@@ -14,6 +15,8 @@ struct tile {
 	tile down;
 	unsigned int row;
 	unsigned int column;
+
+	stand s;
 };
 
 struct grid {

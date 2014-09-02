@@ -53,6 +53,8 @@ static tile new_tile(unsigned int row, unsigned int column) {
 	nt->row = row;
 	nt->column = column;
 
+	nt->stand = NULL;
+
 	return nt;
 
 out_nt:

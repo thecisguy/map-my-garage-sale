@@ -1,4 +1,5 @@
 #include "grid.h"
+#include <stdbool.h>
 
 struct stand {
 	grid g;
@@ -9,3 +10,5 @@ struct stand {
 	double blue;
 	double alpha;
 }
+
+bool apply(stand s, grid g);
