@@ -4,6 +4,9 @@
  * and the methods used to interact with them.
  */
 
+#ifndef GRID_H
+#define GRID_H
+
 typedef struct tile *tile;
 typedef struct grid *grid;
 
@@ -39,3 +42,5 @@ void del_grid(grid g);
  * Returns the Tile located at the specified coordinates.
  */
 tile grid_lookup(grid g, unsigned int row, unsigned int column);
+
+#endif
