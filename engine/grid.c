@@ -99,10 +99,10 @@ grid new_grid(unsigned int width, unsigned int height) {
 		// inner loop has something to work with
 		if (j == 0) {
 			// create origin tile
-			rightends[j] = ng->origin;
 			ng->origin = new_tile(j, 0);
 			if (ng->origin == NULL)
 				goto out_tiles;
+			rightends[j] = ng->origin;
 			ng->lookup[0] = ng->origin;
 			above = NULL;
 			farleft = ng->origin;
@@ -127,11 +127,12 @@ grid new_grid(unsigned int width, unsigned int height) {
 			if (n == NULL)
 				goto out_tiles;
 			n->up = above;
-			above->down = n;
+			if (above != NULL)
+				above->down = n;
 			t->right = n;
 			n->left = t;
 			t = n;
-			if (j != 0)
+			if (above != NULL)
 				above = above->right;
 		}
 	}
