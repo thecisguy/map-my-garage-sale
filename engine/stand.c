@@ -34,7 +34,7 @@ struct stand_template {
 
 struct stand {
 	// basic info
-	stand_template t;
+	stand_template source;
 	char *name;
 
 	// owning grid
@@ -47,7 +47,7 @@ struct stand {
 	double alpha;
 }
 
-stand new_stand(grid g, stand_template t, double red,
+stand new_stand(stand_template t, double red,
 		double green, double blue, double alpha) {
 	stand ns = malloc(sizeof(struct stand));
 	if (ns == NULL)
@@ -58,11 +58,13 @@ stand new_stand(grid g, stand_template t, double red,
 		goto out_name;
 	strcpy(ns->name, t->name);
 
-	ns->g = g;
+	ns->g = NULL;
 	ns->red = red;
 	ns->green = green;
 	ns->blue = blue;
 	ns->alpha = alpha;
+
+	ns->source = stand_template_copy(t);
 
 	return ns;
 
@@ -72,7 +74,12 @@ out_ns:;
 	return NULL;
 }
 
-bool do_apply(stand s, grid g);
+struct application_node {
+	tile t;
+	struct application_node *next;
+}
+
+bool do_apply(stand s, struct application_node *n);
 bool can_apply(stand s, grid g);
 
 bool rotateCW(grid g);
