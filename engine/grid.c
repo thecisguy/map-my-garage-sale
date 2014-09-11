@@ -204,3 +204,21 @@ tile grid_lookup(grid g, unsigned int row, unsigned int column) {
 
 	return g->lookup[row * g->width + column];
 }
+
+grid clone_grid(grid g) {
+	grid cg = new_grid(g->width, g->height);
+	if (cg = NULL)
+		goto out_cg;
+
+	// copy stand references
+	unsigned long num_tiles = g->width * g->height;
+	for (tile *old = g->lookup, tile *new = cg->lookup, unsigned long ti = 0;
+	     ti < num_tiles; old++, new++, ti++) {
+		(*new)->s = (*old->s);
+	}
+
+	return cg;
+
+	out_cg:;
+		return NULL;
+}

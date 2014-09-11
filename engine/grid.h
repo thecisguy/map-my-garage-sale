@@ -35,8 +35,17 @@ struct grid {
  * and height parameters for its dimensions.
  *
  * The resulting Grid will have width columns and height rows.
+ * 
+ * Returns NULL if space could not be allocated.
  */
 grid new_grid(unsigned int width, unsigned int height);
+
+/* Allocates and initializes a new Grid which is a clone of
+ * an existing one.
+ * 
+ * Returns NULL if space could not be allocated.
+ */
+grid clone_grid(grid g);
 
 /* Deallocates a Grid. */
 void del_grid(grid g);
