@@ -17,11 +17,12 @@ static MonoAssembly *main_assembly;
 int 
 main(int argc, char* argv[]) {
 	// initialize Mono runtime
-	const char *file = "main.exe";
+	const char *filename = "frontend.exe";
+	
 	int retval;
 	mono_config_parse (NULL);
-	main_domain = mono_jit_init (file);
-	main_assembly = mono_domain_assembly_open(main_domain, file);
+	main_domain = mono_jit_init (filename);
+	main_assembly = mono_domain_assembly_open(main_domain, filename);
 	if (!main_assembly)
 		exit (2);
 
@@ -41,28 +42,22 @@ main(int argc, char* argv[]) {
 }
 
 static MonoObject *get_color_of_tile(unsigned int row, unsigned int column) {
-	MonoImage *image = mono_image_loaded("Mono.Cairo");
-	MonoClass *cairo_color = mono_class_from_name(image, "Cairo", "Color");
-	MonoMethod *cairo_color_ctor =
-		mono_class_get_method_from_name(cairo_color, ".ctor", 4);
+
+	MonoImage *im = mono_assembly_get_image(main_assembly);
+
+	MonoClass *unmanaged_helpers =
+		mono_class_from_name(im, "helpers", "UnmanagedHelpers");
+	MonoMethod *cairo_color_helper =
+		mono_class_get_method_from_name(unmanaged_helpers, "createColor", 4);
 	
-	MonoObject *new_color = mono_object_new(main_domain, cairo_color);
-
-	void *cairo_color_ctor_args[4];
-	for (int i = 0; i < 4; i++) {
-//    MonoObject *new_double;// = mono_object_new(main_domain,
-		                       //                  mono_get_double_class());
-		//TODO:try to make double using Parse string
-
-	//	cairo_color_ctor_args[i] = new_double;
-/*		cairo_color_ctor_args[i] = malloc(sizeof(double));
-		*((double *)(cairo_color_ctor_args[i])) = 0.5; */
-	}
-
-	mono_runtime_invoke(cairo_color_ctor, new_color,
-	                     cairo_color_ctor_args, NULL);
-
-	return new_color;
+	void *cairo_color_helper_args[4];
+	cairo_color_helper_args[0] = &double1;
+	cairo_color_helper_args[1] = &double1;
+	cairo_color_helper_args[2] = &double1;
+	cairo_color_helper_args[3] = &double1;
+	
+	return mono_runtime_invoke(cairo_color_helper,
+	                           NULL, cairo_color_helper_args, NULL);
 }
 
 static void debug_print_mono_info(MonoObject *obj) {
