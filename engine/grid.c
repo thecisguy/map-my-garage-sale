@@ -35,9 +35,11 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "grid.h"
 
 static tile new_tile(unsigned int row, unsigned int column);
+static void rebuild_lookup(grid g);
 
 /* Creates a new tile on the heap, initializing its pointers to NULL */
 static tile new_tile(unsigned int row, unsigned int column) {
@@ -200,4 +202,82 @@ tile grid_lookup(grid g, unsigned int row, unsigned int column) {
 	assert(column < g->width);
 
 	return g->lookup[row * g->width + column];
+}
+
+void rotate_grid(grid g, bool clockwise) {
+	// iterate through each tile in the grid
+	unsigned long num_tiles = g->width * g->height;
+	unsigned long i = 0;
+	for(tile *t = g->lookup; i < num_tiles; t++, i++) {
+		tile cur = *t;
+
+		// rotation of the entire grid can be achieved
+		// by rotating each individual tile
+
+		if (clockwise) {
+			tile oldup = cur->up;
+			cur->up = cur->left;
+			cur->left = cur->down;
+			cur->down = cur->right;
+			cur->right = oldup;
+		} else {
+			tile oldup = cur->up;
+			cur->up = cur->right;
+			cur->right = cur->down;
+			cur->down = cur->left;
+			cur->left = oldup;
+		}
+	}
+
+	// now we need to update the Grid structure's members
+	unsigned int temp = g->height;
+	g->height = g->width;
+	g->width = temp;
+
+	if (clockwise) {
+		tile t = g->origin;
+		while(t->left != NULL)
+			t = t->left;
+		g->origin = t;
+	} else {
+		tile t = g->origin;
+		while(t->up != NULL)
+			t = t->up;
+		g->origin = t;
+	}
+
+	rebuild_lookup(g);
+}
+
+/* Rebuilds all lookup data in a grid.
+ * This includes the lookup table as well as the coordinates
+ * stored in each Tile.
+ */
+static void rebuild_lookup(grid g) {
+	// we need to go over each tile
+	// begin by scanning top-down
+	
+	unsigned int row = 0;
+	unsigned int column = 0;
+	tile l = g->origin;
+	while (l != NULL) {
+		tile below = l->down;
+
+		// in the inner loop, we scan left-right, and modify the
+		// members of the Tile and Grid structures
+		tile now = l;
+		while (now != NULL) {
+			now->row = row;
+			now->column = column;
+
+			g->lookup[row * g->width + column] = now;
+
+			now = now->right;
+			column++;
+		}
+
+		l = below;
+		row++;
+		column = 0;
+	}
 }

@@ -43,4 +43,7 @@ void del_grid(grid g);
  */
 tile grid_lookup(grid g, unsigned int row, unsigned int column);
 
+/* Rotates a grid 90 degrees */
+void rotate_grid_cw(grid g, bool clockwise);
+
 #endif
