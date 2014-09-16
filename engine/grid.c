@@ -11,7 +11,7 @@
  * Grid is a rectangular matrix of Tiles.
  *
  * A Grid can be traversed by first accessing its origin Tile,
- * its top-right corner tile. Each Tile contains pointers to its
+ * its top-left corner tile. Each Tile contains pointers to its
  * adjacent tiles.
  *
  * When referring to a specific Tile in a grid, the column of the Tile
