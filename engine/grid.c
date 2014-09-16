@@ -40,6 +40,7 @@
 
 static tile new_tile(unsigned int row, unsigned int column);
 static void rebuild_lookup(grid g);
+static void reset_origin(grid g);
 
 /* Creates a new tile on the heap, initializing its pointers to NULL */
 static tile new_tile(unsigned int row, unsigned int column) {
@@ -234,17 +235,7 @@ void rotate_grid(grid g, bool clockwise) {
 	g->height = g->width;
 	g->width = temp;
 
-	if (clockwise) {
-		tile t = g->origin;
-		while(t->left != NULL)
-			t = t->left;
-		g->origin = t;
-	} else {
-		tile t = g->origin;
-		while(t->up != NULL)
-			t = t->up;
-		g->origin = t;
-	}
+	reset_origin(g);
 
 	rebuild_lookup(g);
 }
@@ -280,4 +271,16 @@ static void rebuild_lookup(grid g) {
 		row++;
 		column = 0;
 	}
+}
+
+/* Finds the true origin tile, starting from the apparent origin
+ * and moving northeast. Sets the origin pointer to the found Tile.
+ */
+static void reset_origin(grid g) {
+	tile t = g->origin;
+	while(t->left != NULL)
+		t = t->left;
+	while(t->up != NULL)
+		t = t->up;
+	g->origin = t;
 }
