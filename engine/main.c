@@ -20,7 +20,7 @@ main(int argc, char* argv[]) {
 	// initialize Mono runtime
 	const char *filename = "frontend.exe";
 	
-	uint32_t retval;
+	int retval;
 	mono_config_parse (NULL);
 	main_domain = mono_jit_init (filename);
 	main_assembly = mono_domain_assembly_open(main_domain, filename);

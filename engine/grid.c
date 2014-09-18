@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "grid.h"
+#include "global.h"
 
 static tile new_tile(uint32_t row, uint32_t column);
 

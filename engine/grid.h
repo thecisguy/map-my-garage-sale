@@ -7,6 +7,8 @@
 #ifndef GRID_H
 #define GRID_H
 
+#include "global.h"
+
 typedef struct tile *tile;
 typedef struct grid *grid;
 typedef struct stand *stand;

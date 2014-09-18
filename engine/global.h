@@ -6,8 +6,6 @@
  */
 #include <mono/utils/mono-publib.h>
 
-#include "grid.h"
-
 /* Color constants are defined at the base level as integers between
  * 0-255 (HTML style). This makes it easier to modify the values. We
  * divide them by 255.0 to get the double in the range of 0.0 - 1.0
@@ -24,6 +22,6 @@
 
 #define TILE_EMPTY_ALPHA 1.0
 
-extern grid main_grid;
+extern struct grid *main_grid;
 
 #endif
