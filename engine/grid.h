@@ -16,16 +16,16 @@ struct tile {
 	tile right;
 	tile left;
 	tile down;
-	unsigned int row;
-	unsigned int column;
+	uint32_t row;
+	uint32_t column;
 
 	stand s;
 };
 
 struct grid {
 	tile origin;
-	unsigned int height;
-	unsigned int width;
+	uint32_t height;
+	uint32_t width;
 	tile *lookup;
 };
 
@@ -38,7 +38,7 @@ struct grid {
  * 
  * Returns NULL if space could not be allocated.
  */
-grid new_grid(unsigned int width, unsigned int height);
+grid new_grid(uint32_t width, uint32_t height);
 
 /* Allocates and initializes a new Grid which is a clone of
  * an existing one.
@@ -53,6 +53,6 @@ void del_grid(grid g);
 /* Conveninece method for the lookup table.
  * Returns the Tile located at the specified coordinates.
  */
-tile grid_lookup(grid g, unsigned int row, unsigned int column);
+tile grid_lookup(grid g, uint32_t row, uint32_t column);
 
 #endif

@@ -8,7 +8,7 @@
 #include "global.h"
 #include "stand.h"
 
-static MonoObject *get_color_of_tile(unsigned int row, unsigned int column);
+static MonoObject *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj); 
 
 grid main_grid;
@@ -20,7 +20,7 @@ main(int argc, char* argv[]) {
 	// initialize Mono runtime
 	const char *filename = "frontend.exe";
 	
-	int retval;
+	uint32_t retval;
 	mono_config_parse (NULL);
 	main_domain = mono_jit_init (filename);
 	main_assembly = mono_domain_assembly_open(main_domain, filename);
@@ -42,7 +42,7 @@ main(int argc, char* argv[]) {
 	return retval;
 }
 
-static MonoObject *get_color_of_tile(unsigned int row, unsigned int column) {
+static MonoObject *get_color_of_tile(uint32_t row, uint32_t column) {
 
 	MonoImage *im = mono_assembly_get_image(main_assembly);
 

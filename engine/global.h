@@ -1,6 +1,11 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+/* For mono typedefs: this header contains (usually stdint.h-style)
+ * aliases for C# primitives.
+ */
+#include <mono/utils/mono-publib.h>
+
 #include "grid.h"
 
 /* Color constants are defined at the base level as integers between

@@ -20,9 +20,10 @@
  * to aviod leaking them.
  */
 
-#include "grid.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include "global.h"
+#include "grid.h"
 #include "stand.h"
 
 struct stand_template {

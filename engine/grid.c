@@ -37,10 +37,10 @@
 #include <assert.h>
 #include "grid.h"
 
-static tile new_tile(unsigned int row, unsigned int column);
+static tile new_tile(uint32_t row, uint32_t column);
 
 /* Creates a new tile on the heap, initializing its pointers to NULL */
-static tile new_tile(unsigned int row, unsigned int column) {
+static tile new_tile(uint32_t row, uint32_t column) {
 	tile nt = malloc(sizeof(struct tile));
 	if (!nt)
 		goto out_nt;
@@ -61,7 +61,7 @@ out_nt:
 	return NULL;
 }
 
-grid new_grid(unsigned int width, unsigned int height) {
+grid new_grid(uint32_t width, uint32_t height) {
 	// test invariants
 	assert(width > 0);
 	assert(height > 0);
@@ -73,7 +73,7 @@ grid new_grid(unsigned int width, unsigned int height) {
 	 * are currently working on.
 	 */
 	tile rightends[height];
-	for (int i = 0; i < height; i++)
+	for (uint32_t i = 0; i < height; i++)
 		rightends[i] = NULL;
 
 	// allocate space for the struct grid and
@@ -91,7 +91,7 @@ grid new_grid(unsigned int width, unsigned int height) {
 
 	// Now we descend through the graph.
 	// Each pass through this loop completes a single row.
-	for (int j = 0; j < height; j++) {
+	for (uint32_t j = 0; j < height; j++) {
 		tile above;
 		tile farleft;
 
@@ -121,7 +121,7 @@ grid new_grid(unsigned int width, unsigned int height) {
 		// this inner loop constructs all of the columns in the row,
 		// extending from the tile we just created.
 		tile t = farleft;
-		for (int i = 1; i < width; i++, rightends[j] = t) {
+		for (uint32_t i = 1; i < width; i++, rightends[j] = t) {
 			tile n = new_tile(j, i);
 			ng->lookup[j * width + i] = n;
 			if (!n)
@@ -151,7 +151,7 @@ out_tiles:;
 	 * in the outer loop. However, in the inner loop, we move across
 	 * each row from right to left.
 	*/
-	int endi = 0;
+	uint32_t endi = 0;
 	while (rightends[endi] != NULL && endi < height) {
 		tile rend = rightends[endi];
 		while (rend != NULL) {
@@ -197,7 +197,7 @@ void del_grid(grid g) {
 	free(g);
 }
 
-tile grid_lookup(grid g, unsigned int row, unsigned int column) {
+tile grid_lookup(grid g, uint32_t row, uint32_t column) {
 	// test invariants
 	assert(row < g->height);
 	assert(column < g->width);
@@ -211,9 +211,9 @@ grid clone_grid(grid g) {
 		goto out_cg;
 
 	// copy stand references
-	unsigned long num_tiles = g->width * g->height;
+	uint64_t num_tiles = g->width * g->height;
 	tile *old, *new;
-	unsigned long ti;
+	uint64_t ti;
 	for (old = g->lookup, new = cg->lookup, ti = 0;
 	     ti < num_tiles; old++, new++, ti++) {
 		(*new)->s = (*old)->s;
