@@ -23,28 +23,12 @@
 #include "grid.h"
 #include <stdbool.h>
 #include <stdlib.h>
-
-typedef struct stand_template *stand_template;
+#include "stand.h"
 
 struct stand_template {
 	grid t;
 
 	char *name;
-}
-
-struct stand {
-	// basic info
-	stand_template source;
-	char *name;
-
-	// owning grid
-	grid g;
-
-	// color info
-	double red;
-	double green;
-	double blue;
-	double alpha;
 }
 
 stand new_stand(stand_template t, double red,
@@ -78,10 +62,3 @@ struct application_node {
 	tile t;
 	struct application_node *next;
 }
-
-bool do_apply(stand s, struct application_node *n);
-bool can_apply(stand s, grid g);
-
-bool rotateCW(grid g);
-bool rotateCCW(grid g);
-bool mirror(grid g);
