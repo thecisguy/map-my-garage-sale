@@ -6,6 +6,7 @@
 
 #include "grid.h"
 #include "global.h"
+#include "stand.h"
 
 static MonoObject *get_color_of_tile(unsigned int row, unsigned int column);
 static void debug_print_mono_info(MonoObject *obj); 
@@ -49,12 +50,26 @@ static MonoObject *get_color_of_tile(unsigned int row, unsigned int column) {
 		mono_class_from_name(im, "helpers", "UnmanagedHelpers");
 	MonoMethod *cairo_color_helper =
 		mono_class_get_method_from_name(unmanaged_helpers, "createColor", 4);
+
+	double red, blue, green, alpha;
+	stand s = grid_lookup(main_grid, row, column)->s;
+	if (s) {
+		red = s->red;
+		blue = s->blue;
+		green = s->green;
+		alpha = s->alpha;
+	} else {
+		red = TILE_EMPTY_RED;
+		green = TILE_EMPTY_GREEN;
+		blue = TILE_EMPTY_BLUE;
+		alpha = TILE_EMPTY_ALPHA;
+	}
 	
 	void *cairo_color_helper_args[4];
-	cairo_color_helper_args[0] = &double1;
-	cairo_color_helper_args[1] = &double1;
-	cairo_color_helper_args[2] = &double1;
-	cairo_color_helper_args[3] = &double1;
+	cairo_color_helper_args[0] = &red;
+	cairo_color_helper_args[1] = &green;
+	cairo_color_helper_args[2] = &blue;
+	cairo_color_helper_args[3] = &alpha;
 	
 	return mono_runtime_invoke(cairo_color_helper,
 	                           NULL, cairo_color_helper_args, NULL);

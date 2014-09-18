@@ -42,7 +42,7 @@ static tile new_tile(unsigned int row, unsigned int column);
 /* Creates a new tile on the heap, initializing its pointers to NULL */
 static tile new_tile(unsigned int row, unsigned int column) {
 	tile nt = malloc(sizeof(struct tile));
-	if (nt == NULL)
+	if (!nt)
 		goto out_nt;
 
 	nt->up = NULL;
@@ -79,14 +79,14 @@ grid new_grid(unsigned int width, unsigned int height) {
 	// allocate space for the struct grid and
 	// initialize its fields
 	grid ng = malloc(sizeof(struct grid));
-	if (ng == NULL)
+	if (!ng)
 		goto out_ng;
 	ng->origin = NULL;
 	ng->height = height;
 	ng->width = width;
 
 	ng->lookup = malloc(sizeof(tile *) * height * width);
-	if (ng->lookup == NULL)
+	if (!ng->lookup)
 		goto out_lookup;
 
 	// Now we descend through the graph.
@@ -100,7 +100,7 @@ grid new_grid(unsigned int width, unsigned int height) {
 		if (j == 0) {
 			// create origin tile
 			ng->origin = new_tile(j, 0);
-			if (ng->origin == NULL)
+			if (!ng->origin)
 				goto out_tiles;
 			rightends[j] = ng->origin;
 			ng->lookup[0] = ng->origin;
@@ -108,7 +108,7 @@ grid new_grid(unsigned int width, unsigned int height) {
 			farleft = ng->origin;
 		} else {
 			tile newrow = new_tile(j, 0);
-			if (newrow == NULL)
+			if (!newrow)
 				goto out_tiles;
 			ng->lookup[j * width] = newrow;
 			rightends[j] = newrow;
@@ -124,7 +124,7 @@ grid new_grid(unsigned int width, unsigned int height) {
 		for (int i = 1; i < width; i++, rightends[j] = t) {
 			tile n = new_tile(j, i);
 			ng->lookup[j * width + i] = n;
-			if (n == NULL)
+			if (!n)
 				goto out_tiles;
 			n->up = above;
 			if (above != NULL)
@@ -207,14 +207,16 @@ tile grid_lookup(grid g, unsigned int row, unsigned int column) {
 
 grid clone_grid(grid g) {
 	grid cg = new_grid(g->width, g->height);
-	if (cg = NULL)
+	if (!cg)
 		goto out_cg;
 
 	// copy stand references
 	unsigned long num_tiles = g->width * g->height;
-	for (tile *old = g->lookup, tile *new = cg->lookup, unsigned long ti = 0;
+	tile *old, *new;
+	unsigned long ti;
+	for (old = g->lookup, new = cg->lookup, ti = 0;
 	     ti < num_tiles; old++, new++, ti++) {
-		(*new)->s = (*old->s);
+		(*new)->s = (*old)->s;
 	}
 
 	return cg;

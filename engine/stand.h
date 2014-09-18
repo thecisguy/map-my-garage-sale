@@ -26,12 +26,14 @@ struct stand {
 	double green;
 	double blue;
 	double alpha;
-}
+};
 
 stand new_stand(stand_template t, double red,
 		double green, double blue, double alpha);
 
-bool do_apply(stand s, struct application_node *n);
+typedef struct application_node *application_node;
+
+bool do_apply(stand s, application_node n);
 bool can_apply(stand s, grid g);
 
 bool rotateCW(grid g);
