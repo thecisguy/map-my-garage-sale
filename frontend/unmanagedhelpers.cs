@@ -9,10 +9,9 @@ namespace helpers {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void DebugPrintMonoInfo(Object o);
 
-		static Cairo.Color createColor(double r, double b,
-		                               double g, double a) {
+		static Cairo.Color createColor(double r, double g,
+		                               double b, double a) {
 			return new Color(r, g, b, a);
 		}
 	}
-
 }

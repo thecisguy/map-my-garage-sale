@@ -3,12 +3,14 @@
 #include <mono/metadata/mono-config.h>
 #include <mono/metadata/assembly.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "grid.h"
 #include "global.h"
 #include "stand.h"
 
-static MonoObject *get_color_of_tile(uint32_t row, uint32_t column);
+static MonoObject *get_color_of_tile(MonoObject *o,
+                                     uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj); 
 
 grid main_grid;
@@ -42,7 +44,11 @@ main(int argc, char* argv[]) {
 	return retval;
 }
 
-static MonoObject *get_color_of_tile(uint32_t row, uint32_t column) {
+
+// TODO: find out why we are passed an object reference even though we
+// declared the function static in main.cs
+static MonoObject *get_color_of_tile(MonoObject *o,
+                                     uint32_t row, uint32_t column) {
 
 	MonoImage *im = mono_assembly_get_image(main_assembly);
 
@@ -50,7 +56,7 @@ static MonoObject *get_color_of_tile(uint32_t row, uint32_t column) {
 		mono_class_from_name(im, "helpers", "UnmanagedHelpers");
 	MonoMethod *cairo_color_helper =
 		mono_class_get_method_from_name(unmanaged_helpers, "createColor", 4);
-
+	
 	double red, blue, green, alpha;
 	stand s = grid_lookup(main_grid, row, column)->s;
 	if (s) {
@@ -70,9 +76,12 @@ static MonoObject *get_color_of_tile(uint32_t row, uint32_t column) {
 	cairo_color_helper_args[1] = &green;
 	cairo_color_helper_args[2] = &blue;
 	cairo_color_helper_args[3] = &alpha;
-	
-	return mono_runtime_invoke(cairo_color_helper,
-	                           NULL, cairo_color_helper_args, NULL);
+
+	MonoObject *exc = NULL;
+	MonoObject *color = mono_runtime_invoke(cairo_color_helper,
+	                           NULL, cairo_color_helper_args, &exc);
+	assert(!exc);
+	return color;
 }
 
 static void debug_print_mono_info(MonoObject *obj) {

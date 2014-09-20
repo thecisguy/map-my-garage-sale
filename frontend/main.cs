@@ -1,12 +1,12 @@
 using System;
 using System.Runtime.CompilerServices;
 using Cairo;
+using helpers;
 
 class MonoMain {
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
-	extern static Cairo.Color
-		getColorOfTile(uint row, uint column);
+	extern static Cairo.Color getColorOfTile(uint row, uint column);
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	extern static void DebugPrintMonoInfo(Object o);
