@@ -37,15 +37,16 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "grid.h"
+#include "global.h"
 
-static tile new_tile(unsigned int row, unsigned int column);
+static tile new_tile(uint32_t row, uint32_t column);
 static void rebuild_lookup(grid g);
 static void reset_origin(grid g);
 
 /* Creates a new tile on the heap, initializing its pointers to NULL */
-static tile new_tile(unsigned int row, unsigned int column) {
+static tile new_tile(uint32_t row, uint32_t column) {
 	tile nt = malloc(sizeof(struct tile));
-	if (nt == NULL)
+	if (!nt)
 		goto out_nt;
 
 	nt->up = NULL;
@@ -56,13 +57,15 @@ static tile new_tile(unsigned int row, unsigned int column) {
 	nt->row = row;
 	nt->column = column;
 
+	nt->s = NULL;
+
 	return nt;
 
 out_nt:
 	return NULL;
 }
 
-grid new_grid(unsigned int width, unsigned int height) {
+grid new_grid(uint32_t width, uint32_t height) {
 	// test invariants
 	assert(width > 0);
 	assert(height > 0);
@@ -74,25 +77,25 @@ grid new_grid(unsigned int width, unsigned int height) {
 	 * are currently working on.
 	 */
 	tile rightends[height];
-	for (int i = 0; i < height; i++)
+	for (uint32_t i = 0; i < height; i++)
 		rightends[i] = NULL;
 
 	// allocate space for the struct grid and
 	// initialize its fields
 	grid ng = malloc(sizeof(struct grid));
-	if (ng == NULL)
+	if (!ng)
 		goto out_ng;
 	ng->origin = NULL;
 	ng->height = height;
 	ng->width = width;
 
 	ng->lookup = malloc(sizeof(tile *) * height * width);
-	if (ng->lookup == NULL)
+	if (!ng->lookup)
 		goto out_lookup;
 
 	// Now we descend through the graph.
 	// Each pass through this loop completes a single row.
-	for (int j = 0; j < height; j++) {
+	for (uint32_t j = 0; j < height; j++) {
 		tile above;
 		tile farleft;
 
@@ -100,16 +103,16 @@ grid new_grid(unsigned int width, unsigned int height) {
 		// inner loop has something to work with
 		if (j == 0) {
 			// create origin tile
-			rightends[j] = ng->origin;
 			ng->origin = new_tile(j, 0);
-			if (ng->origin == NULL)
+			if (!ng->origin)
 				goto out_tiles;
+			rightends[j] = ng->origin;
 			ng->lookup[0] = ng->origin;
 			above = NULL;
 			farleft = ng->origin;
 		} else {
 			tile newrow = new_tile(j, 0);
-			if (newrow == NULL)
+			if (!newrow)
 				goto out_tiles;
 			ng->lookup[j * width] = newrow;
 			rightends[j] = newrow;
@@ -122,17 +125,18 @@ grid new_grid(unsigned int width, unsigned int height) {
 		// this inner loop constructs all of the columns in the row,
 		// extending from the tile we just created.
 		tile t = farleft;
-		for (int i = 1; i < width; i++, rightends[j] = t) {
+		for (uint32_t i = 1; i < width; i++, rightends[j] = t) {
 			tile n = new_tile(j, i);
 			ng->lookup[j * width + i] = n;
-			if (n == NULL)
+			if (!n)
 				goto out_tiles;
 			n->up = above;
-			above->down = n;
+			if (above != NULL)
+				above->down = n;
 			t->right = n;
 			n->left = t;
 			t = n;
-			if (j != 0)
+			if (above != NULL)
 				above = above->right;
 		}
 	}
@@ -151,7 +155,7 @@ out_tiles:;
 	 * in the outer loop. However, in the inner loop, we move across
 	 * each row from right to left.
 	*/
-	int endi = 0;
+	uint32_t endi = 0;
 	while (rightends[endi] != NULL && endi < height) {
 		tile rend = rightends[endi];
 		while (rend != NULL) {
@@ -197,7 +201,7 @@ void del_grid(grid g) {
 	free(g);
 }
 
-tile grid_lookup(grid g, unsigned int row, unsigned int column) {
+tile grid_lookup(grid g, uint32_t row, uint32_t column) {
 	// test invariants
 	assert(row < g->height);
 	assert(column < g->width);
@@ -283,4 +287,24 @@ static void reset_origin(grid g) {
 	while(t->up != NULL)
 		t = t->up;
 	g->origin = t;
+}
+
+grid clone_grid(grid g) {
+	grid cg = new_grid(g->width, g->height);
+	if (!cg)
+		goto out_cg;
+
+	// copy stand references
+	uint64_t num_tiles = g->width * g->height;
+	tile *old, *new;
+	uint64_t ti;
+	for (old = g->lookup, new = cg->lookup, ti = 0;
+	     ti < num_tiles; old++, new++, ti++) {
+		(*new)->s = (*old)->s;
+	}
+
+	return cg;
+
+	out_cg:;
+		return NULL;
 }
