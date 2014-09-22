@@ -15,7 +15,7 @@ typedef struct stand_template *stand_template;
 
 struct stand {
 	// basic info
-	stand_template source;
+	grid source;
 	char *name;
 
 	// owning grid
