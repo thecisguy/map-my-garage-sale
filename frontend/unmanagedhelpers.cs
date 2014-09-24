@@ -2,9 +2,9 @@ using System;
 using System.Runtime.CompilerServices;
 using Cairo;
 
-namespace helpers {
+namespace api {
 
-	class UnmanagedHelpers {
+	class EngineAPI {
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void DebugPrintMonoInfo(Object o);

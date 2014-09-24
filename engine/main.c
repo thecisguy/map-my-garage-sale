@@ -53,7 +53,7 @@ static MonoObject *get_color_of_tile(MonoObject *o,
 	MonoImage *im = mono_assembly_get_image(main_assembly);
 
 	MonoClass *unmanaged_helpers =
-		mono_class_from_name(im, "helpers", "UnmanagedHelpers");
+		mono_class_from_name(im, "api", "EngineAPI");
 	MonoMethod *cairo_color_helper =
 		mono_class_get_method_from_name(unmanaged_helpers, "createColor", 4);
 	
