@@ -10,8 +10,7 @@
 #include "global.h"
 #include "stand.h"
 
-static MonoArray *get_color_of_tile(MonoObject *o,
-                                     uint32_t row, uint32_t column);
+static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj); 
 
 grid main_grid;
@@ -46,11 +45,7 @@ main(int argc, char* argv[]) {
 	return retval;
 }
 
-
-// TODO: find out why we are passed an object reference even though we
-// declared the function static in unmanagedhelpers.cs
-static MonoArray *get_color_of_tile(MonoObject *o,
-                                     uint32_t row, uint32_t column) {
+static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
 	double red, blue, green, alpha;
 	stand s = grid_lookup(main_grid, row, column)->s;
