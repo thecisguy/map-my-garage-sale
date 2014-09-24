@@ -6,15 +6,12 @@ using api;
 class MonoMain {
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
-	extern static Cairo.Color getColorOfTile(uint row, uint column);
-
-	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	extern static void DebugPrintMonoInfo(Object o);
 
 	static void Main() {
 		uint row = 5;
 		uint column = 7;
-		Cairo.Color nc = getColorOfTile(row, column);
+		Cairo.Color nc = EngineAPI.getColorOfTile(row, column);
 		DebugPrintMonoInfo(nc);
 		Console.WriteLine();
 		Console.WriteLine("Printing Color Info:");

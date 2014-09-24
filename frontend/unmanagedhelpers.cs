@@ -7,11 +7,11 @@ namespace api {
 	class EngineAPI {
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
-		extern static void DebugPrintMonoInfo(Object o);
+		extern static double[] getColorOfTileRaw(uint row, uint column);
 
-		static Cairo.Color createColor(double r, double g,
-		                               double b, double a) {
-			return new Color(r, g, b, a);
+		public static Cairo.Color getColorOfTile(uint row, uint column) {
+			double[] data = getColorOfTileRaw(row, column);
+			return new Color(data[0], data[1], data[2], data[3]);
 		}
 	}
 }

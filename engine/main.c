@@ -1,5 +1,6 @@
 #include <mono/jit/jit.h>
 #include <mono/metadata/environment.h>
+#include <mono/metadata/object.h>
 #include <mono/metadata/mono-config.h>
 #include <mono/metadata/assembly.h>
 #include <stdlib.h>
@@ -9,7 +10,7 @@
 #include "global.h"
 #include "stand.h"
 
-static MonoObject *get_color_of_tile(MonoObject *o,
+static MonoArray *get_color_of_tile(MonoObject *o,
                                      uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj); 
 
@@ -33,7 +34,8 @@ main(int argc, char* argv[]) {
 	main_grid = new_grid(100u, 100u);
 
 	// register internal calls
-	mono_add_internal_call("MonoMain::getColorOfTile", get_color_of_tile);
+	mono_add_internal_call("api.EngineAPI::getColorOfTileRaw",
+	                       get_color_of_tile);
 	mono_add_internal_call("MonoMain::DebugPrintMonoInfo",
 	                       debug_print_mono_info);
 
@@ -46,16 +48,9 @@ main(int argc, char* argv[]) {
 
 
 // TODO: find out why we are passed an object reference even though we
-// declared the function static in main.cs
-static MonoObject *get_color_of_tile(MonoObject *o,
+// declared the function static in unmanagedhelpers.cs
+static MonoArray *get_color_of_tile(MonoObject *o,
                                      uint32_t row, uint32_t column) {
-
-	MonoImage *im = mono_assembly_get_image(main_assembly);
-
-	MonoClass *unmanaged_helpers =
-		mono_class_from_name(im, "api", "EngineAPI");
-	MonoMethod *cairo_color_helper =
-		mono_class_get_method_from_name(unmanaged_helpers, "createColor", 4);
 	
 	double red, blue, green, alpha;
 	stand s = grid_lookup(main_grid, row, column)->s;
@@ -70,18 +65,14 @@ static MonoObject *get_color_of_tile(MonoObject *o,
 		blue = TILE_EMPTY_BLUE;
 		alpha = TILE_EMPTY_ALPHA;
 	}
-	
-	void *cairo_color_helper_args[4];
-	cairo_color_helper_args[0] = &red;
-	cairo_color_helper_args[1] = &green;
-	cairo_color_helper_args[2] = &blue;
-	cairo_color_helper_args[3] = &alpha;
 
-	MonoObject *exc = NULL;
-	MonoObject *color = mono_runtime_invoke(cairo_color_helper,
-	                           NULL, cairo_color_helper_args, &exc);
-	assert(!exc);
-	return color;
+	MonoArray *data = mono_array_new(main_domain, mono_get_double_class(), 4);
+	mono_array_set(data, double, 0, red);
+	mono_array_set(data, double, 1, green);
+	mono_array_set(data, double, 2, blue);
+	mono_array_set(data, double, 3, alpha);
+	
+	return data;
 }
 
 static void debug_print_mono_info(MonoObject *obj) {
