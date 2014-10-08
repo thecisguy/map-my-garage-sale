@@ -45,5 +45,7 @@
 #define TILE_EMPTY_ALPHA 1.0
 
 extern struct grid *main_grid;
+extern MonoDomain *main_domain;
+extern MonoAssembly *main_assembly;
 
 #endif
