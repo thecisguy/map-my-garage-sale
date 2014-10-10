@@ -1,8 +1,7 @@
-/* stand.h
+/* csapi.cs
  *
- * Declares the Stand structure
- * and the methods used to interact with it.
- * 
+ * Contains the C# end of the engine-frontend communictation API.
+ *
  * Copyright (C) 2014 - Blake Lowe, Jordan Polaniec
  *
  * This file is part of Map My Garage Sale.
@@ -21,40 +20,20 @@
  * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STAND_H
-#define STAND_H
+using System;
+using System.Runtime.CompilerServices;
+using Cairo;
 
-#include "grid.h"
-#include <stdbool.h>
-#include <stdlib.h>
+namespace api {
 
-typedef struct stand_template *stand_template;
+	class EngineAPI {
 
-struct stand {
-	// basic info
-	grid source;
-	char *name;
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static double[] getColorOfTileRaw(uint row, uint column);
 
-	// owning grid
-	grid g;
-
-	// color info
-	double red;
-	double green;
-	double blue;
-	double alpha;
-};
-
-stand new_stand(stand_template t, double red,
-		double green, double blue, double alpha);
-
-typedef struct application_node *application_node;
-
-bool do_apply(stand s, application_node n);
-bool can_apply(stand s, grid g);
-
-bool rotateCW(grid g);
-bool rotateCCW(grid g);
-bool mirror(grid g);
-
-#endif
+		public static Cairo.Color getColorOfTile(uint row, uint column) {
+			double[] data = getColorOfTileRaw(row, column);
+			return new Color(data[0], data[1], data[2], data[3]);
+		}
+	}
+}

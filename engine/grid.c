@@ -31,6 +31,23 @@
  * All of the memory occupied by a Grid exists on the heap.
  * You must destroy a Grid by calling its destructor to avoid
  * leaking it.
+ * 
+ * Copyright (C) 2014 - Blake Lowe, Jordan Polaniec
+ *
+ * This file is part of Map My Garage Sale.
+ * 
+ * Map My Garage Sale is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Map My Garage Sale is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdlib.h>
@@ -211,8 +228,8 @@ tile grid_lookup(grid g, uint32_t row, uint32_t column) {
 
 void rotate_grid(grid g, bool clockwise) {
 	// iterate through each tile in the grid
-	unsigned long num_tiles = g->width * g->height;
-	unsigned long i = 0;
+	uint64_t num_tiles = g->width * g->height;
+	uint64_t i = 0;
 	for(tile *t = g->lookup; i < num_tiles; t++, i++) {
 		tile cur = *t;
 
@@ -235,7 +252,7 @@ void rotate_grid(grid g, bool clockwise) {
 	}
 
 	// now we need to update the Grid structure's members
-	unsigned int temp = g->height;
+	uint32_t temp = g->height;
 	g->height = g->width;
 	g->width = temp;
 
@@ -252,16 +269,16 @@ static void rebuild_lookup(grid g) {
 	// we need to go over each tile
 	// begin by scanning top-down
 	
-	unsigned int row = 0;
-	unsigned int column = 0;
+	uint32_t row = 0;
+	uint32_t column = 0;
 	tile l = g->origin;
-	while (l != NULL) {
+	while (l) {
 		tile below = l->down;
 
 		// in the inner loop, we scan left-right, and modify the
 		// members of the Tile and Grid structures
 		tile now = l;
-		while (now != NULL) {
+		while (now) {
 			now->row = row;
 			now->column = column;
 
@@ -282,9 +299,9 @@ static void rebuild_lookup(grid g) {
  */
 static void reset_origin(grid g) {
 	tile t = g->origin;
-	while(t->left != NULL)
+	while(t->left)
 		t = t->left;
-	while(t->up != NULL)
+	while(t->up)
 		t = t->up;
 	g->origin = t;
 }
