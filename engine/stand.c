@@ -58,7 +58,7 @@ struct application_node {
 	struct application_node *next;
 };
 
-static del_application_list(application_node *n);
+static void del_application_list(application_node n);
 
 stand new_stand(stand_template tem, double red,
 		double green, double blue, double alpha) {
@@ -91,3 +91,10 @@ out_ns:;
 	return NULL;
 }
 
+static void del_application_list(application_node n) {
+	while (n) {
+		application_node next = n->next;
+		free(n);
+		n = next;
+	}
+}
