@@ -48,9 +48,7 @@ struct stand {
 stand new_stand(stand_template t, double red,
 		double green, double blue, double alpha);
 
-typedef struct application_node *application_node;
-
-bool do_apply(stand s, application_node n);
+void do_apply(stand s);
 bool can_apply(stand s, grid g);
 
 bool rotateCW(grid g);

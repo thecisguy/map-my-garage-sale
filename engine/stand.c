@@ -51,6 +51,15 @@ struct stand_template {
 	char *name;
 };
 
+typedef struct application_node *application_node;
+
+struct application_node {
+	tile t;
+	struct application_node *next;
+};
+
+static del_application_list(application_node *n);
+
 stand new_stand(stand_template tem, double red,
 		double green, double blue, double alpha) {
 	stand ns = malloc(sizeof(struct stand));
@@ -82,7 +91,3 @@ out_ns:;
 	return NULL;
 }
 
-struct application_node {
-	tile t;
-	struct application_node *next;
-};
