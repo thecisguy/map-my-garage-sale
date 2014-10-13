@@ -23,6 +23,9 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+// important mono types
+#include <mono/jit/jit.h>
+
 /* For mono typedefs: this header contains (usually stdint.h-style)
  * aliases for C# primitives.
  */
