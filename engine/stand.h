@@ -29,6 +29,7 @@
 #include <stdlib.h>
 
 typedef struct stand_template *stand_template;
+typedef struct application_node *application_node;
 
 struct stand {
 	// basic info
@@ -43,13 +44,16 @@ struct stand {
 	double green;
 	double blue;
 	double alpha;
+
+	// applicable list, added by can_apply and removed by do_apply
+	application_node list;
 };
 
 stand new_stand(stand_template t, double red,
 		double green, double blue, double alpha);
 
 void do_apply(stand s);
-bool can_apply(stand s, grid g);
+bool can_apply(stand s, grid g, int64_t row, int64_t column);
 
 bool rotateCW(grid g);
 bool rotateCCW(grid g);

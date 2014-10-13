@@ -51,8 +51,6 @@ struct stand_template {
 	char *name;
 };
 
-typedef struct application_node *application_node;
-
 struct application_node {
 	tile t;
 	struct application_node *next;
@@ -76,6 +74,7 @@ stand new_stand(stand_template tem, double red,
 	ns->green = green;
 	ns->blue = blue;
 	ns->alpha = alpha;
+	ns->list = NULL;
 
 	ns->source = clone_grid(tem->t);
 	if (!ns->source)
@@ -91,10 +90,79 @@ out_ns:;
 	return NULL;
 }
 
+/* Frees the memory allocated by an application list.
+ * 
+ * Note: this function does not set the pointer in any owning
+ * Stand (if one exists) to NULL. This is the caller's responsibility.
+ */
 static void del_application_list(application_node n) {
 	while (n) {
 		application_node next = n->next;
 		free(n);
 		n = next;
 	}
+}
+
+/* Checks the applicability of Stand s onto Grid g at the specified
+ * coordinates, and prepares a list which can be immediately consumed
+ * by do_apply if successful.
+ * 
+ * The Stand will be applied such that the origin tile of its source Grid
+ * lies overtop of the given coordinates.
+ * 
+ * The specified coordinates CAN specify an off-the-grid location, though
+ * it is illegal to specify a set of coordinates such that any tile of the
+ * Stand lies off the Grid.
+ * 
+ * If the generation of the application list fails for any reason, this
+ * function will return false.
+ */
+bool can_apply(restrict stand s, restrict grid g,
+               int64_t row, int64_t column) {
+	application_node head = NULL;
+	application_node tail = NULL;
+	
+	for (uint32_t cur_row = 0; cur_row < s->source->height; cur_row++) {
+		for (uint32_t cur_column = 0; cur_column < s->source->width;
+		     cur_column++) {
+			tile from = grid_lookup(s->source, cur_row, cur_column);
+			if (!from->s) // stand does not occupy this tile
+				continue;
+			int64_t target_row = row + cur_row;
+			int64_t target_column = column + cur_column;
+			if (target_row < 0 || target_row >= g->height
+			    || target_column < 0 || target_column >= g->width)
+				goto out_fail; // target tile is off the grid
+			tile to = grid_lookup(g, target_row, target_column);
+			if (to->s) // another stand occupies this tile
+				goto out_fail;
+			
+			// stand CAN be applied here
+			if (!head) {
+				head = (application_node)
+					malloc(sizeof(struct application_node));
+				if (!head) // out of mem
+					goto out_fail;
+				tail = head;
+				head->t = to;
+			} else {
+				tail->next = (application_node)
+					malloc(sizeof(struct application_node));
+				if (!tail->next) // out of mem
+					goto out_fail;
+				tail = tail->next;
+				tail->t = to;
+			}
+		}
+	}
+
+	if (s->list)
+		del_application_list(s->list);
+
+	s->list = head;
+	return true;
+
+	out_fail:
+		del_application_list(head);
+		return false;
 }
