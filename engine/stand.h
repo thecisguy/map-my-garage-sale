@@ -60,7 +60,6 @@ stand new_stand(stand_template t, double red,
 void do_apply(stand s);
 bool can_apply(restrict stand s, restrict grid g,
                int64_t row, int64_t column);
-void remove_stand(stand s);
 
 void rotate_stand(stand s, bool clockwise);
 bool mirror(grid g);

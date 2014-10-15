@@ -70,6 +70,7 @@ struct application_data {
 
 static void del_application_list(application_node n);
 static void del_application_data(application_data appd);
+static void remove_stand(stand s);
 
 stand new_stand(stand_template tem, double red,
 		double green, double blue, double alpha) {
@@ -240,7 +241,7 @@ void do_apply(stand s) {
  * to a Grid, the caller should perform this operation to signify to
  * other functions that this is an unowned Stand.
  */
-void remove_stand(stand s) {
+static void remove_stand(stand s) {
 	assert(s);
 	
 	// we use the Stand's source dimensions to restrict the
