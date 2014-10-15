@@ -58,7 +58,8 @@ stand new_stand(stand_template t, double red,
 		double green, double blue, double alpha);
 
 void do_apply(stand s);
-bool can_apply(stand s, grid g, int64_t row, int64_t column);
+bool can_apply(restrict stand s, restrict grid g,
+               int64_t row, int64_t column);
 
 bool rotateCW(grid g);
 bool rotateCCW(grid g);
