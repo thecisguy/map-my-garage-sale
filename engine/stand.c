@@ -41,6 +41,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "global.h"
 #include "grid.h"
 #include "stand.h"
@@ -60,6 +61,8 @@ static void del_application_list(application_node n);
 
 stand new_stand(stand_template tem, double red,
 		double green, double blue, double alpha) {
+	assert(tem);
+	
 	stand ns = malloc(sizeof(struct stand));
 	if (!ns)
 		goto out_ns;
@@ -119,6 +122,9 @@ static void del_application_list(application_node n) {
  */
 bool can_apply(restrict stand s, restrict grid g,
                int64_t row, int64_t column) {
+	assert(s);
+	assert(g);
+	
 	application_node head = NULL;
 	application_node tail = NULL;
 	
@@ -179,6 +185,8 @@ bool can_apply(restrict stand s, restrict grid g,
  * necessary parameter.
  */
 void do_apply(stand s) {
+	assert(s);
+	
 	if (!s->list)
 		return;
 

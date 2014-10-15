@@ -194,6 +194,8 @@ out_ng:;
 }
 
 void del_grid(grid g) {
+	assert(g);
+	
 	/* we need to free every tile, then the lookup table,
 	 * then the struct grid itself
 	 * in the outer loop, we scan top-down
@@ -220,6 +222,7 @@ void del_grid(grid g) {
 
 tile grid_lookup(grid g, uint32_t row, uint32_t column) {
 	// test invariants
+	assert(g);
 	assert(row < g->height);
 	assert(column < g->width);
 
@@ -227,6 +230,8 @@ tile grid_lookup(grid g, uint32_t row, uint32_t column) {
 }
 
 void rotate_grid(grid g, bool clockwise) {
+	assert(g);
+	
 	// iterate through each tile in the grid
 	uint64_t num_tiles = g->width * g->height;
 	uint64_t i = 0;
@@ -266,6 +271,8 @@ void rotate_grid(grid g, bool clockwise) {
  * stored in each Tile.
  */
 static void rebuild_lookup(grid g) {
+	assert(g);
+	
 	// we need to go over each tile
 	// begin by scanning top-down
 	
@@ -298,6 +305,8 @@ static void rebuild_lookup(grid g) {
  * and moving northeast. Sets the origin pointer to the found Tile.
  */
 static void reset_origin(grid g) {
+	assert(g);
+	
 	tile t = g->origin;
 	while(t->left)
 		t = t->left;
