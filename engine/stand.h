@@ -24,9 +24,9 @@
 #ifndef STAND_H
 #define STAND_H
 
-#include "grid.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include "grid.h"
 
 typedef struct stand_template *stand_template;
 typedef struct application_data *application_data;
@@ -62,8 +62,7 @@ bool can_apply(restrict stand s, restrict grid g,
                int64_t row, int64_t column);
 void remove_stand(stand s);
 
-bool rotateCW(grid g);
-bool rotateCCW(grid g);
+void rotate_stand(stand s, bool clockwise);
 bool mirror(grid g);
 
 #endif

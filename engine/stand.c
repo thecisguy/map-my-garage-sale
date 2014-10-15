@@ -16,6 +16,10 @@
  * a square. In addition, new Stand Templates can be defined by
  * scanning a Grid for a Stand, and recreating it upon a new Grid. Again,
  * the new Grid must be the minimum boundung box of its shape.
+ * 
+ * Stands are owned by a Grid; it is illegal for Tiles on different Grids to
+ * have references to the same Stand instance at any given time (instead you
+ * should make a new Stand from the original Stand Template).
  *
  * Stands and Stand Templates exist on the heap, and must be destroyed
  * to aviod leaking them.
@@ -228,7 +232,14 @@ void do_apply(stand s) {
 	del_application_data(s->appd);
 	s->appd = NULL;
 }
- /* Removes a Stand from the Grid it is applied to. */
+
+ /* Removes a Stand from the Grid it is applied to.
+ * 
+ * NOTE: This function does not set the owning grid reference in
+ * the Stand to NULL. If the Stand is not to be immediately re-applied
+ * to a Grid, the caller should perform this operation to signify to
+ * other functions that this is an unowned Stand.
+ */
 void remove_stand(stand s) {
 	assert(s);
 	
@@ -243,4 +254,30 @@ void remove_stand(stand s) {
 				t->s = NULL;
 		}
 	}
+}
+
+/* Rotates a Stand applied to a Grid.
+ * 
+ * The Stand is rotated about its approximate center. To be exact, the source
+ * grid of the Stand is rotated, then the Stand is re-checked for applicability
+ * at the same point it was previously applied.
+ * 
+ * The rotation is 90 degrees in the specified direction if no problems occur.
+ * However, if the Stand cannot be re-applied to the Grid in its
+ * new permutation (for example, if the rotated version falls off the Grid
+ * or collides with another Stand), the Stand will be rotated again in the same
+ * direction, and so on until a fit is found.
+ * 
+ * Naturally, this loop ends with the fourth rotation, which produces the
+ * original Stand, which was the one on the Grid in the first place.
+ */
+void rotate_stand(stand s, bool clockwise) {
+	assert(s);
+
+	remove_stand(s);
+	do {
+		rotate_grid(s->source, clockwise);
+	} while (!can_apply(s, s->g, s->row, s->column));
+
+	do_apply(s);
 }
