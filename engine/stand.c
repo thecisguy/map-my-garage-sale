@@ -9,7 +9,7 @@
  * When examining a Grid, each Stand can be uniqely identified by its
  * pointer. Stands may not overlap one another.
  *
- * Stands can be constructed from pre-existing Stand Templates. Stand
+ * Stands are constructed from pre-existing Stand Templates. Stand
  * Templates include a small Grid over which its shape is applied. This
  * Grid is only large enough to serve as the minimum bounding-
  * box of its shape, plus enough added rows and columns to make the template
@@ -227,4 +227,20 @@ void do_apply(stand s) {
 
 	del_application_data(s->appd);
 	s->appd = NULL;
+}
+ /* Removes a Stand from the Grid it is applied to. */
+void remove_stand(stand s) {
+	assert(s);
+	
+	// we use the Stand's source dimensions to restrict the
+	// search space on the applied Grid
+	uint32_t end_row = s->row + s->source->height;
+	uint32_t end_column = s->column + s->source->width;
+	for (uint32_t row = s->row; row < end_row; row++) {
+		for (uint32_t column = s->column; column < end_column; column++) {
+			tile t = grid_lookup(s->g, row, column);
+			if (t->s == s)
+				t->s = NULL;
+		}
+	}
 }

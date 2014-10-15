@@ -70,7 +70,7 @@ grid clone_grid(grid g);
 /* Deallocates a Grid. */
 void del_grid(grid g);
 
-/* Conveninece method for the lookup table.
+/* Convenience method for the lookup table.
  * Returns the Tile located at the specified coordinates.
  */
 tile grid_lookup(grid g, uint32_t row, uint32_t column);
