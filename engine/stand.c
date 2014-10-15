@@ -166,3 +166,28 @@ bool can_apply(restrict stand s, restrict grid g,
 		del_application_list(head);
 		return false;
 }
+
+/* Actually applies a Stand onto a Grid.
+ * 
+ * Before calling this function, you must make a call to can_apply,
+ * which checks the applicability of the Stand at the desired coordinates.
+ * (this function does nothing if can_apply has not been run since the
+ * last call to do_apply)
+ * 
+ * This function uses a list produced by can_apply which contains placement
+ * information to do its work, which is why the Stand to be applied is the only
+ * necessary parameter.
+ */
+void do_apply(stand s) {
+	if (!s->list)
+		return;
+
+	application_node n = s->list;
+	while (n) {
+		n->t->s = s;
+		n = n->next;
+	}
+
+	del_application_list(s->list);
+	s->list = NULL;
+}
