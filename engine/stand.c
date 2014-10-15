@@ -52,12 +52,20 @@ struct stand_template {
 	char *name;
 };
 
-struct application_node {
+typedef struct application_node {
 	tile t;
 	struct application_node *next;
+} *application_node;
+
+struct application_data {
+	int64_t row;
+	int64_t column;
+	grid g;
+	struct application_node *head;
 };
 
 static void del_application_list(application_node n);
+static void del_application_data(application_data appd);
 
 stand new_stand(stand_template tem, double red,
 		double green, double blue, double alpha) {
@@ -77,7 +85,7 @@ stand new_stand(stand_template tem, double red,
 	ns->green = green;
 	ns->blue = blue;
 	ns->alpha = alpha;
-	ns->list = NULL;
+	ns->appd = NULL;
 
 	ns->source = clone_grid(tem->t);
 	if (!ns->source)
@@ -93,11 +101,7 @@ out_ns:;
 	return NULL;
 }
 
-/* Frees the memory allocated by an application list.
- * 
- * Note: this function does not set the pointer in any owning
- * Stand (if one exists) to NULL. This is the caller's responsibility.
- */
+/* Frees the memory allocated by an application list. */
 static void del_application_list(application_node n) {
 	while (n) {
 		application_node next = n->next;
@@ -106,8 +110,20 @@ static void del_application_list(application_node n) {
 	}
 }
 
+/* Frees the memory allocated by application data.
+ * 
+ * Note: this function does not set the pointer in any owning
+ * Stand (if one exists) to NULL. This is the caller's responsibility.
+ */
+static void del_application_data(application_data appd) {
+	assert(appd);
+
+	del_application_list(appd->head);
+	free(appd);
+}
+
 /* Checks the applicability of Stand s onto Grid g at the specified
- * coordinates, and prepares a list which can be immediately consumed
+ * coordinates, and prepares data which can be immediately consumed
  * by do_apply if successful.
  * 
  * The Stand will be applied such that the origin tile of its source Grid
@@ -117,7 +133,7 @@ static void del_application_list(application_node n) {
  * it is illegal to specify a set of coordinates such that any tile of the
  * Stand lies off the Grid.
  * 
- * If the generation of the application list fails for any reason, this
+ * If the generation of the application data fails for any reason, this
  * function will return false.
  */
 bool can_apply(restrict stand s, restrict grid g,
@@ -162,10 +178,19 @@ bool can_apply(restrict stand s, restrict grid g,
 		}
 	}
 
-	if (s->list)
-		del_application_list(s->list);
+	application_data out =
+		(application_data) malloc(sizeof(struct application_data));
+	if (!out)
+		goto out_fail;
 
-	s->list = head;
+	if (s->appd)
+		del_application_data(s->appd);
+
+	out->row = row;
+	out->column = column;
+	out->head = head;
+	out->g = g;
+	s->appd = out;
 	return true;
 
 	out_fail:
@@ -180,22 +205,26 @@ bool can_apply(restrict stand s, restrict grid g,
  * (this function does nothing if can_apply has not been run since the
  * last call to do_apply)
  * 
- * This function uses a list produced by can_apply which contains placement
+ * This function uses data produced by can_apply which contains placement
  * information to do its work, which is why the Stand to be applied is the only
  * necessary parameter.
  */
 void do_apply(stand s) {
 	assert(s);
 	
-	if (!s->list)
+	if (!s->appd)
 		return;
 
-	application_node n = s->list;
+	application_node n = s->appd->head;
 	while (n) {
 		n->t->s = s;
 		n = n->next;
 	}
 
-	del_application_list(s->list);
-	s->list = NULL;
+	s->row = s->appd->row;
+	s->column = s->appd->column;
+	s->g = s->appd->g;
+
+	del_application_data(s->appd);
+	s->appd = NULL;
 }

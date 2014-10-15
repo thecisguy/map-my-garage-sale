@@ -29,15 +29,20 @@
 #include <stdlib.h>
 
 typedef struct stand_template *stand_template;
-typedef struct application_node *application_node;
+typedef struct application_data *application_data;
 
 struct stand {
 	// basic info
 	grid source;
 	char *name;
 
-	// owning grid
+	// owning grid & location info
+	// NOTE: no sentinal values are used for row or column;
+	//       you should rely on the existence of g to test if
+	//       a Stand is applied to a Grid yet.
 	grid g;
+	int64_t row;
+	int64_t column;
 
 	// color info
 	double red;
@@ -45,8 +50,8 @@ struct stand {
 	double blue;
 	double alpha;
 
-	// applicable list, added by can_apply and removed by do_apply
-	application_node list;
+	// applicable data, added by can_apply and removed by do_apply
+	application_data appd;
 };
 
 stand new_stand(stand_template t, double red,
