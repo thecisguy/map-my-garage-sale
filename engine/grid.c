@@ -334,3 +334,26 @@ grid clone_grid(grid g) {
 	out_cg:;
 		return NULL;
 }
+
+void mirror_grid(grid g) {
+	assert(g);
+	
+	// iterate through each tile in the grid
+	uint64_t num_tiles = g->width * g->height;
+	uint64_t i = 0;
+	for(tile *t = g->lookup; i < num_tiles; t++, i++) {
+		tile cur = *t;
+
+		// reflection of the entire grid can be achieved
+		// by flipping the left-right pointers of each
+		// individual tile
+
+		tile temp = cur->left;
+		cur->left = cur->right;
+		cur->right = temp;
+	}
+
+	// now we need to update the Grid structure's members
+	reset_origin(g);
+	rebuild_lookup(g);
+}

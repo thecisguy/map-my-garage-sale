@@ -78,4 +78,7 @@ tile grid_lookup(grid g, uint32_t row, uint32_t column);
 /* Rotates a grid 90 degrees */
 void rotate_grid(grid g, bool clockwise);
 
+/* Reflects a Grid horizontally by swapping its columns. */
+void mirror_grid(grid g);
+
 #endif
