@@ -282,3 +282,24 @@ void rotate_stand(stand s, bool clockwise) {
 
 	do_apply(s);
 }
+
+
+/* Mirrors a Stand applied to a Grid.
+ * 
+ * This is achieved by removing the Stand from the Grid, mirroring its
+ * source Grid, and attempting to re-apply it.
+ * 
+ * If this fails for any reason, the source Grid is re-mirrored back to
+ * its original state, and the Stand is applied, leaving the applied Grid
+ * exactly as it was before this function was called.
+ */
+void mirror_stand(stand s) {
+	assert(s);
+
+	remove_stand(s);
+	do {
+		mirror_grid(s->source);
+	} while (!can_apply(s, s->g, s->row, s->column));
+
+	do_apply(s);
+}

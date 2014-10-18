@@ -62,6 +62,6 @@ bool can_apply(restrict stand s, restrict grid g,
                int64_t row, int64_t column);
 
 void rotate_stand(stand s, bool clockwise);
-bool mirror(grid g);
+void mirror_stand(stand s);
 
 #endif
