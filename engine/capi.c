@@ -24,14 +24,24 @@
  */
 
 #include <mono/jit/jit.h>
+#include <mono/metadata/environment.h>
+#include <mono/metadata/object.h>
+#include <mono/metadata/mono-config.h>
+#include <mono/metadata/assembly.h>
+#include <assert.h>
 
 #include "global.h"
 #include "grid.h"
 #include "stand.h"
 #include "capi.h"
 
+static grid main_grid;
+static MonoDomain *main_domain;
+static MonoAssembly *main_assembly;
+
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj);
+static void register_api_functions(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -74,9 +84,32 @@ static void debug_print_mono_info(MonoObject *obj) {
 	printf("MonoImage File Name: %s\n", mono_image_get_filename(im));
 }
 
-void register_api_functions(void) {
+void initialize_engine(void) {
+	// initialize globals
+	main_grid = new_grid(100u, 100u);
+}
+
+static void register_api_functions(void) {
 	mono_add_internal_call("api.EngineAPI::getColorOfTileRaw",
 	                       get_color_of_tile);
 	mono_add_internal_call("MonoMain::DebugPrintMonoInfo",
 	                       debug_print_mono_info);
+}
+
+void initialize_mono(const char *filename) {
+	mono_config_parse (NULL);
+	main_domain = mono_jit_init (filename);
+	main_assembly = mono_domain_assembly_open(main_domain, filename);
+	assert(main_assembly);
+
+	// register internal calls
+	register_api_functions();
+}
+
+int execute_frontend(int argc, char* argv[]) {
+	// run main method of frontend
+	mono_jit_exec(main_domain, main_assembly, argc, argv);
+	int retval = mono_environment_exitcode_get();
+	mono_jit_cleanup(main_domain);
+	return retval;
 }

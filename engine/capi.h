@@ -22,4 +22,6 @@
  * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
 
-void register_api_functions(void);
+void initialize_engine(void);
+void initialize_mono(const char *filename);
+int execute_frontend(int argc, char* argv[]);

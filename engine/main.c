@@ -21,11 +21,6 @@
  * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <mono/jit/jit.h>
-#include <mono/metadata/environment.h>
-#include <mono/metadata/object.h>
-#include <mono/metadata/mono-config.h>
-#include <mono/metadata/assembly.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -34,31 +29,11 @@
 #include "stand.h"
 #include "capi.h"
 
-grid main_grid;
-MonoDomain *main_domain;
-MonoAssembly *main_assembly;
-
-int 
-main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 	// initialize Mono runtime
 	const char *filename = "frontend.exe";
 	
-	int retval;
-	mono_config_parse (NULL);
-	main_domain = mono_jit_init (filename);
-	main_assembly = mono_domain_assembly_open(main_domain, filename);
-	if (!main_assembly)
-		exit (2);
-
-	// initialize globals
-	main_grid = new_grid(100u, 100u);
-
-	// register internal calls
-	register_api_functions();
-
-	// run main method
-	mono_jit_exec(main_domain, main_assembly, argc, argv);
-	retval = mono_environment_exitcode_get();
-	mono_jit_cleanup(main_domain);
-	return retval;
+	initialize_engine();
+	initialize_mono(filename);
+	return execute_frontend(argc, argv);
 }
