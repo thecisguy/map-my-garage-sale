@@ -36,12 +36,15 @@
 #include "capi.h"
 
 static grid main_grid;
+static stand selected_stand = NULL;
 static MonoDomain *main_domain;
 static MonoAssembly *main_assembly;
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj);
 static void register_api_functions(void);
+static void select_stand(uint32_t row, uint32_t column);
+static void deselect_stand(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -94,6 +97,10 @@ static void register_api_functions(void) {
 	                       get_color_of_tile);
 	mono_add_internal_call("MonoMain::DebugPrintMonoInfo",
 	                       debug_print_mono_info);
+	mono_add_internal_call("api.EngineAPI::selectStandRaw",
+	                       select_stand);
+	mono_add_internal_call("api.EngineAPI::deselectStandRaw",
+	                       deselect_stand);
 }
 
 void initialize_mono(const char *filename) {
@@ -112,4 +119,27 @@ int execute_frontend(int argc, char* argv[]) {
 	int retval = mono_environment_exitcode_get();
 	mono_jit_cleanup(main_domain);
 	return retval;
+}
+
+/* Selects a Stand from the given coordinates.
+ * 
+ * This corresponds to the user "clicking" a Stand in the frontend.
+ * The indicated Stand will be used in all future calls to *_selected_*
+ * methods until this method is called again.
+ * 
+ * If the coordinates of a blank tile are passed in, selected_stand
+ * will be set to NULL. (This is desirable, as the user will probably
+ * click on a blank tile when attempting to "deselect" a Stand.)
+ */
+static void select_stand(uint32_t row, uint32_t column) {
+	selected_stand = grid_lookup(main_grid, row, column)->s;
+}
+
+/* Manually deselects the selected_stand.
+ * 
+ * For when deselecting the Stand is desired, e.g. the user clicks "off" the
+ * Grid, presses Esc, etc.
+ */
+static void deselect_stand(void) {
+	selected_stand = NULL;
 }

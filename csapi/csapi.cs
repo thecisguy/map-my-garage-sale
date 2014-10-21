@@ -28,12 +28,30 @@ namespace api {
 
 	class EngineAPI {
 
+/************** Raw Methods ****************************************/
+
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static double[] getColorOfTileRaw(uint row, uint column);
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void selectStandRaw(uint row, uint column);
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void deselectStandRaw();
+
+/***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
 			double[] data = getColorOfTileRaw(row, column);
 			return new Color(data[0], data[1], data[2], data[3]);
+		}
+
+		public static void selectStand(uint row, uint column) {
+			selectStandRaw(row, column);
+		}
+
+		public static void deselectStand() {
+			deselectStandRaw();
 		}
 	}
 }
