@@ -20,3 +20,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <stdio.h>
+#include <stdbool.h>
+
+bool save_file(FILE *f);
+bool load_file(FILE *f);
