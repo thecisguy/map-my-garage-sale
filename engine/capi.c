@@ -93,13 +93,13 @@ void initialize_engine(void) {
 }
 
 static void register_api_functions(void) {
-	mono_add_internal_call("api.EngineAPI::getColorOfTileRaw",
+	mono_add_internal_call("csapi.EngineAPI::getColorOfTileRaw",
 	                       get_color_of_tile);
 	mono_add_internal_call("MonoMain::DebugPrintMonoInfo",
 	                       debug_print_mono_info);
-	mono_add_internal_call("api.EngineAPI::selectStandRaw",
+	mono_add_internal_call("csapi.EngineAPI::selectStandRaw",
 	                       select_stand);
-	mono_add_internal_call("api.EngineAPI::deselectStandRaw",
+	mono_add_internal_call("csapi.EngineAPI::deselectStandRaw",
 	                       deselect_stand);
 }
 

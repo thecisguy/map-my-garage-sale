@@ -24,7 +24,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Cairo;
 
-namespace api {
+namespace csapi {
 
 	class EngineAPI {
 
