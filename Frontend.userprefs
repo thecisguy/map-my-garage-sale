@@ -1,14 +1,15 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Frontend/Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Frontend/MainWindow.cs">
     <Files>
-      <File FileName="Frontend/Program.cs" Line="7" Column="1" />
-      <File FileName="csapi/Properties/AssemblyInfo.cs" Line="1" Column="1" />
-      <File FileName="Frontend/MainWindow.cs" Line="1" Column="1" />
+      <File FileName="csapi/csapi.cs" Line="37" Column="60" />
+      <File FileName="Frontend/MainWindow.cs" Line="5" Column="11" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches>
+    <Watch file="Frontend/MainWindow.cs" line="113" offsetX="342" offsetY="2016" expression="EngineAPI" liveUpdate="False" />
+  </MonoDevelop.Ide.DebuggingService.PinnedWatches>
 </Properties>
