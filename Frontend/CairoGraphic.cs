@@ -4,12 +4,17 @@ using Cairo;
 
 namespace Frontend
 {
-	public class CairoGraphic : DrawingArea
+	public class CairoGraphic : DrawingArea, IDisposable
 	{
+
 		public CairoGraphic () 
 		{}
 
-		public static void draw ()
+		/// <summary>
+		/// This method is basically a placeholder to draw a grid image while I work to draw a fully implemented
+		/// Grid using the engine.
+		/// </summary>
+		public static void drawGrid ()
 		{
 			ImageSurface surface = new ImageSurface(Format.ARGB32, 650, 400);
 			Context cr = new Context(surface);
@@ -43,7 +48,17 @@ namespace Frontend
 			cr.Stroke ();
 
 			surface.WriteToPng("grid.png");
+			surface.Dispose (); //dump surface properly
+		}
+
+		public virtual void Dispose(bool disposing)
+		{
+			if (disposing) 
+			{
+				//nothing yet since there are no unmanaged resources
+			}
 		}
 	}
+
 }
 
