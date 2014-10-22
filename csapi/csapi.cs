@@ -26,7 +26,7 @@ using Cairo;
 
 namespace csapi {
 
-	class EngineAPI {
+	public class EngineAPI {
 
 /************** Raw Methods ****************************************/
 
