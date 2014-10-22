@@ -1,0 +1,13 @@
+MGS:1
+
+standtemplates(
+L Block:
+0 S 0 0
+0 S 0 0
+0 S S 0
+0 0 0 0;
+
+Square:
+S S
+S S;
+)
