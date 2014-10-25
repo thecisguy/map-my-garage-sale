@@ -31,6 +31,12 @@
 typedef struct stand_template *stand_template;
 typedef struct application_data *application_data;
 
+struct stand_template {
+	grid t;
+
+	char *name;
+};
+
 struct stand {
 	// basic info
 	grid source;

@@ -1,25 +1,25 @@
 MMGS:1;
 
-standtemplates(
-L Block:4:4:
+standtemplates[2](
+7:L Block:4:4:
 0 S 0 0
 0 S 0 0
 0 S S 0
 0 0 0 0;
 
-Square:2:2:
+6:Square:2:2:
 S S
 S S;
 )
 
-stands(
-Table:130:130:130:4:4:
+stands[2](
+5:Table:130:130:130:4:4:
 0 0 0
 S S S
 S S S:
 3:2;
 
-Case:100:100:100:1:1:
+4:Case:100:100:100:1:1:
 S:
 14:13;
 )

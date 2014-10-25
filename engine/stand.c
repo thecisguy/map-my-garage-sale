@@ -50,12 +50,6 @@
 #include "grid.h"
 #include "stand.h"
 
-struct stand_template {
-	grid t;
-
-	char *name;
-};
-
 typedef struct application_node {
 	tile t;
 	struct application_node *next;
