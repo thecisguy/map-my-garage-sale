@@ -1,15 +1,16 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Frontend/MainWindow.cs">
+﻿<Properties GitUserInfo="UsingGIT">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Frontend\MainWindow.cs">
     <Files>
-      <File FileName="csapi/csapi.cs" Line="37" Column="60" />
-      <File FileName="Frontend/MainWindow.cs" Line="5" Column="11" />
+      <File FileName="Frontend\MainWindow.cs" Line="15" Column="15" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/home/jordan/map-my-garage-sale/Frontend/MainWindow.cs" line="171" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches>
-    <Watch file="Frontend/MainWindow.cs" line="113" offsetX="342" offsetY="2016" expression="EngineAPI" liveUpdate="False" />
+    <Watch file="Frontend\MainWindow.cs" line="113" offsetX="342" offsetY="2016" expression="EngineAPI" liveUpdate="False" />
   </MonoDevelop.Ide.DebuggingService.PinnedWatches>
 </Properties>
