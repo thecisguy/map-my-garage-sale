@@ -1,15 +1,71 @@
+/* CairoGraphic.cs
+ *
+ * Contains helper methods for drawing Cairo graphics.
+ *
+ * Copyright (C) 2014 - Blake Lowe, Jordan Polaniec
+ *
+ * This file is part of Map My Garage Sale.
+ * 
+ * Map My Garage Sale is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Map My Garage Sale is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 using System;
 using Gtk;
 using Cairo;
 
 namespace Frontend
 {
-	public class CairoGraphic : DrawingArea, IDisposable
+    public class CairoGraphic : DrawingArea, IDisposable
 	{
 
 		public CairoGraphic () 
-		{}
+		{
 
+        }
+
+
+        private double min (params double[] arr)
+        {
+            int minp = 0;
+            for (int i = 1; i < arr.Length; i++)
+            {
+                if(arr[i] < arr[minp])
+                {
+                    minp = i;
+                }
+            }
+            return minp;
+        }
+
+        public void DrawCurvedRectangle(Context context, double x, double y, double width, double height)
+        {
+            using (ImageSurface surface = new ImageSurface(Format.ARGB32, Convert.ToInt32(width), Convert.ToInt32(height)))
+            {
+                    context.Save();
+                    context.MoveTo(x, y + height / 2);
+                    context.CurveTo(x, y, x, y, x + width / 2, y);
+                    context.CurveTo(x + width, y, x + width, y, x + width, y + height / 2);
+                    context.CurveTo(x + width, y + height, x + width, y + height, x + width / 2, y + height);
+                    context.CurveTo(x, y + height, x, y + height, x, y + height / 2);
+                    context.SetSourceRGBA(0.1, 0.6, 1, 1);
+                    context.FillPreserve();
+                    context.SetSourceRGBA(0.2, 0.8, 1, 1);
+                    context.LineWidth = 5;
+                    context.Stroke();
+                    //context.Restore();
+            }
+        }
 		/// <summary>
 		/// This method is basically a placeholder to draw a grid image while I work to draw a fully implemented
 		/// Grid using the engine.
@@ -50,6 +106,8 @@ namespace Frontend
 			surface.WriteToPng("grid.png");
 			surface.Dispose (); //dump surface properly
 		}
+
+
 
 		public virtual void Dispose(bool disposing)
 		{
