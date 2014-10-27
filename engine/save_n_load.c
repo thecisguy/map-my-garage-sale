@@ -27,12 +27,14 @@
 #include <ctype.h>
 #include <inttypes.h>
 
+#include "grid.h"
 #include "stand.h"
 #include "save_n_load.h"
 
 static void scan_whitespace(FILE *f);
 static bool read_stand_templates(restrict FILE *f,
 				restrict struct stand_template **st);
+static grid read_grid(FILE *f, uint32_t height, uint32_t width, stand s);
 
 bool load_file(FILE *f) {
 	int c;
@@ -148,4 +150,37 @@ static bool read_stand_templates(restrict FILE *f,
 		free(new_stand_templates);
 	out_templates:;
 		return false;
+}
+
+static grid read_grid(FILE *f, uint32_t height, uint32_t width, stand s) {
+	grid ng = new_grid(height, width);
+	if (!ng)
+		goto out_ng;
+
+	int c;
+	// exploits the row-major order of the lookup table
+	tile *t = ng->lookup;
+	while ((c = fgetc(f)) && c != ';') {
+		if (isspace(c)) continue;'
+		if (c == '0') {
+			// nothing to do here, as tiles' stand pointers
+			// are NULL by default
+		} else if (c == 'S') {
+			*t->s = s;
+		} else {
+			// unrecognized char
+			goto out_fail;
+		}
+		t++;
+	}
+	if (c == EOF)
+		goto out_fail;
+
+	return ng;
+
+
+out_fail:;
+	del_grid(ng);
+out_ng:;
+	return NULL;
 }
