@@ -30,7 +30,9 @@
 #include "stand.h"
 #include "save_n_load.h"
 
-#define SCAN_WHITESPACE while(c = fgetc(f) && isspace(c))
+static void scan_whitespace(FILE *f);
+static bool read_stand_templates(restrict FILE *f,
+				restrict struct stand_template **st);
 
 bool load_file(FILE *f) {
 	int c;
@@ -52,7 +54,7 @@ bool load_file(FILE *f) {
 		file_version = file_version * 10 + (c - '0');
 	}
 
-	SCAN_WHITESPACE;
+	scan_whitespace(f);
 	while (c) {
 		char blockname[101];
 		blockname[0] = c;
@@ -61,21 +63,31 @@ bool load_file(FILE *f) {
 			blockname[i] = c;
 		}
 		blockname[i] = '\0';
+		if (i == 100 && !(c == '(' || c == '['))
+			return false;
+		ungetc(c, f);
 		
 		if (strcmp("standtemplates", blockname) == 0) {
 			
 		} else if (strcmp("stands", blockname) == 0) {
 			// go forth and parse
 		} else if (strcmp("maingrid", blockname) == 0) {
-			// gotta parse 'em all
+
 		} else {
 			// unrecognized block
 			return false;
 		}
 
-		SCAN_WHITESPACE;
+		scan_whitespace(f);
 	}
 }
+
+static void scan_whitespace(FILE *f) {
+	int c;
+	while((c = fgetc(f)) && isspace(c));
+	ungetc(c, f);
+}
+
 
 /* Reads the standtemplates block.
  * 
@@ -87,7 +99,7 @@ bool load_file(FILE *f) {
 static bool read_stand_templates(restrict FILE *f,
 				restrict struct stand_template **st) {
 	int num_templates;
-	int scan_val = fscanf(f, "%i](", &num_templates);
+	int scan_val = fscanf(f, "[%i](", &num_templates);
 	if (scan_val == EOF || scan_val < 1)
 		return false;
 	struct stand_template *new_stand_templates =
