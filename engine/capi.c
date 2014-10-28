@@ -50,7 +50,7 @@ static void rotate_selected_stand(mono_bool clockwise);
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
 	double red, blue, green, alpha;
-	stand s = grid_lookup(main_grid, row, column)->s;
+	stand s = grid_lookup(main_grid, row, column)->stand;
 	if (s) {
 		red = s->red;
 		blue = s->blue;
@@ -135,7 +135,7 @@ int execute_frontend(int argc, char* argv[]) {
  * click on a blank tile when attempting to "deselect" a Stand.)
  */
 static void select_stand(uint32_t row, uint32_t column) {
-	selected_stand = grid_lookup(main_grid, row, column)->s;
+	selected_stand = grid_lookup(main_grid, row, column)->stand;
 }
 
 /* Manually deselects the selected_stand.

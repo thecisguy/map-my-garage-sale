@@ -74,7 +74,7 @@ static tile new_tile(uint32_t row, uint32_t column) {
 	nt->row = row;
 	nt->column = column;
 
-	nt->s = NULL;
+	nt->stand = NULL;
 
 	return nt;
 
@@ -326,7 +326,7 @@ grid clone_grid(grid g) {
 	uint64_t ti;
 	for (old = g->lookup, new = cg->lookup, ti = 0;
 	     ti < num_tiles; old++, new++, ti++) {
-		(*new)->s = (*old)->s;
+		(*new)->stand = (*old)->stand;
 	}
 
 	return cg;
