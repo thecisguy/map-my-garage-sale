@@ -22,6 +22,9 @@
  * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
 
+extern struct stand_template *main_templates;
+extern int num_main_templates;
+
 void initialize_engine(void);
 void initialize_mono(const char *filename);
 int execute_frontend(int argc, char* argv[]);

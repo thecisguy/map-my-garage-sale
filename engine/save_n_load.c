@@ -30,6 +30,7 @@
 #include "grid.h"
 #include "stand.h"
 #include "save_n_load.h"
+#include "capi.h"
 
 static void scan_whitespace(FILE *f);
 static bool read_stand_templates(FILE *f, struct stand_template **st);
@@ -55,6 +56,10 @@ bool load_file(FILE *f) {
 		file_version = file_version * 10 + (c - '0');
 	}
 
+	// new data, to be moved if successful
+	int new_num_templates;
+	struct stand_template *new_st_arr = NULL;
+
 	scan_whitespace(f);
 	while (c) {
 		char blockname[101];
@@ -69,9 +74,10 @@ bool load_file(FILE *f) {
 		ungetc(c, f);
 		
 		if (strcmp("standtemplates", blockname) == 0) {
-			struct stand_template *new_st_arr;
-			read_stand_templates(f, &new_st_arr);
-			// TODO do something with the array
+			new_num_templates =
+				read_stand_templates(f, &new_st_arr);
+			if (!new_num_templates)
+				goto out_fail;
 		} else if (strcmp("stands", blockname) == 0) {
 			// go forth and parse
 		} else if (strcmp("maingrid", blockname) == 0) {
@@ -84,6 +90,15 @@ bool load_file(FILE *f) {
 		scan_whitespace(f);
 	}
 	return true;
+
+out_fail:;
+	 if (new_st_arr) {
+		 for (int i = 0; i < new_num_templates; i++) {
+			free(new_st_arr[i].name);
+			del_grid(new_st_arr[i].t);
+		 }
+	 }
+	 return false;
 }
 
 static void scan_whitespace(FILE *f) {
@@ -98,7 +113,8 @@ static void scan_whitespace(FILE *f) {
  * Requires a FILE * and the location of where to store the stand_template
  * array, allocated on the heap.
  * 
- * Returns false is the read failed, in which case st will be unusable.
+ * Returns the number of templates read, or 0 if the read failed,
+ * in which case st will be set to NULL.
  */
 static bool read_stand_templates(FILE *f, struct stand_template **st) {
 	int num_templates;
@@ -153,6 +169,7 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 	out_name:;
 		free(new_stand_templates);
 	out_templates:;
+		*st = NULL;
 		return false;
 }
 

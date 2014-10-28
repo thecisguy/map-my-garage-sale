@@ -39,6 +39,8 @@ static grid main_grid;
 static stand selected_stand = NULL;
 static MonoDomain *main_domain;
 static MonoAssembly *main_assembly;
+struct stand_template *main_templates = NULL;
+int num_main_templates = 0;
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj);
@@ -91,6 +93,7 @@ static void debug_print_mono_info(MonoObject *obj) {
 void initialize_engine(void) {
 	// initialize globals
 	main_grid = new_grid(100u, 100u);
+	// TODO load default save
 }
 
 static void register_api_functions(void) {
