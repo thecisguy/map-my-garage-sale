@@ -57,8 +57,9 @@ bool load_file(FILE *f) {
 	}
 
 	// new data, to be moved if successful
-	int new_num_templates;
+	int new_num_templates = 0;
 	struct stand_template *new_st_arr = NULL;
+	grid new_main_grid = NULL;
 
 	scan_whitespace(f);
 	while (c) {
@@ -81,10 +82,24 @@ bool load_file(FILE *f) {
 		} else if (strcmp("stands", blockname) == 0) {
 			// go forth and parse
 		} else if (strcmp("maingrid", blockname) == 0) {
+			if (!(c = fgetc(f)) || c != '(')
+				goto out_fail;
+			uint32_t new_height;
+			uint32_t new_width;
+			int scan_val =
+				fscanf(f, "%" SCNu32 ":%" SCNu32,
+						&new_width, &new_height);
+			if (scan_val == EOF || scan_val < 2)
+				goto out_fail;
+			scan_whitespace(f);
+			if (!(c = fgetc(f)) || c != ')')
+				goto out_fail;
 
+			if (!(new_main_grid = new_grid(new_width, new_height)))
+				goto out_fail;
 		} else {
 			// unrecognized block
-			return false;
+			goto out_fail;
 		}
 
 		scan_whitespace(f);
@@ -97,6 +112,9 @@ out_fail:;
 			free(new_st_arr[i].name);
 			del_grid(new_st_arr[i].t);
 		 }
+	 }
+	 if (new_main_grid) {
+		 del_grid(new_main_grid);
 	 }
 	 return false;
 }
