@@ -180,7 +180,7 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 		t->t = new_source;
 		
 	}
-	return true;
+	return num_templates;
 
 	out_new_source:;
 		free(name);
@@ -188,7 +188,7 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 		free(new_stand_templates);
 	out_templates:;
 		*st = NULL;
-		return false;
+		return 0;
 }
 
 static grid read_grid(FILE *f, uint32_t height, uint32_t width, void *stand) {
