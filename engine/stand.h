@@ -63,6 +63,8 @@ struct stand {
 stand new_stand(stand_template t, double red,
 		double green, double blue, double alpha);
 
+void del_stand(stand s);
+
 void do_apply(stand s);
 bool can_apply(restrict stand s, restrict grid g,
                int64_t row, int64_t column);

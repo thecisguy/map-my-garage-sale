@@ -35,6 +35,7 @@
 static void scan_whitespace(FILE *f);
 static bool read_stand_templates(FILE *f, struct stand_template **st);
 static grid read_grid(FILE *f, uint32_t height, uint32_t width, void *stand);
+static bool read_stands(FILE *f, stand **s);
 
 bool load_file(FILE *f) {
 	int c;
@@ -59,6 +60,8 @@ bool load_file(FILE *f) {
 	// new data, to be moved if successful
 	int new_num_templates = 0;
 	struct stand_template *new_st_arr = NULL;
+	int new_num_stands = 0;
+	stand *new_stand_arr = NULL;
 	grid new_main_grid = NULL;
 
 	scan_whitespace(f);
@@ -80,7 +83,10 @@ bool load_file(FILE *f) {
 			if (!new_num_templates)
 				goto out_fail;
 		} else if (strcmp("stands", blockname) == 0) {
-			// go forth and parse
+			new_num_stands =
+				read_stands(f, &new_stand_arr);
+			if (!new_num_stands)
+				goto out_fail;
 		} else if (strcmp("maingrid", blockname) == 0) {
 			if (!(c = fgetc(f)) || c != '(')
 				goto out_fail;
@@ -124,7 +130,6 @@ static void scan_whitespace(FILE *f) {
 	while((c = fgetc(f)) && isspace(c));
 	ungetc(c, f);
 }
-
 
 /* Reads the standtemplates block.
  * 
@@ -180,6 +185,7 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 		t->t = new_source;
 		
 	}
+	*st = new_stand_templates;
 	return num_templates;
 
 	out_new_source:;
@@ -191,6 +197,89 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 		return 0;
 }
 
+/* Reads the stands block.
+ * 
+ * Requires a FILE * and the location of where to store the stand
+ * array, allocated on the heap.
+ * 
+ * Returns the number of stands read, or 0 if the read failed,
+ * in which case st will be set to NULL.
+ */
+static bool read_stands(FILE *f, stand **stand_arr) {
+	int num_stands;
+	int scan_val = fscanf(f, "[%i](", &num_stands);
+	if (scan_val == EOF || scan_val < 1)
+		return false;
+	stand *new_stands =
+		(stand *) malloc(
+		sizeof(stand) * num_stands);
+	if (!new_stands)
+		goto out_stands;
+
+	int stands_i = 0;
+	int c;
+	char *name;
+	stand s = NULL;
+	while ((c = fgetc(f)) != ')') {
+		if (isspace(c)) continue;
+		int name_len = 0;
+		do {
+			name_len = name_len * 10 + (c - '0');
+		} while ((c = fgetc(f)) != ':');
+		
+		name = (char *) malloc(sizeof(char) * (name_len + 1));
+		if (!name)
+			goto out_name;
+		for (int i = 0; i < name_len; i++) {
+			name[i] = fgetc(f);
+		}
+		name[name_len] = '\0';
+
+		uint8_t red;
+		uint8_t green;
+		uint8_t blue;
+		uint8_t alpha;
+		uint32_t height;
+		uint32_t width;
+		scan_val = 
+			fscanf(f, ":%" SCNu8 ":%" SCNu8 ":%" SCNu8 ":%" SCNu8
+				":%" SCNu32 ":%" SCNu32 ":",
+				&red, &green, &blue, &alpha, &height, &width);
+		if (scan_val == EOF || scan_val < 6)
+			goto out_new_source;
+
+		s = (stand) malloc(sizeof(struct stand));
+		if (!s)
+			goto out_new_stand;
+
+		grid new_source = read_grid(f, height, width, (void *) s);
+		if (!new_source)
+			goto out_new_source;
+
+		s->name = name;
+		s->source = new_source;
+		s->red = red / 255.0;
+		s->green = green / 255.0;
+		s->blue = blue / 255.0;
+		new_stands[stands_i++] = s;
+	}
+	*stand_arr = new_stands;
+	return num_stands;
+
+	out_new_source:;
+		free(s);
+	out_new_stand:;
+		free(name);
+	out_name:;
+		while (--stands_i >= 0) {
+			del_stand(new_stands[stands_i]);
+		}
+		free(new_stands);
+	out_stands:;
+		*stand_arr = NULL;
+		return 0;
+}
+
 static grid read_grid(FILE *f, uint32_t height, uint32_t width, void *stand) {
 	grid ng = new_grid(height, width);
 	if (!ng)
@@ -199,7 +288,7 @@ static grid read_grid(FILE *f, uint32_t height, uint32_t width, void *stand) {
 	int c;
 	// exploits the row-major order of the lookup table
 	tile *t = ng->lookup;
-	while ((c = fgetc(f)) && c != ';') {
+	while ((c = fgetc(f)) && c != ';' && c != ':') {
 		if (isspace(c)) continue;
 		if (c == '0') {
 			// nothing to do here, as tiles' stand pointers
