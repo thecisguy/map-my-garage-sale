@@ -39,6 +39,8 @@ static grid main_grid;
 static stand selected_stand = NULL;
 static MonoDomain *main_domain;
 static MonoAssembly *main_assembly;
+struct stand_template *main_templates = NULL;
+int num_main_templates = 0;
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj);
@@ -50,7 +52,7 @@ static void rotate_selected_stand(mono_bool clockwise);
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
 	double red, blue, green, alpha;
-	stand s = grid_lookup(main_grid, row, column)->s;
+	stand s = grid_lookup(main_grid, row, column)->stand;
 	if (s) {
 		red = s->red;
 		blue = s->blue;
@@ -91,6 +93,7 @@ static void debug_print_mono_info(MonoObject *obj) {
 void initialize_engine(void) {
 	// initialize globals
 	main_grid = new_grid(100u, 100u);
+	// TODO load default save
 }
 
 static void register_api_functions(void) {
@@ -135,7 +138,7 @@ int execute_frontend(int argc, char* argv[]) {
  * click on a blank tile when attempting to "deselect" a Stand.)
  */
 static void select_stand(uint32_t row, uint32_t column) {
-	selected_stand = grid_lookup(main_grid, row, column)->s;
+	selected_stand = grid_lookup(main_grid, row, column)->stand;
 }
 
 /* Manually deselects the selected_stand.

@@ -39,7 +39,10 @@ struct tile {
 	uint32_t row;
 	uint32_t column;
 
-	stand s;
+	// may hold stand or stand_template
+	// might want to replace this with a complex union type
+	// in the future
+	void *stand;
 };
 
 struct grid {

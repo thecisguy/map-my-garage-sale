@@ -1,8 +1,7 @@
-/* capi.h
+/* save_n_load.h
  * 
- * This file contains declarations for the functions of the engine end
- * of the engine-frontend API. Specifically, its purpose is to expose
- * those functions which will need to be called by other C functions.
+ * This file contains declarations for the functions responsible
+ * for saving and loading the program from a file.
  * 
  * Copyright (C) 2014 - Blake Lowe, Jordan Polaniec
  *
@@ -22,9 +21,8 @@
  * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
 
-extern struct stand_template *main_templates;
-extern int num_main_templates;
+#include <stdio.h>
+#include <stdbool.h>
 
-void initialize_engine(void);
-void initialize_mono(const char *filename);
-int execute_frontend(int argc, char* argv[]);
+bool save_file(FILE *f);
+bool load_file(FILE *f);
