@@ -100,6 +100,22 @@ out_ns:;
 	return NULL;
 }
 
+/* Deallocates the memory used by a Stand.
+ *
+ * If the Stand is applied to a Grid, it is removed
+ * from that Grid before deallocation.
+ */
+void del_stand(stand s) {
+	assert(s);
+	if (s->g)
+		remove_stand(s);
+	del_grid(s->source);
+	free(s->name);
+	if (s->appd)
+		del_application_data(s->appd);
+	free(s);
+}
+
 /* Frees the memory allocated by an application list. */
 static void del_application_list(application_node n) {
 	while (n) {
