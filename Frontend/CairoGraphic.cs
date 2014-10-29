@@ -29,9 +29,30 @@ namespace Frontend
     public class CairoGraphic : DrawingArea, IDisposable
 	{
 
+        #region Public Properties
+        public double X {get; set;}
+        public double Y {get; set;}
+        public double Height { get; set; }
+        public double Width { get; set; }
+        public Gdk.Window Window { get; set; }
+        #endregion
+
 		public CairoGraphic () 
 		{
+        }
 
+        public CairoGraphic(double x, double y, double width, double height)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Width = width;
+            this.Height = height;
+        }
+
+        protected override bool OnExposeEvent(Gdk.EventExpose args)
+        {
+            DrawCurvedRectangle(args.Window, this.X + 15, this.Y + 25, this.Width, this.Height);
+            return true;
         }
 
 
@@ -48,9 +69,18 @@ namespace Frontend
             return minp;
         }
 
-        public void DrawCurvedRectangle(Context context, double x, double y, double width, double height)
+        /// <summary>
+        /// Draws a curved rectangle using the passed in Gdk.Window.  This 'paints' to 'this' since we
+        /// are inheriting from DrawingArea
+        /// </summary>
+        /// <param name="window">Window.</param>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
+        /// <param name="width">Width.</param>
+        /// <param name="height">Height.</param>
+        public void DrawCurvedRectangle(Gdk.Window window, double x, double y, double width, double height)
         {
-            using (ImageSurface surface = new ImageSurface(Format.ARGB32, Convert.ToInt32(width), Convert.ToInt32(height)))
+            using (Cairo.Context context = Gdk.CairoHelper.Create(window))
             {
                     context.Save();
                     context.MoveTo(x, y + height / 2);
