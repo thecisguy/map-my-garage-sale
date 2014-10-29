@@ -81,6 +81,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OperationWidget.cs" />
     <Compile Include="CairoGraphic.cs" />
+    <Compile Include="NewStandDialog.cs" />
+    <Compile Include="gtk-gui\Frontend.NewStandDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
