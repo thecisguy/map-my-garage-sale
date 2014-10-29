@@ -59,6 +59,9 @@ public partial class MainWindow: Gtk.Window
     public const string RES_ROTATE_ICON = "Frontend.Assets.rotateicon.png";
     public const string RES_SAVE_ICON = "Frontend.Assets.saveicon.png";
 
+    //UI members
+    HBox standsBox;
+
     #endregion
 
     #region Constructor
@@ -66,9 +69,6 @@ public partial class MainWindow: Gtk.Window
     {
 		Build ();
         SetupUI();
-
-		//testing
-		//EngineAPI.deselectStand ();
 	}
     #endregion
 
@@ -111,7 +111,14 @@ public partial class MainWindow: Gtk.Window
         //Open button
         FileChooserButton fileChooserButton = new FileChooserButton (STR_OPENMAP_BUTTON, FileChooserAction.Open);
         fileChooserButton.TooltipText = STR_OPENMAP_TOOLTIP;
-        //TODO - fileChooserButton.Filter = we need to set a file extension for our saved sales!
+        FileFilter mmgsFileFilter = new FileFilter();
+        mmgsFileFilter.Name = "mmgs files";
+        mmgsFileFilter.AddPattern("*.MMGS");
+        FileFilter allFileFilter = new FileFilter();
+        allFileFilter.Name = "All Files";
+        allFileFilter.AddPattern("*");
+        fileChooserButton.AddFilter(mmgsFileFilter);
+        fileChooserButton.AddFilter(allFileFilter);
         hboxNSO.PackEnd(fileChooserButton, false, false, 0);
 
         VSeparator middleSeparator = new VSeparator ();
@@ -197,8 +204,19 @@ public partial class MainWindow: Gtk.Window
         StandFrame.ShadowType = ((Gtk.ShadowType)(1));
         StandFrame.BorderWidth = ((uint)(1));
         StandFrame.Show();
+        standsBox = new HBox(true, 1);
+        standsBox.Show();
+        StandFrame.Add(standsBox);
         MainTable.Attach(StandFrame, 2, 3, 2, 5);
+
+
     }
+
+    private void LoadStands()
+    {
+        //TODO - load up all existing stands for the StandsFrame here.  Get data from save file
+    }
+
 
     #endregion
 
@@ -220,6 +238,30 @@ public partial class MainWindow: Gtk.Window
 
     protected void newStandButton_Clicked(object sender, EventArgs e)
     {
+        NewStandDialog newStandDialog = null;
+        ResponseType response = ResponseType.None;
+
+        try
+        {
+            newStandDialog = new NewStandDialog();
+            response = (ResponseType)newStandDialog.Run();
+        }
+        finally
+        {
+            if(newStandDialog != null)
+            {
+                newStandDialog.Destroy(); //cleanup
+            }
+        }
+
+        if (response == ResponseType.Accept)
+        {
+            Console.WriteLine("Done creating Stand.  Working to implement Saving of object.");
+        }
+        else
+        {
+            Console.WriteLine("Cancel clicked on New Stand dialog.");
+        }
     }
 
     protected void rotateButton_Clicked(object sender, EventArgs e)
@@ -245,18 +287,27 @@ public partial class MainWindow: Gtk.Window
     protected void OnStandFrameExposeEvent (object o, ExposeEventArgs args)
     {
         //Testing drawing a stand - a rectangle in Cairo
-
         Gtk.Frame standFrame = (Gtk.Frame)o;
-        CairoGraphic cairoGraphic = new CairoGraphic();
-        OperationWidget operationWidget = new OperationWidget();
 
-        using (Context context = Gdk.CairoHelper.Create(standFrame.GdkWindow))
-        {
-            cairoGraphic.DrawCurvedRectangle(context, standFrame.Allocation.X + 15, standFrame.Allocation.Y + 25, 75, 60);
-        }
-       
-        VBox stand = operationWidget.createStand(cairoGraphic);
-        stand.Show();
+        HBox stand = new HBox(true, 0);
+        DrawingArea drawingArea = new CairoGraphic(0, 0, 75, 60);
+        Gtk.Drag.SourceSet(drawingArea, Gdk.ModifierType.Button1Mask, null, Gdk.DragAction.Copy | Gdk.DragAction.Move);
+        drawingArea.DragDataGet += new Gtk.DragDataGetHandler(HandleSourceDragDataGet);
+        drawingArea.DragBegin += new Gtk.DragBeginHandler(HandleSourceDragDataBegin);
+
+        stand.Add(drawingArea);
+        stand.ShowAll();
+        standsBox.Add(stand);
+    }
+
+    protected void HandleSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
+    {
+        Console.WriteLine("Stand now being dragged.");
+    }
+
+    protected void HandleSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)
+    {
+        Console.WriteLine("Stand no longer being dragged.");
     }
     #endregion
 }
