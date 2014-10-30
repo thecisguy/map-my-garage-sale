@@ -26,28 +26,35 @@ using Cairo;
 
 namespace Frontend
 {
-    public partial class NewStandDialog : Gtk.Dialog
+    public partial class NewStandDialog : Gtk.Dialog 
     {
         #region Private Members
         private const string STR_NAME_HINT = "Name: ";
         private const string STR_NAMEENTRY_TOOLTIP = "The name of the Stand object to be created.";
         private const string STR_WIDTH_HINT = "Width (in px): ";
         private const string STR_HEIGHT_HINT = "Height (in px): ";
+        private const string STR_DIALOG_TITLE = "Create New Stand";
         #endregion
 
-
+        #region Constructor
         public NewStandDialog()
         {
             Build();
             SetupUI();
            
         }
+        #endregion
 
+
+        #region Private methods
         /// <summary>
         /// Complete setup of UI.
         /// </summary>
         private void SetupUI()
         {
+            //window properties
+            this.Title = STR_DIALOG_TITLE;
+
             //stand name UI and color picker
             HBox nameBox = new HBox(false, 0);
             Label nameLabel = new Label(STR_NAME_HINT);
@@ -84,6 +91,14 @@ namespace Frontend
             vBoxRoot.Add(heightBox);
 
         }
+
+
+        #endregion
+
+
+        #region Control Events
+
+        #endregion
     }
 }
 

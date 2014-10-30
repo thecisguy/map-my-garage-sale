@@ -57,7 +57,7 @@ namespace Frontend
 			global::Gtk.Image w6 = new global::Gtk.Image ();
 			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonOk.Image = w6;
-			this.AddActionWidget (this.buttonOk, -10);
+			this.AddActionWidget (this.buttonOk, -5);
 			global::Gtk.ButtonBox.ButtonBoxChild w7 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w3 [this.buttonOk]));
 			w7.Position = 1;
 			w7.Expand = false;
