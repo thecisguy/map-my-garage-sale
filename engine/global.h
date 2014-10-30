@@ -37,7 +37,7 @@
  * that Cairo expects.
  */
 
-#define TILE_EMPTY_RED_HTML		225
+#define TILE_EMPTY_RED_HTML	225
 #define TILE_EMPTY_GREEN_HTML   225
 #define TILE_EMPTY_BLUE_HTML	200
 
