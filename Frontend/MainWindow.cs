@@ -30,34 +30,36 @@ public partial class MainWindow: Gtk.Window
 {	
     #region Private Members
     //UI text 
-    public const string STR_NEWMAP_TOOLTIP = "Create a new map.";
-    public const string STR_NEWMAP_BUTTON = "New Map";
-    public const string STR_SAVEMAP_TOOLTIP = "Save the current map.";
-    public const string STR_SAVEMAP_BUTTON = "Save Sale";
-    public const string STR_OPENMAP_TOOLTIP =  "Open an existing Sale";
-    public const string STR_OPENMAP_BUTTON = "Open Sale";
-    public const string STR_NEWSTAND_TOOLTIP = "Create a new Stand";
-    public const string STR_NEWSTAND_BUTTON = "New Stand";
-    public const string STR_ROTATESTAND_TOOLTIP = "Rotate the selected stand 90 degrees clockwise.";
-    public const string STR_ROTATESTAND_BUTTON = "Rotate Stand 90°";
-    public const string STR_DELETESTAND_TOOLTIP = "Delete the selected Stand permanently";
-    public const string STR_DELETESTAND_BUTTON = "Delete selected Stand";
-    public const string STR_REMOVESTAND_TOOLTIP = "Remove the selected Stand from the Map";
-    public const string STR_REMOVESTAND_BUTTON = "Remove selected Stand";
-    public const string STR_INSERTEXISTINGSTAND_BUTTON = "Insert Existing Stand";
-    public const string STR_INSERTEXISTINGSTAND_TOOLTIP = "Insert an existing stand at the selected cell on the map.";
-    public const string STR_RENAMESTAND_BUTTON = "Rename selected Stand";
-    public const string STR_RENAMESTAND_TOOLTIP = "Rename the selected Stand.";
-    public const string STR_TOGGLEGRID_BUTTON = "Display Grid";
-    public const string STR_STANDFRAME_TOOLTIP = "Contains all user created Stands for placement";
-    public const string STR_STANDFRAME_LABEL = "Stands";
-    public const string STR_WINDOWTITLE = "Map my Garage Sale";
+    private const string STR_NEWMAP_TOOLTIP = "Create a new map.";
+    private const string STR_NEWMAP_BUTTON = "New Map";
+    private const string STR_SAVEMAP_TOOLTIP = "Save the current map.";
+    private const string STR_SAVEMAP_BUTTON = "Save Sale";
+    private const string STR_OPENMAP_TOOLTIP =  "Open an existing Sale";
+    private const string STR_OPENMAP_BUTTON = "Open Sale";
+    private const string STR_NEWSTAND_TOOLTIP = "Create a new Stand";
+    private const string STR_NEWSTAND_BUTTON = "New Stand";
+    private const string STR_ROTATESTAND_TOOLTIP = "Rotate the selected stand 90 degrees clockwise.";
+    private const string STR_ROTATESTAND_BUTTON = "Rotate Stand 90°";
+    private const string STR_DELETESTAND_TOOLTIP = "Delete the selected Stand permanently";
+    private const string STR_DELETESTAND_BUTTON = "Delete selected Stand";
+    private const string STR_REMOVESTAND_TOOLTIP = "Remove the selected Stand from the Map";
+    private const string STR_REMOVESTAND_BUTTON = "Remove selected Stand";
+    private const string STR_INSERTEXISTINGSTAND_BUTTON = "Insert Existing Stand";
+    private const string STR_INSERTEXISTINGSTAND_TOOLTIP = "Insert an existing stand at the selected cell on the map.";
+    private const string STR_RENAMESTAND_BUTTON = "Rename selected Stand";
+    private const string STR_RENAMESTAND_TOOLTIP = "Rename the selected Stand.";
+    private const string STR_TOGGLEGRID_BUTTON = "Display Grid";
+    private const string STR_STANDFRAME_TOOLTIP = "Contains all user created Stands for placement";
+    private const string STR_STANDFRAME_LABEL = "Stands";
+    private const string STR_WINDOWTITLE = "Map my Garage Sale - New Map";
+    private const string STR_DIRTYMARK = "*";
+    private const string  STR_NEWMAP_DIALOG_TITLE = "Create new Map";
 
     //UI resource paths
-    public const string RES_ADDSTAND_ICON = "Frontend.Assets.addstandicon.png";
-    public const string RES_NEWFILE_ICON = "Frontend.Assets.newfileicon.png";
-    public const string RES_ROTATE_ICON = "Frontend.Assets.rotateicon.png";
-    public const string RES_SAVE_ICON = "Frontend.Assets.saveicon.png";
+    private const string RES_ADDSTAND_ICON = "Frontend.Assets.addstandicon.png";
+    private const string RES_NEWFILE_ICON = "Frontend.Assets.newfileicon.png";
+    private const string RES_ROTATE_ICON = "Frontend.Assets.rotateicon.png";
+    private const string RES_SAVE_ICON = "Frontend.Assets.saveicon.png";
 
     //UI members
     HBox standsBox;
@@ -113,7 +115,7 @@ public partial class MainWindow: Gtk.Window
         fileChooserButton.TooltipText = STR_OPENMAP_TOOLTIP;
         FileFilter mmgsFileFilter = new FileFilter();
         mmgsFileFilter.Name = "mmgs files";
-        mmgsFileFilter.AddPattern("*.MMGS");
+        mmgsFileFilter.AddPattern("*.mmgs");
         FileFilter allFileFilter = new FileFilter();
         allFileFilter.Name = "All Files";
         allFileFilter.AddPattern("*");
@@ -212,11 +214,47 @@ public partial class MainWindow: Gtk.Window
 
     }
 
-    private void LoadStands()
+    /// <summary>
+    /// Loads up stand data from the passed in file if able
+    /// </summary>
+    /// <param name="fileName">File name.</param>
+    private void LoadStands(string fileName = "")
     {
         //TODO - load up all existing stands for the StandsFrame here.  Get data from save file
+        if (fileName.Length > 0)
+        {
+            //TODO - load the stand data from this file
+        }
+        else
+        {
+            //no file path specified so assume it's a new map and there are no stands for now.
+            #if DEBUG
+            Console.WriteLine("No file path passed in so assume no stand data - which means no stands to load up");
+            #endif
+        }
     }
 
+    /// <summary>
+    /// Paints stands and data onto the grid when opening an existing file
+    /// </summary>
+    private void PaintGridFromSave()
+    {
+
+    }
+
+    /// <summary>
+    /// Refreshes the window properties and stands.
+    /// </summary>
+    /// <param name="title">Title.</param>
+    private void RefreshUI(string title = STR_WINDOWTITLE, string fileName = "")
+    {
+        this.Title = title;
+
+        //TODO - wipe and load grid
+
+        //reload stands for file
+        LoadStands(fileName);
+    }
 
     #endregion
 
@@ -234,6 +272,53 @@ public partial class MainWindow: Gtk.Window
 
     protected void newMapButton_Clicked(object sender, EventArgs e)
     {
+        //TODO - Create AppState class that taps engine to check for a dirty file prior to showing this?  Can the csapi lib get this functionality?
+
+
+        FileChooserDialog newMapSaveDialog = null;
+        const string STR_DIALOG_SAVE_BUTTON_TEXT = "Save";
+        const string STR_DIALOG_CANCEL_BUTTON_TEXT = "Cancel";
+        string fileName = string.Empty; //holds user entered file name
+        ResponseType response = ResponseType.None;
+
+        try
+        {
+            newMapSaveDialog = new FileChooserDialog(STR_NEWMAP_DIALOG_TITLE, this, FileChooserAction.Save);
+            newMapSaveDialog.AddButton(STR_DIALOG_SAVE_BUTTON_TEXT, ResponseType.Ok);
+            newMapSaveDialog.AddButton(STR_DIALOG_CANCEL_BUTTON_TEXT, ResponseType.Cancel);
+            FileFilter mmgsFilter = new FileFilter();
+            mmgsFilter.Name = "Map";
+            mmgsFilter.AddPattern("*.mmgs");
+            newMapSaveDialog.AddFilter(mmgsFilter);
+            newMapSaveDialog.Run();
+            response = (ResponseType)newMapSaveDialog.Run();
+            fileName = newMapSaveDialog.Filename;
+        }
+        finally
+        {
+            if (newMapSaveDialog != null)
+            {
+                newMapSaveDialog.Destroy(); //cleanup
+            }
+        }
+
+        switch (response)
+        {
+            case ResponseType.Ok:
+                {
+                    //Save map data
+
+                    Console.WriteLine("Done saving new Map - " + fileName + ".  Working to implement Saving of object.");
+
+                    //TODO - Refresh 
+                    break;
+                }
+            default:
+                {
+                    Console.WriteLine("Cancel clicked on New Map dialog.");
+                    break;
+                }
+        }
     }
 
     protected void newStandButton_Clicked(object sender, EventArgs e)
@@ -254,13 +339,18 @@ public partial class MainWindow: Gtk.Window
             }
         }
 
-        if (response == ResponseType.Accept)
+        switch (response)
         {
-            Console.WriteLine("Done creating Stand.  Working to implement Saving of object.");
-        }
-        else
-        {
-            Console.WriteLine("Cancel clicked on New Stand dialog.");
+            case ResponseType.Ok: //set on the button's properties in the dialog
+                {
+                    Console.WriteLine("Done creating Stand.  Working to implement Saving of object.");
+                    break;
+                }
+            default:
+                {
+                    Console.WriteLine("Cancel clicked on New Stand dialog.");
+                    break;
+                }
         }
     }
 
