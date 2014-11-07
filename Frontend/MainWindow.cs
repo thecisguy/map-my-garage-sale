@@ -25,6 +25,8 @@ using Gtk;
 using Cairo;
 using Frontend;
 using csapi;
+using Frontend.Map;
+using System.Collections.Generic;
 
 public partial class MainWindow: Gtk.Window
 {	
@@ -62,7 +64,13 @@ public partial class MainWindow: Gtk.Window
     private const string RES_SAVE_ICON = "Frontend.Assets.saveicon.png";
 
     //UI members
-    HBox standsBox;
+    private HBox standsBox;
+
+    /// <summary>
+    /// Maintains a list of all stands.  Design for how this works is a WIP.
+    /// </summary>
+    private List<Stand> Stands;
+    private AppState AppState;
 
     #endregion
 
@@ -71,6 +79,7 @@ public partial class MainWindow: Gtk.Window
     {
 		Build ();
         SetupUI();
+        AppState = new AppState();
 	}
     #endregion
 
@@ -83,6 +92,7 @@ public partial class MainWindow: Gtk.Window
     private void SetupUI()
     {
         this.Title = STR_WINDOWTITLE;
+        this.Stands = new List<Stand>();
 
         /*
          * Below is setup that I am unable to configure via the Designer and as such it is much easier to initialize and set
@@ -239,7 +249,7 @@ public partial class MainWindow: Gtk.Window
     /// </summary>
     private void PaintGridFromSave()
     {
-
+        //TODO - Requires a loaded Grid object
     }
 
     /// <summary>
@@ -254,6 +264,27 @@ public partial class MainWindow: Gtk.Window
 
         //reload stands for file
         LoadStands(fileName);
+    }
+
+    /// <summary>
+    /// Gets data for the selected Stand in the list of Stands.
+    /// </summary>
+    /// <returns>The selected stand.</returns>
+    /// <param name="box">Box.</param>
+    private Stand retrieveSelectedStandInList(int standKeyID)
+    {
+        //TODO - make a call to engine to get stand metadata
+        Stand selectedStand = null;
+        return selectedStand;
+    }
+
+    /// <summary>
+    /// Retrieves data about a stand currently placed on the grid.
+    /// </summary>
+    /// <param name="standKeyID">Stand key I.</param>
+    private void retrieveStandInGridFromEngine(int standKeyID)
+    {
+        //TODO - this call needs to return a Stand object -  EngineAPI.selectStand(0, 0); //dummy cell data
     }
 
     #endregion
