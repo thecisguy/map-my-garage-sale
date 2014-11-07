@@ -83,10 +83,15 @@
     <Compile Include="CairoGraphic.cs" />
     <Compile Include="NewStandDialog.cs" />
     <Compile Include="gtk-gui\Frontend.NewStandDialog.cs" />
+    <Compile Include="AppState.cs" />
+    <Compile Include="Map\Grid.cs" />
+    <Compile Include="Map\Stand.cs" />
+    <Compile Include="Map\Map.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Assets\" />
+    <Folder Include="Map\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\csapi\csapi.csproj">
