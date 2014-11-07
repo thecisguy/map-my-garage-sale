@@ -34,6 +34,9 @@ namespace Frontend
         private const string STR_WIDTH_HINT = "Width (in px): ";
         private const string STR_HEIGHT_HINT = "Height (in px): ";
         private const string STR_DIALOG_TITLE = "Create New Stand";
+
+        private ColorSelection standColorSelector;
+        private Entry nameEntry, widthEntry, heightEntry;
         #endregion
 
         #region Constructor
@@ -58,14 +61,13 @@ namespace Frontend
             //stand name UI and color picker
             HBox nameBox = new HBox(false, 0);
             Label nameLabel = new Label(STR_NAME_HINT);
-            Entry nameEntry = new Entry();
+            nameEntry = new Entry();
             nameEntry.TooltipText = STR_NAMEENTRY_TOOLTIP;
             nameBox.Add(nameLabel);
             nameBox.Add(nameEntry);
 
 
-            ColorSelection standColorSelector = new ColorSelection();
-            //standColorSelector.ColorChanged
+            standColorSelector = new ColorSelection();
             nameBox.Add(standColorSelector);
             nameBox.ShowAll();
 
@@ -73,7 +75,7 @@ namespace Frontend
             HBox widthBox = new HBox(false, 0);
             Label widthLabel = new Label(STR_WIDTH_HINT);
             widthLabel.SetAlignment(0.0f, 0.5f);
-            Entry widthEntry = new Entry();
+            widthEntry = new Entry();
             widthBox.PackStart(widthLabel, false, false, 0);
             widthBox.PackStart(widthEntry, false, false, 0);
             widthBox.ShowAll();
@@ -81,7 +83,7 @@ namespace Frontend
             //height UI
             HBox heightBox = new HBox(false, 0);
             Label heightLabel = new Label(STR_HEIGHT_HINT);
-            Entry heightEntry = new Entry();
+            heightEntry = new Entry();
             heightBox.PackStart(heightLabel, false, false, 0);
             heightBox.PackStart(heightEntry, false, false, 0);
             heightBox.ShowAll();
@@ -92,12 +94,45 @@ namespace Frontend
 
         }
 
+        /// <summary>
+        /// Make sure all fields are properly filled in
+        /// </summary>
+        private bool validate()
+        {
+            bool retVal = false;
+            string name = nameEntry.Text.Trim();
+            Gdk.Color color = standColorSelector.CurrentColor;
+            float width = 0.0f;
+            float height = 0.0f;
 
+            float.TryParse(widthEntry.Text.Trim(), out width);
+            float.TryParse(heightEntry.Text.Trim(), out height);
+
+            if (name.Length > 0 && color.Equals(default(Gdk.Color)) && width > 0.0f && height > 0.0f)
+            {
+                retVal = true;
+            }
+            return retVal;
+        }
         #endregion
 
 
         #region Control Events
+        protected void NewStandDialog_Response (object o, ResponseArgs e)
+        {
+            if (e.ResponseId == ResponseType.Ok)
+            {
+                if (validate())
+                {
+                    //TODO - Create new Stand object
+                }
 
+            }
+            else
+            {
+                Destroy();
+            }
+        }
         #endregion
     }
 }

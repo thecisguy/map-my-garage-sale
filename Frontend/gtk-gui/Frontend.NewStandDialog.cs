@@ -15,7 +15,9 @@ namespace Frontend
 			global::Stetic.Gui.Initialize (this);
 			// Widget Frontend.NewStandDialog
 			this.Name = "Frontend.NewStandDialog";
+			this.Icon = global::Stetic.IconLoader.LoadIcon (this, "gtk-select-color", global::Gtk.IconSize.Menu);
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
+			this.Modal = true;
 			// Internal child Frontend.NewStandDialog.VBox
 			global::Gtk.VBox w1 = this.VBox;
 			w1.Name = "dialog1_VBox";
@@ -68,6 +70,7 @@ namespace Frontend
 			this.DefaultWidth = 400;
 			this.DefaultHeight = 300;
 			this.Show ();
+			this.Response += new global::Gtk.ResponseHandler (this.NewStandDialog_Response);
 		}
 	}
 }

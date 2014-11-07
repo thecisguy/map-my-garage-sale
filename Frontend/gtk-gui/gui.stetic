@@ -219,9 +219,12 @@
   </widget>
   <widget class="Gtk.Dialog" id="Frontend.NewStandDialog" design-size="400 300">
     <property name="MemberName" />
+    <property name="Icon">stock:gtk-select-color Menu</property>
     <property name="WindowPosition">CenterOnParent</property>
+    <property name="Modal">True</property>
     <property name="Buttons">2</property>
     <property name="HelpButton">False</property>
+    <signal name="Response" handler="NewStandDialog_Response" />
     <child internal-child="VBox">
       <widget class="Gtk.VBox" id="dialog1_VBox">
         <property name="MemberName" />
