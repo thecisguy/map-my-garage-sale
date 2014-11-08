@@ -1,4 +1,5 @@
-\documentclass{article}
+\documentclass{report}
+\usepackage[utf8]{inputenc}
 
 \title{Map My Garage Sale: Programmer's Guide}
 \author{Blake Lowe}
@@ -12,5 +13,126 @@
 
 \tableofcontents
 \newpage
+
+\chapter{Engine}
+
+\section{Tiles \& Grids}
+
+\section{Stands}
+
+\section{Saving/Loading}
+The ability to save and load the program state is an essential part of
+any modern program. It is important, therefore, that the processes of
+marshalling and unmarshalling the data be performed correctly.
+
+\subsection{File Format}
+We utilize an extensible, textual format to represent program data.
+It is divided into several logical blocks which each represent a different
+component of the program. These blocks may appear in any order. The file
+is expected to be encoded in ASCII or UTF-8.
+
+The save file shall begin with the characters ``MMGS'', followed by a colon,
+then followed by the file version number, follwed by a number. The
+file version number, as well as all other numbers in the file, shall be a
+decimal integer spelled out using numeric characters.
+
+The different blocks are as follows:
+\begin{itemize}
+	\item The \emph{standtemplates} block begins with one square-bracket
+		enclosed parameter, a number telling the parser how many
+		Stand Templates are expected within the block. It is an error
+		for this number to not match the number of definitions within
+		the block. After the close bracket shall follow an open
+		parenthesis.
+
+		Each definition will begin with a number giving the number of
+		bytes in the name of the template\footnote{This is \emph{not}
+			the same as the number of logical characters in the
+			name. This allows for names with multi-byte characters
+		to be properly encoded.}, followed by a colon,
+		followed by the name itself. The name shall be followed by
+		a colon, followed by two colon-separated numbers defining
+		the length and width, respectively, of the Grid which
+		represents the shape of the Stand Template. This shall be
+		followed with a colon, a Grid Definition (see below), and
+		finally terminated with a semicolon. This semicolon ends
+		the Stand Template definition.
+
+		The block shall be ended with a close parenthesis.
+	\item The \emph{stands} block begins with the same parameter format as
+		the standtemplates block, and it serves the same purpose:
+		to inform the parser of the number of Stand definitions to
+		expect.
+
+		The format of Stand definitions inside the block are
+		identical to the definitions of Stand Templates, with the
+		following modifications:
+		\begin{itemize}
+			\item Between the name and the height/width pair
+				shall be three colon-separated integers
+				defining the color of the stand in
+				HTML RGB notation. Naturally, these
+				numbers shall be within the range 0--255.
+			\item After the Grid Definition shall follow not a
+				semicolon, but a colon. After this shall
+				follow the row and column, respectively, of
+				the location of this Stand's placement
+				on the Main Grid.
+		\end{itemize}
+	\item The \emph{maingrid} block has no parameters, and is opened
+		and closed with parenthesis. Inside of the
+		block, two colon-separated integers are expected: the
+		height and width, respectively, of the Main Grid.
+
+		This block notably does not contain a Grid Definition. The
+		makeup of the Main Grid is deduced from the coordinates of
+\end{itemize}
+
+The \emph{Grid Definition} is a loose block of the characters ``0'',
+representing an empty Tile, and ``S'', representing a filled Tile.
+These characters shall appear in row-major order, but whitespace is ignored.
+It is recommended, but not required, that the program place spaces between
+characters, and newlines at the end of each row of Tiles. This is expected to
+improve readability.
+\newpage
+The following is an example of a fully-featured save file:
+\begin{verbatim}
+MMGS:1;
+
+standtemplates[2](
+7:L Block:4:4:
+0 S 0 0
+0 S 0 0
+0 S S 0
+0 0 0 0;
+
+6:Square:2:2:
+S S
+S S;
+)
+
+stands[2](
+5:Table:130:130:130:4:4:
+0 0 0
+S S S
+S S S:
+3:2;
+
+4:Case:100:100:100:1:1:
+S:
+14:13;
+)
+
+maingrid(
+100:100
+)
+\end{verbatim}
+
+A conforming parser of MMGS files should ignore whitespace outside of the
+names of Stands and Stand Templates.
+
+\chapter{Frontend}
+
+\chapter{Engine--Frontend API}
 
 \end{document}
