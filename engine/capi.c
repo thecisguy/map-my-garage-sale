@@ -54,6 +54,7 @@ static void rotate_selected_stand(mono_bool clockwise);
 static void remove_selected_stand(void);
 static void mirror_selected_stand(void);
 static void grab_new_stand(int st_num);
+static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -122,6 +123,8 @@ static void register_api_functions(void) {
 	                       mirror_selected_stand);
 	mono_add_internal_call("csapi.EngineAPI::grabNewStandRaw",
 	                       grab_new_stand);
+	mono_add_internal_call("csapi.EngineAPI::canApplyGrabbedStandRaw",
+	                       can_apply_grabbed_stand);
 }
 
 void initialize_mono(const char *filename) {
@@ -194,4 +197,12 @@ static void grab_new_stand(int32_t st_num) {
 	double alpha = rand() / (double) RAND_MAX;
 	grabbed_stand = new_stand(main_templates + st_num,
 	red, green, blue, alpha);
+}
+
+/* Checks the applicability of the grabbed stand onto the Main Grid
+ * at the specified coordinates.
+ */
+static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column) {
+	assert(grabbed_stand);
+	return (mono_bool) can_apply(grabbed_stand, main_grid, row, column);
 }
