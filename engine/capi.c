@@ -56,6 +56,7 @@ static void mirror_selected_stand(void);
 static void grab_new_stand(int st_num);
 static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column);
 static void do_apply_grabbed_stand(void);
+static void remove_grabbed_stand(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -128,6 +129,8 @@ static void register_api_functions(void) {
 	                       can_apply_grabbed_stand);
 	mono_add_internal_call("csapi.EngineAPI::doApplyGrabbedStandRaw",
 	                       do_apply_grabbed_stand);
+	mono_add_internal_call("csapi.EngineAPI::removeGrabbedStandRaw",
+	                       remove_grabbed_stand);
 }
 
 void initialize_mono(const char *filename) {
@@ -215,4 +218,11 @@ static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column) {
  */
 static void do_apply_grabbed_stand(void) {
 	do_apply(grabbed_stand);
+}
+
+/* Deletes the grabbed stand.
+ */
+static void remove_grabbed_stand(void) {
+	del_stand(grabbed_stand);
+	grabbed_stand = NULL;
 }
