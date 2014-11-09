@@ -42,6 +42,9 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void rotateSelectedStandRaw(bool clockwise);
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void removeSelectedStandRaw();
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
@@ -59,6 +62,10 @@ namespace csapi {
 
 		public static void rotateSelectedStand(bool clockwise) {
 			rotateSelectedStandRaw(clockwise);
+		}
+
+		public static void removeSelectedStand() {
+			removeSelectedStandRaw();
 		}
 	}
 }
