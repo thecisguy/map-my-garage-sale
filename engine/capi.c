@@ -29,6 +29,8 @@
 #include <mono/metadata/mono-config.h>
 #include <mono/metadata/assembly.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "global.h"
 #include "grid.h"
@@ -37,6 +39,7 @@
 
 static grid main_grid;
 static stand selected_stand = NULL;
+static stand grabbed_stand = NULL;
 static MonoDomain *main_domain;
 static MonoAssembly *main_assembly;
 struct stand_template *main_templates = NULL;
@@ -50,6 +53,7 @@ static void deselect_stand(void);
 static void rotate_selected_stand(mono_bool clockwise);
 static void remove_selected_stand(void);
 static void mirror_selected_stand(void);
+static void grab_new_stand(int st_num);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -95,6 +99,9 @@ static void debug_print_mono_info(MonoObject *obj) {
 void initialize_engine(void) {
 	// initialize globals
 	main_grid = new_grid(100u, 100u);
+
+	srand(time(NULL));
+	
 	// TODO load default save
 }
 
@@ -113,6 +120,8 @@ static void register_api_functions(void) {
 	                       remove_selected_stand);
 	mono_add_internal_call("csapi.EngineAPI::mirrorSelectedStandRaw",
 	                       mirror_selected_stand);
+	mono_add_internal_call("csapi.EngineAPI::grabNewStandRaw",
+	                       grab_new_stand);
 }
 
 void initialize_mono(const char *filename) {
@@ -173,4 +182,16 @@ static void remove_selected_stand(void) {
 static void mirror_selected_stand(void) {
 	assert(select_stand);
 	mirror_stand(selected_stand);
+}
+
+/* Creates a Stand from a Stand Template, and grabs it */
+static void grab_new_stand(int32_t st_num) {
+	assert(main_templates);
+	assert(st_num < num_main_templates && st_num >= 0);
+	double red = rand() / (double) RAND_MAX;
+	double green = rand() / (double) RAND_MAX;
+	double blue = rand() / (double) RAND_MAX;
+	double alpha = rand() / (double) RAND_MAX;
+	grabbed_stand = new_stand(main_templates + st_num,
+	red, green, blue, alpha);
 }

@@ -58,9 +58,9 @@ bool load_file(FILE *f) {
 	}
 
 	// new data, to be moved if successful
-	int new_num_templates = 0;
+	int32_t new_num_templates = 0;
 	struct stand_template *new_st_arr = NULL;
-	int new_num_stands = 0;
+	int32_t new_num_stands = 0;
 	stand *new_stand_arr = NULL;
 	grid new_main_grid = NULL;
 
@@ -140,7 +140,7 @@ static void scan_whitespace(FILE *f) {
  * in which case st will be set to NULL.
  */
 static bool read_stand_templates(FILE *f, struct stand_template **st) {
-	int num_templates;
+	int32_t num_templates;
 	int scan_val = fscanf(f, "[%i](", &num_templates);
 	if (scan_val == EOF || scan_val < 1)
 		return false;
@@ -206,7 +206,7 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
  * in which case st will be set to NULL.
  */
 static bool read_stands(FILE *f, stand **stand_arr) {
-	int num_stands;
+	int32_t num_stands;
 	int scan_val = fscanf(f, "[%i](", &num_stands);
 	if (scan_val == EOF || scan_val < 1)
 		return false;

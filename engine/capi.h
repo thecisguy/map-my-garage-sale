@@ -23,7 +23,7 @@
  */
 
 extern struct stand_template *main_templates;
-extern int num_main_templates;
+extern int32_t num_main_templates;
 
 void initialize_engine(void);
 void initialize_mono(const char *filename);
