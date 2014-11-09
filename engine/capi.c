@@ -49,6 +49,7 @@ static void select_stand(uint32_t row, uint32_t column);
 static void deselect_stand(void);
 static void rotate_selected_stand(mono_bool clockwise);
 static void remove_selected_stand(void);
+static void mirror_selected_stand(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -110,6 +111,8 @@ static void register_api_functions(void) {
 	                       rotate_selected_stand);
 	mono_add_internal_call("csapi.EngineAPI::removeSelectedStandRaw",
 	                       remove_selected_stand);
+	mono_add_internal_call("csapi.EngineAPI::mirrorSelectedStandRaw",
+	                       mirror_selected_stand);
 }
 
 void initialize_mono(const char *filename) {
@@ -164,4 +167,10 @@ static void remove_selected_stand(void) {
 	assert(select_stand);
 	del_stand(selected_stand);
 	selected_stand = NULL;
+}
+
+/* Mirrors the selected Stand */
+static void mirror_selected_stand(void) {
+	assert(select_stand);
+	mirror_stand(selected_stand);
 }
