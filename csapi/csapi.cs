@@ -61,6 +61,9 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void removeGrabbedStandRaw();
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void grabSelectedStandRaw();
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
@@ -102,6 +105,10 @@ namespace csapi {
 
 		public static void removeGrabbedStand() {
 			removeGrabbedStandRaw();
+		}
+
+		public static void grabSelectedStand() {
+			grabSelectedStandRaw();
 		}
 	}
 }
