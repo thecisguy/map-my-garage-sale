@@ -11,10 +11,6 @@ public partial class MainWindow
 	
 	private global::Gtk.HBox hboxStand;
 	
-	private global::Gtk.HBox hboxToggle;
-	
-	private global::Gtk.Label metadataLabel;
-	
 	private global::Gtk.VBox vboxGrid;
 
 	protected virtual void Build ()
@@ -28,7 +24,7 @@ public partial class MainWindow
 		this.DefaultWidth = 1024;
 		this.DefaultHeight = 576;
 		// Container child MainWindow.Gtk.Container+ContainerChild
-		this.MainTable = new global::Gtk.Table (((uint)(5)), ((uint)(3)), false);
+		this.MainTable = new global::Gtk.Table (((uint)(7)), ((uint)(3)), false);
 		this.MainTable.Name = "MainTable";
 		this.MainTable.RowSpacing = ((uint)(6));
 		this.MainTable.ColumnSpacing = ((uint)(6));
@@ -74,38 +70,15 @@ public partial class MainWindow
 		w3.XOptions = ((global::Gtk.AttachOptions)(4));
 		w3.YOptions = ((global::Gtk.AttachOptions)(4));
 		// Container child MainTable.Gtk.Table+TableChild
-		this.hboxToggle = new global::Gtk.HBox ();
-		this.hboxToggle.Name = "hboxToggle";
-		this.hboxToggle.Spacing = 6;
-		this.MainTable.Add (this.hboxToggle);
-		global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.MainTable [this.hboxToggle]));
-		w4.TopAttach = ((uint)(4));
-		w4.BottomAttach = ((uint)(5));
-		w4.XOptions = ((global::Gtk.AttachOptions)(4));
-		w4.YOptions = ((global::Gtk.AttachOptions)(4));
-		// Container child MainTable.Gtk.Table+TableChild
-		this.metadataLabel = new global::Gtk.Label ();
-		this.metadataLabel.Name = "metadataLabel";
-		this.metadataLabel.LabelProp = global::Mono.Unix.Catalog.GetString ("<Selected Stand metadata>");
-		this.metadataLabel.Justify = ((global::Gtk.Justification)(1));
-		this.MainTable.Add (this.metadataLabel);
-		global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.MainTable [this.metadataLabel]));
-		w5.TopAttach = ((uint)(4));
-		w5.BottomAttach = ((uint)(5));
-		w5.LeftAttach = ((uint)(1));
-		w5.RightAttach = ((uint)(2));
-		w5.XOptions = ((global::Gtk.AttachOptions)(4));
-		w5.YOptions = ((global::Gtk.AttachOptions)(4));
-		// Container child MainTable.Gtk.Table+TableChild
 		this.vboxGrid = new global::Gtk.VBox ();
 		this.vboxGrid.Name = "vboxGrid";
 		this.vboxGrid.Spacing = 6;
 		this.MainTable.Add (this.vboxGrid);
-		global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
-		w6.TopAttach = ((uint)(2));
-		w6.BottomAttach = ((uint)(4));
-		w6.RightAttach = ((uint)(2));
-		w6.XOptions = ((global::Gtk.AttachOptions)(4));
+		global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
+		w4.TopAttach = ((uint)(2));
+		w4.BottomAttach = ((uint)(4));
+		w4.RightAttach = ((uint)(2));
+		w4.XOptions = ((global::Gtk.AttachOptions)(4));
 		this.Add (this.MainTable);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
