@@ -60,19 +60,6 @@ namespace Frontend
         }
 
         /// <summary>
-        /// Creates a visual representation of the Stand object.  Does not yet pull anything from engine.
-        /// </summary>
-        /// <returns>The stand.</returns>
-        /// <param name="cairoGraphic">Cairo graphic.</param>
-        public VBox createStand(CairoGraphic cairoGraphic)
-        {
-            VBox box = new VBox(true, 0);
-            box.Add(cairoGraphic);
-            cairoGraphic.Show();
-            return box;
-        }
-
-        /// <summary>
         /// Returns a stream from the passed in Resource name
         /// </summary>
         /// <param name="resourceName">Resource name.</param>
