@@ -32,11 +32,11 @@ public partial class MainWindow: Gtk.Window
 {	
     #region Private Members
     //UI text 
-    private const string STR_NEWMAP_TOOLTIP = "Create a new map.";
+    private const string STR_NEWMAP_TOOLTIP = "Create a new Map.";
     private const string STR_NEWMAP_BUTTON = "New Map";
-    private const string STR_SAVEMAP_TOOLTIP = "Save the current map.";
+    private const string STR_SAVEMAP_TOOLTIP = "Save the current Map.";
     private const string STR_SAVEMAP_BUTTON = "Save Sale";
-    private const string STR_OPENMAP_TOOLTIP =  "Open an existing Sale";
+    private const string STR_OPENMAP_TOOLTIP =  "Open an existing Map";
     private const string STR_OPENMAP_BUTTON = "Open Sale";
     private const string STR_NEWSTAND_TOOLTIP = "Create a new Stand";
     private const string STR_NEWSTAND_BUTTON = "New Stand";
@@ -53,9 +53,10 @@ public partial class MainWindow: Gtk.Window
     private const string STR_TOGGLEGRID_BUTTON = "Display Grid";
     private const string STR_STANDFRAME_TOOLTIP = "Contains all user created Stands for placement";
     private const string STR_STANDFRAME_LABEL = "Stands";
-    private const string STR_WINDOWTITLE = "Map my Garage Sale - New Map";
+    private const string STR_WINDOWTITLE = "Map my Garage Sale - ";
     private const string STR_DIRTYMARK = "*";
-    private const string  STR_NEWMAP_DIALOG_TITLE = "Create new Map";
+    private const string STR_NEWMAP_DIALOG_TITLE = "Create new Map";
+    private const string STR_METADATA_LABEL = "<Selected Stand metadata>";
 
     //UI resource paths
     private const string RES_ADDSTAND_ICON = "Frontend.Assets.addstandicon.png";
@@ -65,11 +66,13 @@ public partial class MainWindow: Gtk.Window
 
     //UI members
     private HBox standsBox;
+    private global::Gtk.HBox hboxToggle;
+    private global::Gtk.Label metadataLabel;
+
 
     /// <summary>
     /// Maintains a list of all stands.  Design for how this works is a WIP.
     /// </summary>
-    private List<Stand> Stands;
     private AppState AppState;
 
     #endregion
@@ -92,7 +95,7 @@ public partial class MainWindow: Gtk.Window
     private void SetupUI()
     {
         this.Title = STR_WINDOWTITLE;
-        this.Stands = new List<Stand>();
+        this.Icon = new Gdk.Pixbuf("Assets/icon.ico");
 
         /*
          * Below is setup that I am unable to configure via the Designer and as such it is much easier to initialize and set
@@ -124,13 +127,14 @@ public partial class MainWindow: Gtk.Window
         FileChooserButton fileChooserButton = new FileChooserButton (STR_OPENMAP_BUTTON, FileChooserAction.Open);
         fileChooserButton.TooltipText = STR_OPENMAP_TOOLTIP;
         FileFilter mmgsFileFilter = new FileFilter();
-        mmgsFileFilter.Name = "mmgs files";
+        mmgsFileFilter.Name = "Maps";
         mmgsFileFilter.AddPattern("*.mmgs");
         FileFilter allFileFilter = new FileFilter();
         allFileFilter.Name = "All Files";
         allFileFilter.AddPattern("*");
         fileChooserButton.AddFilter(mmgsFileFilter);
         fileChooserButton.AddFilter(allFileFilter);
+        fileChooserButton.FileSet += fileChooserButton_FileSet;
         hboxNSO.PackEnd(fileChooserButton, false, false, 0);
 
         VSeparator middleSeparator = new VSeparator ();
@@ -173,10 +177,43 @@ public partial class MainWindow: Gtk.Window
         rotateAndExistingBox.PackStart (removeStandButton, false, false, 3);
         hboxStand.PackStart (rotateAndExistingBox, false, false, 3);
 
-        /* Removing for now.
-        VSeparator endSeparator = new VSeparator ();
-        hboxStand.PackEnd (endSeparator, false, false, 0);
-        */
+        //More ui stuff outside of stetic generation - this seems to be MUCH more stable than making changes in the designer
+
+        // Toggle
+        this.hboxToggle = new Gtk.HBox ();
+        this.hboxToggle.Name = "hboxToggle";
+        this.hboxToggle.Spacing = 6;
+        this.MainTable.Add (this.hboxToggle);
+        Gtk.Table.TableChild w6 = ((Gtk.Table.TableChild)(this.MainTable [this.hboxToggle]));
+        w6.TopAttach = ((uint)(5));
+        w6.BottomAttach = ((uint)(6));
+        w6.XOptions = ((Gtk.AttachOptions)(4));
+        w6.YOptions = ((Gtk.AttachOptions)(4));
+
+        // Metadata label
+        this.metadataLabel = new global::Gtk.Label ();
+        this.metadataLabel.Name = "metadataLabel";
+        this.metadataLabel.LabelProp = STR_METADATA_LABEL;
+        this.metadataLabel.Justify = ((Gtk.Justification)(1));
+        this.MainTable.Add (this.metadataLabel);
+        Gtk.Table.TableChild w4 = ((Gtk.Table.TableChild)(this.MainTable [this.metadataLabel]));
+        w4.TopAttach = ((uint)(5));
+        w4.BottomAttach = ((uint)(6));
+        w4.LeftAttach = ((uint)(1));
+        w4.RightAttach = ((uint)(2));
+        w4.XOptions = ((Gtk.AttachOptions)(4));
+        w4.YOptions = ((Gtk.AttachOptions)(4));
+
+        // Grid VBox
+        this.vboxGrid = new Gtk.VBox ();
+        this.vboxGrid.Name = "vboxGrid";
+        this.vboxGrid.Spacing = 6;
+        this.MainTable.Add (this.vboxGrid);
+        Gtk.Table.TableChild w5 = ((Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
+        w5.TopAttach = ((uint)(2));
+        w5.BottomAttach = ((uint)(5));
+        w5.RightAttach = ((uint)(2));
+        w5.XOptions = ((Gtk.AttachOptions)(4));
 
         //Create a box to hold both the delete and rename buttons
         VBox deleteAndRenameBox = new VBox (false, 6);
@@ -197,13 +234,14 @@ public partial class MainWindow: Gtk.Window
 
         hboxRename.PackEnd (deleteAndRenameBox, false, false, 3);
 
-        //Insert Grid
-        CairoGraphic.drawGrid();  //draws the grid to an image file for now.  This will probably change once core is hooked up.
-        Image g = new Image ("grid.png"); //file created from CairoGraphic draw call.
-        g.Show ();
-        vboxGrid.Add (g);
+        LoadDefaultGrid();
 
-        //ToggleButton for Grid on/off
+        //CairoGraphic.drawGrid();  //draws the grid to an image file for now.  This will probably change once core is hooked up.
+        //Image g = new Image ("grid.png"); //file created from CairoGraphic draw call.
+        //g.Show ();
+        //vboxGrid.Add (g);
+
+        //ToggleButton for Grid on/of
         ToggleButton gridToggleButton = new ToggleButton (STR_TOGGLEGRID_BUTTON);
         gridToggleButton.Show ();
         hboxToggle.PackStart (gridToggleButton, false, false, 3);
@@ -222,6 +260,17 @@ public partial class MainWindow: Gtk.Window
         MainTable.Attach(StandFrame, 2, 3, 2, 5);
 
 
+    }
+
+    /// <summary>
+    /// Draws the default grid.
+    /// </summary>
+    private void LoadDefaultGrid()
+    {
+        //Draw Grid - not pulling info from engine yet
+        CairoGrid grid = new CairoGrid();
+        vboxGrid.Add(grid);
+        vboxGrid.ShowAll();
     }
 
     /// <summary>
@@ -265,18 +314,7 @@ public partial class MainWindow: Gtk.Window
         //reload stands for file
         LoadStands(fileName);
     }
-
-    /// <summary>
-    /// Gets data for the selected Stand in the list of Stands.
-    /// </summary>
-    /// <returns>The selected stand.</returns>
-    /// <param name="box">Box.</param>
-    private Stand retrieveSelectedStandInList(int standKeyID)
-    {
-        //TODO - make a call to engine to get stand metadata
-        Stand selectedStand = null;
-        return selectedStand;
-    }
+        
 
     /// <summary>
     /// Retrieves data about a stand currently placed on the grid.
@@ -284,8 +322,10 @@ public partial class MainWindow: Gtk.Window
     /// <param name="standKeyID">Stand key I.</param>
     private void retrieveStandInGridFromEngine(int standKeyID)
     {
-        //TODO - this call needs to return a Stand object -  EngineAPI.selectStand(0, 0); //dummy cell data
+        //TODO - this call needs to return a Stand object -  EngineAPI.selectStand(0, 0); 
+
     }
+
 
     #endregion
 
@@ -304,7 +344,7 @@ public partial class MainWindow: Gtk.Window
     protected void newMapButton_Clicked(object sender, EventArgs e)
     {
         //TODO - Create AppState class that taps engine to check for a dirty file prior to showing this?  Can the csapi lib get this functionality?
-
+        AppState.IsUIDirty = true;
 
         FileChooserDialog newMapSaveDialog = null;
         const string STR_DIALOG_SAVE_BUTTON_TEXT = "Save";
@@ -337,11 +377,11 @@ public partial class MainWindow: Gtk.Window
         {
             case ResponseType.Ok:
                 {
-                    //Save map data
+                    //TODO - Save map data
 
                     Console.WriteLine("Done saving new Map - " + fileName + ".  Working to implement Saving of object.");
 
-                    //TODO - Refresh 
+                    this.RefreshUI(STR_WINDOWTITLE + fileName, fileName);
                     break;
                 }
             default:
@@ -354,12 +394,12 @@ public partial class MainWindow: Gtk.Window
 
     protected void newStandButton_Clicked(object sender, EventArgs e)
     {
-        NewStandDialog newStandDialog = null;
+        NewStandTemplateDialog newStandDialog = null;
         ResponseType response = ResponseType.None;
 
         try
         {
-            newStandDialog = new NewStandDialog();
+            newStandDialog = new NewStandTemplateDialog();
             response = (ResponseType)newStandDialog.Run();
         }
         finally
@@ -429,6 +469,11 @@ public partial class MainWindow: Gtk.Window
     protected void HandleSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)
     {
         Console.WriteLine("Stand no longer being dragged.");
+    }
+
+    protected void fileChooserButton_FileSet(object sender, EventArgs e)
+    {
+
     }
     #endregion
 }
