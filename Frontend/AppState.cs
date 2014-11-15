@@ -26,11 +26,7 @@ namespace Frontend
 {
     public class AppState
     {
-        public enum UIState
-        {
-            Clean = 0,
-            Dirty
-        }; 
+        public bool IsUIDirty = false;
 
         public AppState()
         {
