@@ -27,19 +27,29 @@ using Cairo;
 namespace Frontend
 {
     public class CairoGraphic : DrawingArea, IDisposable
-	{
+    {
 
         #region Public Properties
-        public double X {get; set;}
-        public double Y {get; set;}
+
+        public double X { get; set; }
+
+        public double Y { get; set; }
+
         public double Height { get; set; }
+
         public double Width { get; set; }
+
         public Gdk.Window Window { get; set; }
+
+
+
         #endregion
 
-		public CairoGraphic () 
-		{
+        public CairoGraphic()
+        {
         }
+
+
 
         public CairoGraphic(double x, double y, double width, double height)
         {
@@ -56,12 +66,12 @@ namespace Frontend
         }
 
 
-        private double min (params double[] arr)
+        private double min(params double[] arr)
         {
             int minp = 0;
             for (int i = 1; i < arr.Length; i++)
             {
-                if(arr[i] < arr[minp])
+                if (arr[i] < arr[minp])
                 {
                     minp = i;
                 }
@@ -82,71 +92,30 @@ namespace Frontend
         {
             using (Cairo.Context context = Gdk.CairoHelper.Create(window))
             {
-                    context.Save();
-                    context.MoveTo(x, y + height / 2);
-                    context.CurveTo(x, y, x, y, x + width / 2, y);
-                    context.CurveTo(x + width, y, x + width, y, x + width, y + height / 2);
-                    context.CurveTo(x + width, y + height, x + width, y + height, x + width / 2, y + height);
-                    context.CurveTo(x, y + height, x, y + height, x, y + height / 2);
-                    context.SetSourceRGBA(0.1, 0.6, 1, 1);
-                    context.FillPreserve();
-                    context.SetSourceRGBA(0.2, 0.8, 1, 1);
-                    context.LineWidth = 5;
-                    context.Stroke();
-                    //context.Restore();
+                context.Save();
+                context.MoveTo(x, y + height / 2);
+                context.CurveTo(x, y, x, y, x + width / 2, y);
+                context.CurveTo(x + width, y, x + width, y, x + width, y + height / 2);
+                context.CurveTo(x + width, y + height, x + width, y + height, x + width / 2, y + height);
+                context.CurveTo(x, y + height, x, y + height, x, y + height / 2);
+                context.SetSourceRGBA(0.1, 0.6, 1, 1);
+                context.FillPreserve();
+                context.SetSourceRGBA(0.2, 0.8, 1, 1);
+                context.LineWidth = 5;
+                context.Stroke();
             }
         }
-		/// <summary>
-		/// This method is basically a placeholder to draw a grid image while I work to draw a fully implemented
-		/// Grid using the engine.
-		/// </summary>
-		public static void drawGrid ()
-		{
-			ImageSurface surface = new ImageSurface(Format.ARGB32, 650, 400);
-			Context cr = new Context(surface);
-			cr.SetSourceRGB (0.9, 0.6, 0.2);
 
-			//horizontal lines
-			cr.MoveTo (0, 80);
-			cr.LineTo (650, 80);
-			cr.Stroke ();
+      
 
-			cr.MoveTo (0, 200);
-			cr.LineTo (650, 200);
-			cr.Stroke ();
-
-			cr.MoveTo (0, 320);
-			cr.LineTo (650, 320);
-			cr.Stroke ();
-
-			//vertical lines
-			cr.MoveTo (215, 0);
-			cr.LineTo (215, 400);
-			cr.Stroke ();
-
-			cr.MoveTo (415, 0);
-			cr.LineTo (415, 400);
-			cr.Stroke ();
-
-			Rectangle borderRect = new Rectangle (0, 0, 650, 400);
-			cr.Rectangle (borderRect);
-			cr.SetSourceRGB (0, 0, 0);
-			cr.Stroke ();
-
-			surface.WriteToPng("grid.png");
-			surface.Dispose (); //dump surface properly
-		}
-
-
-
-		public virtual void Dispose(bool disposing)
-		{
-			if (disposing) 
-			{
-				//nothing yet since there are no unmanaged resources
-			}
-		}
-	}
+        public virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                //nothing yet since there are no unmanaged resources
+            }
+        }
+    }
 
 }
 
