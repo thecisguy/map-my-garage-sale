@@ -64,7 +64,6 @@ struct application_data {
 
 static void del_application_list(application_node n);
 static void del_application_data(application_data appd);
-static void remove_stand(stand s);
 
 stand new_stand(stand_template tem, double red,
 		double green, double blue, double alpha) {
@@ -244,14 +243,15 @@ void do_apply(stand s) {
 	s->appd = NULL;
 }
 
- /* Removes a Stand from the Grid it is applied to.
+ /* Removes a Stand from the Grid it is applied to,
+  * but does not de-allocate its memory.
  * 
  * NOTE: This function does not set the owning grid reference in
  * the Stand to NULL. If the Stand is not to be immediately re-applied
  * to a Grid, the caller should perform this operation to signify to
  * other functions that this is an unowned Stand.
  */
-static void remove_stand(stand s) {
+void remove_stand(stand s) {
 	assert(s);
 	
 	// we use the Stand's source dimensions to restrict the

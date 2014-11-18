@@ -57,7 +57,7 @@ static void grab_new_stand(int st_num);
 static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column);
 static void do_apply_grabbed_stand(void);
 static void remove_grabbed_stand(void);
-static void grab_selected_stand(void)
+static void grab_selected_stand(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -236,7 +236,7 @@ static void grab_selected_stand(void) {
 	remove_stand(selected_stand);
 	selected_stand->g = NULL;
 	if (grabbed_stand)
-		remove_grabbed_stand;
+		remove_grabbed_stand();
 	grabbed_stand = selected_stand;
 	selected_stand = NULL;
 }

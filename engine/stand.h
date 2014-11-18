@@ -71,5 +71,6 @@ bool can_apply(restrict stand s, restrict grid g,
 
 void rotate_stand(stand s, bool clockwise);
 void mirror_stand(stand s);
+void remove_stand(stand s);
 
 #endif
