@@ -1,10 +1,11 @@
 ﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Frontend\CairoGrid.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Frontend\MainWindow.cs">
     <Files>
-      <File FileName="Frontend\MainWindow.cs" Line="55" Column="55" />
-      <File FileName="Frontend\CairoGrid.cs" Line="18" Column="18" />
-      <File FileName="Frontend\CairoGraphic.cs" Line="13" Column="13" />
+      <File FileName="Frontend\MainWindow.cs" Line="37" Column="37" />
+      <File FileName="Frontend\CairoGrid.cs" Line="22" Column="22" />
+      <File FileName="Frontend\CairoGraphic.cs" Line="39" Column="39" />
+      <File FileName="Frontend\OperationWidget.cs" Line="24" Column="24" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

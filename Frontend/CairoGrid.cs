@@ -28,7 +28,8 @@ namespace Frontend
 
                 using (Context context = Gdk.CairoHelper.Create(window))
                 {
-                    context.Source = new Pattern(surface);
+                    context.SetSource(new SurfacePattern(surface));
+                    //context.Source = new Pattern(surface);
                     context.Paint();
 
                     for (int countHeight = 0; countHeight < height; countHeight++)
