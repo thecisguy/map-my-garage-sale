@@ -29,8 +29,8 @@ namespace Frontend
                 using (Context context = Gdk.CairoHelper.Create(window))
                 {
                     context.SetSource(new SurfacePattern(surface));
-                    //context.Source = new Pattern(surface);
                     context.Paint();
+                    //context.MoveTo(0,0); 
 
                     for (int countHeight = 0; countHeight < height; countHeight++)
                     {
@@ -39,12 +39,16 @@ namespace Frontend
                             DrawTile(context, new PointD(countWidth, countHeight));
                         }
                     }
+                    context.ClosePath();
+                    context.Stroke();
                 }
+
 
             }
  
 
         }
+
 
         /// <summary>
         /// Takes in color and starting point and draws a line.  This line is a
@@ -55,17 +59,12 @@ namespace Frontend
         private void DrawTile(Context context, PointD point)
         {
 
-            Cairo.Color color = new Cairo.Color(0.8, 0.8, 0.8, 0.1); //spoofing color no engine call yet
+            Cairo.Color color = new Cairo.Color(0.8, 0.8, 0.8, 0.5); //spoofing color no engine call yet
 
             context.Antialias = Antialias.None;
-            context.LineWidth = 4;
             context.SetSourceRGBA(color.R, color.G, color.B, color.A);
             context.LineCap = LineCap.Square;
-            context.MoveTo(point);
-
-            PointD padPoint = new PointD(point.X + 10, point.Y + 10);
-            context.LineTo(padPoint);
-            context.Stroke();
+            context.LineTo(point.X, point.Y);
         }
 
         protected override bool OnExposeEvent(Gdk.EventExpose args)
