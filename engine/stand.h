@@ -35,6 +35,12 @@ struct stand_template {
 	grid t;
 
 	char *name;
+
+	// color info
+	double red;
+	double green;
+	double blue;
+	double alpha;
 };
 
 struct stand {
@@ -60,8 +66,7 @@ struct stand {
 	application_data appd;
 };
 
-stand new_stand(stand_template t, double red,
-		double green, double blue, double alpha);
+stand new_stand(stand_template t);
 
 void del_stand(stand s);
 

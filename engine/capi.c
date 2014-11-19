@@ -200,12 +200,7 @@ static void mirror_selected_stand(void) {
 static void grab_new_stand(int32_t st_num) {
 	assert(main_templates);
 	assert(st_num < num_main_templates && st_num >= 0);
-	double red = rand() / (double) RAND_MAX;
-	double green = rand() / (double) RAND_MAX;
-	double blue = rand() / (double) RAND_MAX;
-	double alpha = rand() / (double) RAND_MAX;
-	grabbed_stand = new_stand(main_templates + st_num,
-	red, green, blue, alpha);
+	grabbed_stand = new_stand(main_templates + st_num);
 }
 
 /* Checks the applicability of the grabbed stand onto the Main Grid
