@@ -7,8 +7,7 @@ namespace Frontend
     public class CairoGrid : DrawingArea, IDisposable
     {
         public CairoGrid()
-        {
-        }
+        { }
 
         /// <summary>
         /// Takes in width, height and calls draw method
@@ -30,7 +29,6 @@ namespace Frontend
                 {
                     context.SetSource(new SurfacePattern(surface));
                     context.Paint();
-                    //context.MoveTo(0,0); 
 
                     for (int countHeight = 0; countHeight < height; countHeight++)
                     {
@@ -42,13 +40,8 @@ namespace Frontend
                     context.ClosePath();
                     context.Stroke();
                 }
-
-
             }
- 
-
         }
-
 
         /// <summary>
         /// Takes in color and starting point and draws a line.  This line is a
@@ -58,7 +51,6 @@ namespace Frontend
         /// <param name="point">Point.</param>
         private void DrawTile(Context context, PointD point)
         {
-
             Cairo.Color color = new Cairo.Color(0.8, 0.8, 0.8, 0.5); //spoofing color no engine call yet
 
             context.Antialias = Antialias.None;
