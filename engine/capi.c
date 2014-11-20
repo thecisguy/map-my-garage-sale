@@ -58,6 +58,8 @@ static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column);
 static void do_apply_grabbed_stand(void);
 static void remove_grabbed_stand(void);
 static void grab_selected_stand(void);
+static uint32_t get_main_grid_height(void);
+static uint32_t get_main_grid_width(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -134,6 +136,10 @@ static void register_api_functions(void) {
 	                       remove_grabbed_stand);
 	mono_add_internal_call("csapi.EngineAPI::grabSelectedStandRaw",
 	                       grab_selected_stand);
+	mono_add_internal_call("csapi.EngineAPI::getMainGridHeightRaw",
+	                       get_main_grid_height);
+	mono_add_internal_call("csapi.EngineAPI::getMainGridWidthRaw",
+	                       get_main_grid_width);
 }
 
 void initialize_mono(const char *filename) {
@@ -200,12 +206,7 @@ static void mirror_selected_stand(void) {
 static void grab_new_stand(int32_t st_num) {
 	assert(main_templates);
 	assert(st_num < num_main_templates && st_num >= 0);
-	double red = rand() / (double) RAND_MAX;
-	double green = rand() / (double) RAND_MAX;
-	double blue = rand() / (double) RAND_MAX;
-	double alpha = rand() / (double) RAND_MAX;
-	grabbed_stand = new_stand(main_templates + st_num,
-	red, green, blue, alpha);
+	grabbed_stand = new_stand(main_templates + st_num);
 }
 
 /* Checks the applicability of the grabbed stand onto the Main Grid
@@ -239,4 +240,14 @@ static void grab_selected_stand(void) {
 		remove_grabbed_stand();
 	grabbed_stand = selected_stand;
 	selected_stand = NULL;
+}
+
+/* Returns height of Main Grid */
+static uint32_t get_main_grid_height(void) {
+	return main_grid->height;
+}
+
+/* Returns height of Main Grid */
+static uint32_t get_main_grid_width(void) {
+	return main_grid->width;
 }

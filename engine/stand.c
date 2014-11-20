@@ -65,8 +65,7 @@ struct application_data {
 static void del_application_list(application_node n);
 static void del_application_data(application_data appd);
 
-stand new_stand(stand_template tem, double red,
-		double green, double blue, double alpha) {
+stand new_stand(stand_template tem) {
 	assert(tem);
 	
 	stand ns = malloc(sizeof(struct stand));
@@ -79,10 +78,10 @@ stand new_stand(stand_template tem, double red,
 	strcpy(ns->name, tem->name);
 
 	ns->g = NULL;
-	ns->red = red;
-	ns->green = green;
-	ns->blue = blue;
-	ns->alpha = alpha;
+	ns->red = tem->red;
+	ns->green = tem->green;
+	ns->blue = tem->blue;
+	ns->alpha = tem->alpha;
 	ns->appd = NULL;
 
 	ns->source = clone_grid(tem->t);
