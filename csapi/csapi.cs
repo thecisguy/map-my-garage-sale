@@ -64,6 +64,12 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void grabSelectedStandRaw();
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static uint getMainGridHeightRaw();
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static uint getMainGridWidthRaw();
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
@@ -109,6 +115,14 @@ namespace csapi {
 
 		public static void grabSelectedStand() {
 			grabSelectedStandRaw();
+		}
+
+		public static uint getMainGridHeight() {
+			return getMainGridHeightRaw();
+		}
+
+		public static uint getMainGridWidth() {
+			return getMainGridWidthRaw();
 		}
 	}
 }
