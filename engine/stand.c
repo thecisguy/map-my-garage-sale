@@ -161,7 +161,8 @@ bool can_apply(restrict stand s, restrict grid g,
 		for (uint32_t cur_column = 0; cur_column < s->source->width;
 		     cur_column++) {
 			tile from = grid_lookup(s->source, cur_row, cur_column);
-			if (!from->stand) // stand does not occupy this tile
+			if (!from->stand.stand_stand.s) 
+				// stand does not occupy this tile
 				continue;
 			int64_t target_row = row + cur_row;
 			int64_t target_column = column + cur_column;
@@ -169,7 +170,7 @@ bool can_apply(restrict stand s, restrict grid g,
 			    || target_column < 0 || target_column >= g->width)
 				goto out_fail; // target tile is off the grid
 			tile to = grid_lookup(g, target_row, target_column);
-			if (to->stand) // another stand occupies this tile
+			if (to->stand.stand_stand.s) // another stand occupies this tile
 				goto out_fail;
 			
 			// stand CAN be applied here
@@ -232,7 +233,7 @@ void do_apply(stand s) {
 
 	application_node n = s->appd->head;
 	while (n) {
-		n->t->stand = s;
+		n->t->stand.stand_stand.s = s;
 		n = n->next;
 	}
 
@@ -262,8 +263,8 @@ void remove_stand(stand s) {
 	for (uint32_t row = s->row; row < end_row; row++) {
 		for (uint32_t column = s->column; column < end_column; column++) {
 			tile t = grid_lookup(s->g, row, column);
-			if (t->stand == s)
-				t->stand = NULL;
+			if (t->stand.stand_stand.s == s)
+				t->stand.stand_stand.s = NULL;
 		}
 	}
 }

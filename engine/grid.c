@@ -74,7 +74,8 @@ static tile new_tile(uint32_t row, uint32_t column) {
 	nt->row = row;
 	nt->column = column;
 
-	nt->stand = NULL;
+	nt->stand.stand_proto.type = STAND;
+	nt->stand.stand_stand.s = NULL;
 
 	return nt;
 

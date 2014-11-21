@@ -30,6 +30,28 @@
 typedef struct tile *tile;
 typedef struct grid *grid;
 typedef struct stand *stand;
+typedef struct stand_template *stand_template;
+
+/* The stand-like type can represent either a stand or a
+ * stand_template, and should be used to pass these types to
+ * functions that don't care which one they get.
+ */
+enum stand_type {STAND, STAND_TEMPLATE};
+typedef union stand_like {
+	struct {
+		enum stand_type type;
+	} stand_proto;
+	struct {
+		enum stand_type type;
+		stand s;
+	} stand_stand;
+	struct {
+		enum stand_type type;
+		stand_template st;
+	} stand_st;
+} stand_like;
+//#define STAND_LIKE_POINTER(x) ((x).stand_proto.type == STAND ?
+//                               (x).stand_stand.s : (x).stand_st.st)
 
 struct tile {
 	tile up;
@@ -39,10 +61,7 @@ struct tile {
 	uint32_t row;
 	uint32_t column;
 
-	// may hold stand or stand_template
-	// might want to replace this with a complex union type
-	// in the future
-	void *stand;
+	stand_like stand;
 };
 
 struct grid {

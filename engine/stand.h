@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include "grid.h"
 
-typedef struct stand_template *stand_template;
 typedef struct application_data *application_data;
 
 struct stand_template {

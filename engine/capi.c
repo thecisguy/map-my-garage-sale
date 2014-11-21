@@ -66,7 +66,7 @@ static void load_user_file(MonoString *ufile);
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
 	double red, blue, green, alpha;
-	stand s = grid_lookup(main_grid, row, column)->stand;
+	stand s = grid_lookup(main_grid, row, column)->stand.stand_stand.s;
 	if (s) {
 		red = s->red;
 		blue = s->blue;
@@ -177,7 +177,8 @@ int execute_frontend(int argc, char* argv[]) {
  * click on a blank tile when attempting to "deselect" a Stand.)
  */
 static void select_stand(uint32_t row, uint32_t column) {
-	selected_stand = grid_lookup(main_grid, row, column)->stand;
+	selected_stand = grid_lookup(main_grid, row, column)->
+		stand.stand_stand.s;
 }
 
 /* Manually deselects the selected_stand.

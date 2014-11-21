@@ -34,7 +34,8 @@
 
 static void scan_whitespace(FILE *f);
 static bool read_stand_templates(FILE *f, struct stand_template **st);
-static grid read_grid(FILE *f, uint32_t height, uint32_t width, void *stand);
+static grid read_grid(FILE *f, uint32_t height,
+                      uint32_t width, stand_like stand);
 static bool read_stands(FILE *f, stand **s);
 
 bool load_file(FILE *f) {
@@ -130,8 +131,8 @@ bool load_file(FILE *f) {
 		tile *t = main_grid->lookup;
 		uint64_t len = main_grid->height * main_grid->width;
 		for (uint64_t i = 0; i < len; i++) {
-			if ((*t)->stand)
-				del_stand((*t)->stand);
+			if ((*t)->stand.stand_stand.s)
+				del_stand((*t)->stand.stand_stand.s);
 			t++;
 		}
 		del_grid(main_grid);
@@ -215,8 +216,11 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 			goto out_new_source;
 
 		stand_template t = &new_stand_templates[templates_i++];
+		stand_like tl;
+		tl.stand_proto.type = STAND_TEMPLATE;
+		tl.stand_st.st = t;
 
-		grid new_source = read_grid(f, height, width, (void *) t);
+		grid new_source = read_grid(f, height, width, tl);
 		if (!new_source)
 			goto out_new_source;
 
@@ -290,8 +294,11 @@ static bool read_stands(FILE *f, stand **stand_arr) {
 		s = (stand) malloc(sizeof(struct stand));
 		if (!s)
 			goto out_new_stand;
-
-		grid new_source = read_grid(f, height, width, (void *) s);
+		stand_like sl;
+		sl.stand_proto.type = STAND;
+		sl.stand_stand.s = s;
+		
+		grid new_source = read_grid(f, height, width, sl);
 		if (!new_source)
 			goto out_new_source;
 
@@ -328,7 +335,8 @@ static bool read_stands(FILE *f, stand **stand_arr) {
 		return 0;
 }
 
-static grid read_grid(FILE *f, uint32_t height, uint32_t width, void *stand) {
+static grid read_grid(FILE *f, uint32_t height,
+	              uint32_t width, stand_like stand) {
 	grid ng = new_grid(height, width);
 	if (!ng)
 		goto out_ng;
