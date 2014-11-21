@@ -13,11 +13,22 @@ S S;
 )
 
 stands[2](
-5:Table:130:130:130:255:4:4:
-0 0 0
-S S S
-S S S:
-3:2;
+5:Table:0:0:255:255:14:14:
+0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 S S S S S S S S S S 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0:
+100:100;
 
 4:Case:100:100:100:255:1:1:
 S:

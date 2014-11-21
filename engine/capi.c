@@ -111,7 +111,8 @@ void initialize_engine(void) {
 	srand(time(NULL));
 	
 	FILE *def = fopen("default_sale.mmgs", "r");
-	load_file(def);
+	bool load_success = load_file(def);
+	assert(load_success);
 	fclose(def);
 }
 
