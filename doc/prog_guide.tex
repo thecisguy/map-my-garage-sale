@@ -134,30 +134,50 @@ names of Stands and Stand Templates.
 \chapter{Frontend}
 
 \section{Design}
-Map My Garage Sales's User Interface was designed with the intent to make core functionality as accessible to the user as possible.  Ideally, the user will be able to get from a blank map to dragging a newly created stand onto the map in under 10 clicks.  This should easily be possible, thus allowing them to create an effective map of their garage sale with minimal overhead.  
+Map My Garage Sales's User Interface was designed with the intent to make core
+ functionality as accessible to the user as possible.  Ideally, the user will be able to 
+get from a blank map to dragging a newly created stand onto the map in under 10 
+clicks.  This should easily be possible, thus allowing them to create an effective map 
+of their garage sale with minimal overhead.  
 
 \subsection{Stand Placement \& Editing}
-Our workflow will move the user to the Create New Stand button to create a new Stand and give it a Name, Width, Height and Color.  This Stand will then be placed in the list of available Stands for them to drag into the Map Area.  Each time they drag a Stand Template from the list of available Stands a new instance of that Stand will be created shown on the Map Area.
+Our workflow will move the user to the Create New Stand button to create a new 
+Stand and give it a Name, Width, Height and Color.  This Stand will then be placed
+ in the list of available Stands for them to drag into the Map Area.  Each time they 
+drag a Stand Template from the list of available Stands a new instance of that Stand 
+will be created shown on the Map Area.
 
 
-\emph{Rotate Selected Stand} - Clicking this button will rotate a specific instance of a Stand they have selected in the Map Area by clicking the Rotate Stand button while it is selected.  This will rotate the stand 90 degrees clockwise for each time they click the Rotate Stand button.
+\emph{Rotate Selected Stand} - Clicking this button will rotate a specific instance of
+ a Stand they have selected in the Map Area by clicking the Rotate Stand button while 
+it is selected.  This will rotate the stand 90 degrees clockwise for each time they click 
+the Rotate Stand button.
 
-\emph{Rename Stand} - Clicking the Rename Stand button while a Stand Template is selected in the list of available Stands will bring up a dialog to rename the Stand Template.  
+\emph{Rename Stand} - Clicking the Rename Stand button while a Stand Template is 
+selected in the list of available Stands will bring up a dialog to rename the Stand Template.  
 
 \begin{itemize}
 	\item NOTE - This will rename all instances of the Stand on the Map Area.
 \end{itemize}
 
-\emph{Delete Selected Stand} - Clicking the Delete Selected Stand button while a Stand Template is selected will remove the instance of the Stand from the Map Area.
+\emph{Delete Selected Stand} - Clicking the Delete Selected Stand button while a 
+Stand Template is selected will remove the instance of the Stand from the Map Area.
 
-\emph{Display Grid} - The Display Grid ToggleButton will turn on grid lines if users find it eases the Stand placement process.
+\emph{Display Grid} - The Display Grid ToggleButton will turn on grid lines if users 
+find it eases the Stand placement process.
 
-\emph{Stand Metadata} - Next to the Display Grid ToggleButton, the Name, Width and Height will be displayed about the currently selected Stand.
+\emph{Stand Metadata} - Next to the Display Grid ToggleButton, the Name, Width
+ and Height will be displayed about the currently selected Stand.
 
 \section{Stetic \& Xamarin Studio}
-The entire Frontend portion of Map My Garage Sale was developed using Xamarin Studio 5.  Xamarin Studio incorporates the Stetic UI designer for use with the GTK Sharp library.  Early on, this was the main way the User Interface was designed, but further experience with the designer yielded unsatisfactory results and manual instantiation and initialization was used to create a large portion of the GUI.
+The entire Frontend portion of Map My Garage Sale was developed using Xamarin
+ Studio 5.  Xamarin Studio incorporates the Stetic UI designer for use with the GTK
+ Sharp library.  Early on, this was the main way the User Interface was designed, but
+ further experience with the designer yielded unsatisfactory results and manual
+ instantiation and initialization was used to create a large portion of the GUI.
 
-Non-generated code for User Interface initialization can be found in the SetupUI methods in the respective classes in the root Frontend namespace.
+Non-generated code for User Interface initialization can be found in the SetupUI 
+methods in the respective classes in the root Frontend namespace.
 
 
 \section{Mono.Cairo}
