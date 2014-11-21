@@ -180,6 +180,7 @@ bool can_apply(restrict stand s, restrict grid g,
 					goto out_fail;
 				tail = head;
 				head->t = to;
+				head->next = NULL;
 			} else {
 				tail->next = (application_node)
 					malloc(sizeof(struct application_node));
@@ -187,6 +188,7 @@ bool can_apply(restrict stand s, restrict grid g,
 					goto out_fail;
 				tail = tail->next;
 				tail->t = to;
+				tail->next = NULL;
 			}
 		}
 	}
