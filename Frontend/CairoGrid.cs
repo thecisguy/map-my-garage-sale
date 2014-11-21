@@ -1,4 +1,5 @@
 ﻿using Cairo;
+using csapi;
 using Gtk;
 using System;
 
@@ -6,8 +7,14 @@ namespace Frontend
 {
     public class CairoGrid : DrawingArea, IDisposable
     {
+        public uint Height { get; set; }
+        public uint Width { get; set; }
+        public string BackdropPath { get; set;}
+
         public CairoGrid()
-        { }
+        {}
+
+        #region Drawing Methods
 
         /// <summary>
         /// Takes in width, height and calls draw method
@@ -15,31 +22,54 @@ namespace Frontend
         /// <param name="window">Window.</param>
         /// <param name="width">Width.</param>
         /// <param name="height">Height.</param>
-        public void DrawGrid(Gdk.Window window, uint width, uint height)
+        public void DrawGrid(Gdk.Window window)
         {
-            Gdk.Pixbuf pb = new Gdk.Pixbuf("testbackdrop.png");
-            pb = pb.ScaleSimple(600, 400, Gdk.InterpType.Bilinear);
-            pb.Save("temp", "png");
-
-            //paint the image and then the tiles
-            using (ImageSurface surface = new ImageSurface("temp"))
+            if (BackdropPath.Length > 0)
             {
 
-                using (Context context = Gdk.CairoHelper.Create(window))
+                //conversion to signed integer needed for scaling
+                using (Gdk.Pixbuf pb = new Gdk.Pixbuf("testbackdrop.png").ScaleSimple(Convert.ToInt32(Width), Convert.ToInt32(Height), Gdk.InterpType.Bilinear))
                 {
-                    context.SetSource(new SurfacePattern(surface));
-                    context.Paint();
-
-                    for (int countHeight = 0; countHeight < height; countHeight++)
+                    try
                     {
-                        for (int countWidth = 0; countWidth < width; countWidth++)
+                        pb.Save("temp", "png");
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Unable to save a scaled copy of the backdrop image");
+                    }
+
+                    //paint the image and then the tiles
+                    using (ImageSurface surface = new ImageSurface("temp"))
+                    {
+                        using (Context context = Gdk.CairoHelper.Create(window))
                         {
-                            DrawTile(context, new PointD(countWidth, countHeight));
+                            context.SetSource(new SurfacePattern(surface));
+                            context.Paint();
+                            Draw(window);
                         }
                     }
-                    context.ClosePath();
-                    context.Stroke();
                 }
+            }
+            else
+            {
+                Draw(window);  
+            }
+        }
+
+        private void Draw(Gdk.Window window)
+        {
+            using (Context context = Gdk.CairoHelper.Create(window))
+            {
+                for (int countHeight = 0; countHeight < Height; countHeight++)
+                {
+                    for (int countWidth = 0; countWidth < Width; countWidth++)
+                    {
+                        DrawTile(context, new PointD(countWidth, countHeight));
+                    }
+                }
+                context.ClosePath();
+                context.Stroke();
             }
         }
 
@@ -59,11 +89,17 @@ namespace Frontend
             context.LineTo(point.X, point.Y);
         }
 
+        #endregion
+
+        #region Control Events
+
         protected override bool OnExposeEvent(Gdk.EventExpose args)
         {
-            DrawGrid(args.Window, 600u, 500u); 
+            DrawGrid(args.Window); 
             return true;
         }
+
+        #endregion
     }
 }
 
