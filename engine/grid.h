@@ -50,8 +50,6 @@ typedef union stand_like {
 		stand_template st;
 	} stand_st;
 } stand_like;
-//#define STAND_LIKE_POINTER(x) ((x).stand_proto.type == STAND ?
-//                               (x).stand_stand.s : (x).stand_st.st)
 
 struct tile {
 	tile up;
