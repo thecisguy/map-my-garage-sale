@@ -46,8 +46,6 @@ public partial class MainWindow: Gtk.Window
     private const string STR_DELETESTAND_BUTTON = "Delete selected Stand";
     private const string STR_REMOVESTAND_TOOLTIP = "Remove the selected Stand from the Map";
     private const string STR_REMOVESTAND_BUTTON = "Remove selected Stand";
-    private const string STR_INSERTEXISTINGSTAND_BUTTON = "Insert Existing Stand";
-    private const string STR_INSERTEXISTINGSTAND_TOOLTIP = "Insert an existing stand at the selected cell on the map.";
     private const string STR_RENAMESTAND_BUTTON = "Rename selected Stand";
     private const string STR_RENAMESTAND_TOOLTIP = "Rename the selected Stand.";
     private const string STR_TOGGLEGRID_BUTTON = "Display Grid";
@@ -160,22 +158,15 @@ public partial class MainWindow: Gtk.Window
         hboxStand.PackStart(rotateButton, false, false, 3);
 
         //Create a box to hold both the rotate button and existing button
-        VBox rotateAndExistingBox = new VBox (false, 6);
-
-        //Insert existing stand
-        Gtk.Button insertExistingButton = new Gtk.Button (STR_INSERTEXISTINGSTAND_BUTTON);
-        insertExistingButton.Show ();
-        insertExistingButton.Clicked += insertExistingButton_Clicked;
-        insertExistingButton.TooltipText = STR_INSERTEXISTINGSTAND_TOOLTIP;
-        rotateAndExistingBox.PackStart (insertExistingButton, false, false, 3);
+        VBox rotateBox = new VBox (false, 6);
 
         //Remove selected stand
         Gtk.Button removeStandButton = new Gtk.Button (STR_REMOVESTAND_BUTTON);
         removeStandButton.Show ();
         removeStandButton.Clicked += removeStandButton_Clicked;
         removeStandButton.TooltipText = STR_REMOVESTAND_TOOLTIP;
-        rotateAndExistingBox.PackStart (removeStandButton, false, false, 3);
-        hboxStand.PackStart (rotateAndExistingBox, false, false, 3);
+        rotateBox.PackStart (removeStandButton, false, false, 3);
+        hboxStand.PackStart (rotateBox, false, false, 3);
 
         //More ui stuff outside of stetic generation - this seems to be MUCH more stable than making changes in the designer
 
@@ -215,6 +206,39 @@ public partial class MainWindow: Gtk.Window
         w5.RightAttach = ((uint)(2));
         w5.XOptions = ((Gtk.AttachOptions)(4));
 
+        #region MenuBar setup
+        MenuItem menuItem = new MenuItem("File");
+        Menu menu = new Menu();
+
+        AccelGroup accelGroup = new AccelGroup();
+        AddAccelGroup(accelGroup);
+
+        ImageMenuItem openImageItem = new ImageMenuItem(Stock.Open, accelGroup);
+        openImageItem.AddAccelerator("activate", accelGroup, new AccelKey(Gdk.Key.o, Gdk.ModifierType.ControlMask, AccelFlags.Visible));
+
+        ImageMenuItem saveImageItem = new ImageMenuItem(Stock.Save, accelGroup);
+        saveImageItem.AddAccelerator("activate", accelGroup, new AccelKey(Gdk.Key.s, Gdk.ModifierType.ControlMask, AccelFlags.Visible));
+
+        MenuItem backdropImageItem = new MenuItem("Change Backdrop");
+        backdropImageItem.AddAccelerator("activate", accelGroup, new AccelKey(Gdk.Key.s, Gdk.ModifierType.ShiftMask, AccelFlags.Visible));
+
+        ImageMenuItem exitImageItem = new ImageMenuItem(Stock.Quit, accelGroup);
+        exitImageItem.AddAccelerator("activate", accelGroup, new AccelKey(Gdk.Key.q, Gdk.ModifierType.ControlMask, AccelFlags.Visible));
+
+        menu.Append(openImageItem);
+        menu.Append(saveImageItem);
+        menu.Append(new SeparatorMenuItem());
+        menu.Append(backdropImageItem);
+        menu.Append(new SeparatorMenuItem());
+        menu.Append(exitImageItem);
+        menuItem.Submenu = menu;
+        menubar.Append(menuItem);
+        Gtk.Table.TableChild menuChild = ((Gtk.Table.TableChild)(this.MainTable [this.menubar]));
+        menuChild.TopAttach = ((uint)(0));
+        menuChild.BottomAttach = ((uint)(1));
+        menuChild.RightAttach = ((uint)(3));
+        #endregion
+
         //Create a box to hold both the delete and rename buttons
         VBox deleteAndRenameBox = new VBox (false, 6);
 
@@ -235,12 +259,7 @@ public partial class MainWindow: Gtk.Window
         hboxRename.PackEnd (deleteAndRenameBox, false, false, 3);
 
         LoadDefaultGrid();
-
-        //CairoGraphic.drawGrid();  //draws the grid to an image file for now.  This will probably change once core is hooked up.
-        //Image g = new Image ("grid.png"); //file created from CairoGraphic draw call.
-        //g.Show ();
-        //vboxGrid.Add (g);
-
+      
         //ToggleButton for Grid on/of
         ToggleButton gridToggleButton = new ToggleButton (STR_TOGGLEGRID_BUTTON);
         gridToggleButton.Show ();
@@ -267,11 +286,34 @@ public partial class MainWindow: Gtk.Window
     /// </summary>
     private void LoadDefaultGrid()
     {
-        //Draw Grid - not pulling info from engine yet
-        CairoGrid grid = new CairoGrid();
+        uint height = 400u;
+        uint width = 600u;
+
+        try{
+            height = EngineAPI.getMainGridHeight();
+            width = EngineAPI.getMainGridWidth();
+        }catch(MissingMethodException)
+        {
+            //catch this temporarily 
+
+        }
+        catch(System.Security.SecurityException)
+        {
+
+        }
+             
+        //Draw Grid
+        CairoGrid grid = new CairoGrid()
+        {
+            Height = height,
+            Width = width,
+            BackdropPath = "testbackdrop.png"
+        };
+
         vboxGrid.Add(grid);
         vboxGrid.ShowAll();
     }
+
 
     /// <summary>
     /// Loads up stand data from the passed in file if able
@@ -315,18 +357,6 @@ public partial class MainWindow: Gtk.Window
         LoadStands(fileName);
     }
         
-
-    /// <summary>
-    /// Retrieves data about a stand currently placed on the grid.
-    /// </summary>
-    /// <param name="standKeyID">Stand key I.</param>
-    private void retrieveStandInGridFromEngine(int standKeyID)
-    {
-        //TODO - this call needs to return a Stand object -  EngineAPI.selectStand(0, 0); 
-
-    }
-
-
     #endregion
 
 	#region Control Events
@@ -426,10 +456,6 @@ public partial class MainWindow: Gtk.Window
     }
 
     protected void rotateButton_Clicked(object sender, EventArgs e)
-    {
-    }
-
-    protected void insertExistingButton_Clicked(object sender, EventArgs e)
     {
     }
 
