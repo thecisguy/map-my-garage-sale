@@ -42,7 +42,7 @@ bool load_file(FILE *f) {
 	char filetype[5];
 	for (int i = 0; i < 4; i++) {
 		// did we get EOF?
-		if (!(c = fgetc(f))) return false;
+		if ((c = fgetc(f)) == EOF) return false;
 		filetype[i] = (char) c;
 	}
 	filetype[4] = '\0';
@@ -51,12 +51,12 @@ bool load_file(FILE *f) {
 
 	(void) fgetc(f); //skip next colon
 	int file_version = 0;
-	while ((c = fgetc(f)) && c != ';') {
+	while ((c = fgetc(f)) != EOF && c != ';') {
 		// non-numeric character?
 		if (!isdigit(c)) return false;
 		file_version = file_version * 10 + (c - '0');
 	}
-
+	
 	// new data, to be moved if successful
 	int32_t new_num_templates = 0;
 	struct stand_template *new_st_arr = NULL;
@@ -65,11 +65,12 @@ bool load_file(FILE *f) {
 	grid new_main_grid = NULL;
 
 	scan_whitespace(f);
-	while (c) {
+	while ((c = fgetc(f)) != EOF) {
 		char blockname[101];
 		blockname[0] = c;
 		int i = 0;
-		while (++i < 100 && (c = fgetc(f)) && c != '(' && c != '[') {
+		while (++i < 100 && (c = fgetc(f)) != EOF
+		       && c != '(' && c != '[') {
 			blockname[i] = c;
 		}
 		blockname[i] = '\0';
@@ -110,6 +111,37 @@ bool load_file(FILE *f) {
 
 		scan_whitespace(f);
 	}
+
+	// apply new stands
+	if (!new_main_grid)
+		goto out_fail;
+	for (int i = 0; i < new_num_stands; i++) {
+		stand cur = new_stand_arr[i];
+		bool ok = can_apply(cur, new_main_grid, cur->row, cur->column);
+		if (!ok)
+			goto out_fail;
+		do_apply(cur);
+	}
+
+	// copy other data
+	if (new_st_arr)
+		main_templates = new_st_arr;
+	if (main_grid) {
+		tile *t = main_grid->lookup;
+		uint64_t len = main_grid->height * main_grid->width;
+		for (uint64_t i = 0; i < len; i++) {
+			if ((*t)->stand)
+				del_stand((*t)->stand);
+			t++;
+		}
+		del_grid(main_grid);
+	}
+	main_grid = new_main_grid;
+
+	//cleanup
+	free(new_stand_arr); // only removes the container, the stands inside
+	                     // are safely in the grid
+	
 	return true;
 
 out_fail:;
@@ -118,6 +150,13 @@ out_fail:;
 			free(new_st_arr[i].name);
 			del_grid(new_st_arr[i].t);
 		 }
+		 free(new_st_arr);
+	 }
+	 if (new_stand_arr) {
+		 for (int i = 0; i < new_num_stands; i++) {
+			 del_stand(new_stand_arr[i]);
+		 }
+		 free(new_stand_arr);
 	 }
 	 if (new_main_grid) {
 		 del_grid(new_main_grid);
@@ -127,7 +166,7 @@ out_fail:;
 
 static void scan_whitespace(FILE *f) {
 	int c;
-	while((c = fgetc(f)) && isspace(c));
+	while((c = fgetc(f)) != EOF && isspace(c));
 	ungetc(c, f);
 }
 
@@ -153,12 +192,12 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 	int templates_i = 0;
 	int c;
 	char *name;
-	while ((c = fgetc(f)) != ')') {
+	while ((c = fgetc(f)) != EOF && c != ')') {
 		if (isspace(c)) continue;
 		int name_len = 0;
 		do {
 			name_len = name_len * 10 + (c - '0');
-		} while ((c = fgetc(f)) != ':');
+		} while ((c = fgetc(f)) != EOF && c != ':');
 		
 		name = (char *) malloc(sizeof(char) * (name_len + 1));
 		if (!name)
@@ -220,7 +259,7 @@ static bool read_stands(FILE *f, stand **stand_arr) {
 	int c;
 	char *name;
 	stand s = NULL;
-	while ((c = fgetc(f)) != ')') {
+	while ((c = fgetc(f)) != EOF && c != ')') {
 		if (isspace(c)) continue;
 		int name_len = 0;
 		do {
@@ -256,11 +295,20 @@ static bool read_stands(FILE *f, stand **stand_arr) {
 		if (!new_source)
 			goto out_new_source;
 
+		uint64_t row;
+		uint64_t column;
+		scan_val = fscanf(f, "%" SCNu64 ":%" SCNu64 ";", &row, &column);
+		if (scan_val == EOF || scan_val < 2)
+			goto out_new_source;
+
 		s->name = name;
 		s->source = new_source;
 		s->red = red / 255.0;
 		s->green = green / 255.0;
 		s->blue = blue / 255.0;
+		s->alpha = alpha / 255.0;
+		s->row = row;
+		s->column = column;
 		new_stands[stands_i++] = s;
 	}
 	*stand_arr = new_stands;
@@ -288,7 +336,7 @@ static grid read_grid(FILE *f, uint32_t height, uint32_t width, void *stand) {
 	int c;
 	// exploits the row-major order of the lookup table
 	tile *t = ng->lookup;
-	while ((c = fgetc(f)) && c != ';' && c != ':') {
+	while ((c = fgetc(f)) != EOF && c != ';' && c != ':') {
 		if (isspace(c)) continue;
 		if (c == '0') {
 			// nothing to do here, as tiles' stand pointers

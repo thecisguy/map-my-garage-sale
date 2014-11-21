@@ -36,8 +36,9 @@
 #include "grid.h"
 #include "stand.h"
 #include "capi.h"
+#include "save_n_load.h"
 
-static grid main_grid;
+grid main_grid;
 static stand selected_stand = NULL;
 static stand grabbed_stand = NULL;
 static MonoDomain *main_domain;
@@ -104,11 +105,13 @@ static void debug_print_mono_info(MonoObject *obj) {
 
 void initialize_engine(void) {
 	// initialize globals
-	main_grid = new_grid(100u, 100u);
+	main_grid = new_grid(400u, 400u);
 
 	srand(time(NULL));
 	
-	// TODO load default save
+	FILE *def = fopen("default_sale.mmgs", "r");
+	load_file(def);
+	fclose(def);
 }
 
 static void register_api_functions(void) {
