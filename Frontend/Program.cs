@@ -30,9 +30,20 @@ namespace Frontend
 		public static void Main (string[] args)
 		{
 			Application.Init ();
-			MainWindow win = new MainWindow ();
-			win.ShowAll ();
-			Application.Run ();
+            MainWindow win = new MainWindow (); 
+           
+            GLib.ExceptionManager.UnhandledException += (GLib.UnhandledExceptionArgs e) => {
+
+                using(MessageDialog md = new MessageDialog(null, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
+                    "Uh oh!  There was an issue!  Send a screenshot of this to the devs so they can fix it.", null))
+                {
+                    md.Run();
+                    md.Destroy();
+                }
+                win.Destroy();
+            };
+            win.ShowAll ();
+            Application.Run ();
 		}
 	}
 }
