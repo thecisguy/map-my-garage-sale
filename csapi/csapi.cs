@@ -70,6 +70,9 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static uint getMainGridWidthRaw();
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void loadUserFileRaw(string filename);
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
@@ -123,6 +126,10 @@ namespace csapi {
 
 		public static uint getMainGridWidth() {
 			return getMainGridWidthRaw();
+		}
+
+		public static void loadUserFile(string filename) {
+			loadUserFileRaw(filename);
 		}
 	}
 }
