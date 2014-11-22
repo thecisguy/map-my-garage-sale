@@ -82,6 +82,7 @@ namespace Frontend
         private void DrawTile(Context context, PointD point)
         {
             Cairo.Color color = EngineAPI.getColorOfTile((uint) point.Y,(uint) point.X); //spoofing color no engine call yet
+Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
 
             context.Antialias = Antialias.None;
             context.SetSourceRGBA(color.R, color.G, color.B, color.A);

@@ -77,7 +77,8 @@ namespace csapi {
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
 			double[] data = getColorOfTileRaw(row, column);
-			return new Color(data[0], data[1], data[2], data[3]);
+			Color test = new Color(data[0], data[1], data[2], data[3]);
+			return test;
 		}
 
 		public static void selectStand(uint row, uint column) {
