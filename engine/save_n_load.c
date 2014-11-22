@@ -368,3 +368,62 @@ out_fail:;
 out_ng:;
 	return NULL;
 }
+
+#define FILE_VERSION 1
+
+bool save_file(FILE *f) {
+	fprintf(f, "MMGS:%i;\n\n", FILE_VERSION);
+
+	print_stand_templates(f);
+	print_stands(f);
+
+	fprintf("maingrid(\n%" PRIu32 ":" PRIu32 "\n)\n\n",
+			main_grid->width, main_grid->height);
+}
+
+static void print_stand_templates(FILE *f);
+static void print_stand_templates(FILE *f) {
+	if (num_main_templates < 1)
+		return;
+
+	fprintf(f, "standtemplates[" PRIi32 "](\n", num_main_templates);
+
+	for (int32_t i = 0; i < num_main_templates; i++) {'
+		stand_template tt = main_templates + i;
+		grid tgrid = tt->t;
+		fprintf(f, "%z:%s:" PRIu32 ":" PRIu32 ":\n",
+				strlen(tt->name), tt->name,
+				tgrid->width, tgrid->height);
+		print_grid(f, tt);
+		fprintf(f, ";\n\n");
+	}
+
+	fprintf(f, ")\n\n");
+}
+
+static void print_grid(FILE *f, grid g);
+static void print_grid(FILE *f, grid g) {
+	// exploits the row-major order of the lookup table
+	tile *t = g->lookup;
+	uint64_t len = g->height * g->width;
+	for (uint64_t i = 0; i < len; i++) {
+		if ((*t)->stand.stand_proto.type == STAND) {
+			if ((*t)->stand.stand_stand.s) {
+				fprintf(f, "S");
+			} else {
+				fprintf(f, "0");
+			}
+		} else {
+			if ((*t)->stand.stand_st.st) {
+				fprintf(f, "S");
+			} else {
+				fprintf(f, "0");
+			}
+		}
+		t++;
+	}
+}
+
+static void print_stands(FILE *f);
+static void print_stands(FILE *f) {
+}
