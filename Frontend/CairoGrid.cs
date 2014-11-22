@@ -38,17 +38,17 @@ namespace Frontend
                     {
                         Console.WriteLine("Unable to save a scaled copy of the backdrop image");
                     }
-
-                    //paint the image and then the tiles
-                    using (ImageSurface surface = new ImageSurface("temp"))
-                    {
-                        using (Context context = Gdk.CairoHelper.Create(window))
+                        
+                        //paint the image and then the tiles
+                        using (ImageSurface surface = new ImageSurface("temp"))
                         {
-                            context.SetSource(new SurfacePattern(surface));
-                            context.Paint();
-                            Draw(window);
+                            using (Context context = Gdk.CairoHelper.Create(window))
+                            {
+                                context.SetSource(new SurfacePattern(surface));
+                                context.Paint();
+                                Draw(window);
+                            }
                         }
-                    }
                 }
             }
             else
