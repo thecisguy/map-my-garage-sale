@@ -29,21 +29,26 @@ namespace Frontend
 	{
 		public static void Main (string[] args)
 		{
+
 			Application.Init ();
             MainWindow win = new MainWindow (); 
            
-            GLib.ExceptionManager.UnhandledException += (GLib.UnhandledExceptionArgs e) => {
 
-                using(MessageDialog md = new MessageDialog(null, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
-                    "Uh oh!  There was an issue!  Send a screenshot of this to the devs so they can fix it.", null))
+            GLib.ExceptionManager.UnhandledException += (GLib.UnhandledExceptionArgs e) => {
+                Exception exc = (Exception)e.ExceptionObject;
+                win.Destroy();
+
+                using(MessageDialog md = new MessageDialog(win, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
+                    string.Format("Error.  Send a screenshot of this to the devs so they can fix it: \n{0} \n\n{1}", exc.Message, exc.StackTrace)))
                 {
                     md.Run();
                     md.Destroy();
+                    win.Destroy();
                 }
-                win.Destroy();
             };
             win.ShowAll ();
             Application.Run ();
 		}
+       
 	}
 }

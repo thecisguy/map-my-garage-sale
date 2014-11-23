@@ -66,12 +66,25 @@ public partial class MainWindow: Gtk.Window
     private HBox standsBox;
     private global::Gtk.HBox hboxToggle;
     private global::Gtk.Label metadataLabel;
+    private DrawingArea testStandTemplateDrawingArea;
+    private CairoGrid gridDrawingArea;
 
 
     /// <summary>
     /// Maintains a list of all stands.  Design for how this works is a WIP.
     /// </summary>
     private AppState AppState;
+
+    enum TargetType {
+        String,
+        RootWindow
+    };
+
+    private static TargetEntry [] target_table = new TargetEntry [] {
+        new TargetEntry ("STRING", 0, (uint) TargetType.String ),
+        new TargetEntry ("text/plain", 0, (uint) TargetType.String),
+        new TargetEntry ("application/x-rootwindow-drop", 0, (uint) TargetType.RootWindow)
+    };
 
     #endregion
 
@@ -95,7 +108,7 @@ public partial class MainWindow: Gtk.Window
         this.Title = STR_WINDOWTITLE;
         this.Icon = new Gdk.Pixbuf("Assets/icon.ico");
 
-        /*
+        /**
          * Below is setup that I am unable to configure via the Designer and as such it is much easier to initialize and set
          * objects and properties than doing this in the Build() since that is machine generated code. - JPolaniec
          */
@@ -258,10 +271,9 @@ public partial class MainWindow: Gtk.Window
 
         hboxRename.PackEnd (deleteAndRenameBox, false, false, 3);
 
-        LoadDefaultGrid();
-      
         //ToggleButton for Grid on/of
         ToggleButton gridToggleButton = new ToggleButton (STR_TOGGLEGRID_BUTTON);
+        gridToggleButton.Clicked += new EventHandler(gridToggleButton_OnClicked);
         gridToggleButton.Show ();
         hboxToggle.PackStart (gridToggleButton, false, false, 3);
 
@@ -278,40 +290,56 @@ public partial class MainWindow: Gtk.Window
         StandFrame.Add(standsBox);
         MainTable.Attach(StandFrame, 2, 3, 2, 5);
 
-
+        InitializeGrid();
     }
 
     /// <summary>
-    /// Draws the default grid.
+    /// Draws the grid.
     /// </summary>
-    private void LoadDefaultGrid()
+    private bool InitializeGrid()
     {
+        bool isSuccessful = false;
         uint height = 400u;
         uint width = 600u;
 
         try{
             height = EngineAPI.getMainGridHeight();
             width = EngineAPI.getMainGridWidth();
-        }catch(MissingMethodException)
+
+            //Draw Grid
+            gridDrawingArea = new CairoGrid()
+            {
+                Height = height,
+                Width = width,
+                BackdropPath = "testbackdrop.png",
+                DrawLines = true
+            };
+
+            vboxGrid.Add(gridDrawingArea);
+
+            //set drag and drop events for newly drawn grid
+            Gtk.Drag.DestSet(gridDrawingArea, DestDefaults.All, target_table, Gdk.DragAction.Copy | Gdk.DragAction.Move);
+            gridDrawingArea.DragDrop += new DragDropHandler(GridDragDropHandler);
+            gridDrawingArea.DragMotion += new DragMotionHandler(GridDragMotionHandler);
+            gridDrawingArea.DragDataReceived += new DragDataReceivedHandler(GridDragDataReceivedHandler);
+            vboxGrid.ShowAll();
+
+            isSuccessful = true;
+
+        }catch(MissingMethodException me)
         {
             //catch this temporarily 
-
+            Console.WriteLine("Missing method exception hit: \n" + me.Message + "\n\n" + me.StackTrace);
         }
-        catch(System.Security.SecurityException)
+        catch(System.Security.SecurityException se)
         {
-
+            Console.WriteLine("SecurityException hit: \n" + se.StackTrace);
         }
-             
-        //Draw Grid
-        CairoGrid grid = new CairoGrid()
+        catch(Exception e)
         {
-            Height = height,
-            Width = width,
-            BackdropPath = "testbackdrop.png"
-        };
-
-        vboxGrid.Add(grid);
-        vboxGrid.ShowAll();
+            Console.WriteLine("Exception while loading grid: " + e.Message + "\n\n" + e.StackTrace);
+        }
+        return isSuccessful;
     }
 
 
@@ -319,42 +347,24 @@ public partial class MainWindow: Gtk.Window
     /// Loads up stand data from the passed in file if able
     /// </summary>
     /// <param name="fileName">File name.</param>
-    private void LoadStands(string fileName = "")
+    private void LoadStandTemplates(string fileName = "")
     {
         //TODO - load up all existing stands for the StandsFrame here.  Get data from save file
-        if (fileName.Length > 0)
-        {
-            //TODO - load the stand data from this file
-        }
-        else
-        {
-            //no file path specified so assume it's a new map and there are no stands for now.
-            #if DEBUG
-            Console.WriteLine("No file path passed in so assume no stand data - which means no stands to load up");
-            #endif
-        }
+        //TOOD - I need access to the stand templates from the API
     }
-
-    /// <summary>
-    /// Paints stands and data onto the grid when opening an existing file
-    /// </summary>
-    private void PaintGridFromSave()
-    {
-        //TODO - Requires a loaded Grid object
-    }
+        
 
     /// <summary>
     /// Refreshes the window properties and stands.
     /// </summary>
     /// <param name="title">Title.</param>
-    private void RefreshUI(string title = STR_WINDOWTITLE, string fileName = "")
+    private void RefreshUI(string fileName)
     {
-        this.Title = title;
-
-        //TODO - wipe and load grid
+        this.Title = STR_NEWMAP_DIALOG_TITLE + fileName;
+        InitializeGrid();
 
         //reload stands for file
-        LoadStands(fileName);
+        LoadStandTemplates();
     }
         
     #endregion
@@ -369,6 +379,10 @@ public partial class MainWindow: Gtk.Window
         
     protected void saveButton_Clicked(object sender, EventArgs e)
     {
+        if (AppState.IsUIDirty)
+        {
+            //TODO - Save map
+        }
     }
 
     protected void newMapButton_Clicked(object sender, EventArgs e)
@@ -407,11 +421,9 @@ public partial class MainWindow: Gtk.Window
         {
             case ResponseType.Ok:
                 {
-                    //TODO - Save map data
+                    //TODO - Save map data.  Need an api call to complete this
 
                     Console.WriteLine("Done saving new Map - " + fileName + ".  Working to implement Saving of object.");
-
-                    this.RefreshUI(STR_WINDOWTITLE + fileName, fileName);
                     break;
                 }
             default:
@@ -455,12 +467,19 @@ public partial class MainWindow: Gtk.Window
         }
     }
 
+    /// <summary>
+    /// Rotate the selected stand 90 degrees clockwise if there is one in the grid
+    /// </summary>
+    /// <param name="sender">Sender.</param>
+    /// <param name="e">E.</param>
     protected void rotateButton_Clicked(object sender, EventArgs e)
     {
+        EngineAPI.rotateSelectedStand(true);
     }
 
     protected void removeStandButton_Clicked(object sender, EventArgs e)
     {
+
     }
 
     protected void deleteStandButton_Clicked(object sender, EventArgs e)
@@ -469,37 +488,118 @@ public partial class MainWindow: Gtk.Window
 
     protected void renameStandButton_Clicked(object sender, EventArgs e)
     {
+
     }
        
     protected void OnStandFrameExposeEvent (object o, ExposeEventArgs args)
     {
-        //Testing drawing a stand - a rectangle in Cairo
+        //Testing drawing a stand template 
         Gtk.Frame standFrame = (Gtk.Frame)o;
 
         HBox stand = new HBox(true, 0);
-        DrawingArea drawingArea = new CairoGraphic(0, 0, 75, 60);
-        Gtk.Drag.SourceSet(drawingArea, Gdk.ModifierType.Button1Mask, null, Gdk.DragAction.Copy | Gdk.DragAction.Move);
-        drawingArea.DragDataGet += new Gtk.DragDataGetHandler(HandleSourceDragDataGet);
-        drawingArea.DragBegin += new Gtk.DragBeginHandler(HandleSourceDragDataBegin);
+        testStandTemplateDrawingArea = new CairoGraphic(0, 0, 75, 60);
+        Gtk.Drag.SourceSet(testStandTemplateDrawingArea, Gdk.ModifierType.Button1Mask, target_table, Gdk.DragAction.Copy | Gdk.DragAction.Move);
+        testStandTemplateDrawingArea.DragDataGet += new Gtk.DragDataGetHandler(StandTemplateSourceDragDataGet);
+        testStandTemplateDrawingArea.DragBegin += new Gtk.DragBeginHandler(StandTemplateSourceDragDataBegin);
+        testStandTemplateDrawingArea.DragEnd += new Gtk.DragEndHandler(StandTemplateSourceDragDataEnd);
 
-        stand.Add(drawingArea);
+        stand.Add(testStandTemplateDrawingArea);
         stand.ShowAll();
         standsBox.Add(stand);
     }
 
-    protected void HandleSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
+    protected void StandTemplateSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
     {
         Console.WriteLine("Stand now being dragged.");
+        EngineAPI.grabNewStand(0); //TODO - Need to discuss with blake on determining ID
     }
 
-    protected void HandleSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)
+    protected void StandTemplateSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)
+    {
+        Console.WriteLine("Stand Drag data get");
+    }
+
+    protected void StandTemplateSourceDragDataEnd(object sender, Gtk.DragEndArgs args)
     {
         Console.WriteLine("Stand no longer being dragged.");
     }
 
+    void GridDragDropHandler(object o, DragDropArgs args)
+    {
+        Console.WriteLine("Stand dropped at (" + args.X + ", " + args.Y + ")");
+//       bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.X, (uint)args.Y);
+//        if (canApplyStand)
+//        {
+//            EngineAPI.doApplyGrabbedStand();
+//            grid.DrawGrid();
+//      }
+//       else
+//      {
+//          using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Unable to apply Stand here."))
+//           {
+//               md.Run();
+//               md.Destroy();
+//           }
+//        }
+
+    }
+
+    void GridDragDataReceivedHandler(object o, DragDataReceivedArgs args)
+    {
+        Console.WriteLine("Grid received drag data");
+
+    }
+
+    void GridDragMotionHandler(object o, DragMotionArgs args)
+    {
+        Console.WriteLine("Grid Drag motion detected at (" + args.X + ", " + args.Y + ")");
+    }
+
+    /// <summary>
+    /// Users selects a file from the File dialog
+    /// </summary>
+    /// <param name="sender">Sender.</param>
+    /// <param name="e">E.</param>
     protected void fileChooserButton_FileSet(object sender, EventArgs e)
     {
+        FileChooserButton btn = (FileChooserButton)sender;
+        if (System.IO.File.Exists(btn.Filename))
+        {
+            string fileName = btn.Filename;
+            EngineAPI.loadUserFile(fileName);
+            RefreshUI(fileName);
+        }
+    }
 
+    /// <summary>
+    /// When the user presses escape, deselect the currently selected stand in the grid if there is one
+    /// </summary>
+    /// <param name="o">O.</param>
+    /// <param name="args">Arguments.</param>
+    protected void MainWindow_OnKeyPress (object o, KeyPressEventArgs args)
+    {
+        if(args.Event.Key.Equals("Escape"))
+        {
+            EngineAPI.deselectStand();
+        }
+    }
+
+    /// <summary>
+    /// Determines whether or not to draw the actual grid lines on the mapping area.
+    /// </summary>
+    /// <param name="sender">Sender.</param>
+    /// <param name="e">E.</param>
+    protected void gridToggleButton_OnClicked(object sender, EventArgs e)
+    {
+        if (gridDrawingArea.DrawLines)
+        {
+            gridDrawingArea.DrawLines = false;
+        }
+        else
+        {
+            gridDrawingArea.DrawLines = true;
+        }
+        gridDrawingArea.DrawGrid();
     }
     #endregion
 }

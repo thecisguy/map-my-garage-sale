@@ -9,10 +9,13 @@ namespace Frontend
     {
         public uint Height { get; set; }
         public uint Width { get; set; }
-        public string BackdropPath { get; set;}
+        public string BackdropPath { get; set; }
+        private Gdk.Window window;
+        public bool DrawLines = true;
 
         public CairoGrid()
-        {}
+        {
+        }
 
         #region Drawing Methods
 
@@ -22,7 +25,7 @@ namespace Frontend
         /// <param name="window">Window.</param>
         /// <param name="width">Width.</param>
         /// <param name="height">Height.</param>
-        public void DrawGrid(Gdk.Window window)
+        public void DrawGrid()
         {
             if (BackdropPath.Length > 0)
             {
@@ -38,7 +41,7 @@ namespace Frontend
                     {
                         Console.WriteLine("Unable to save a scaled copy of the backdrop image");
                     }
-
+                        
                     //paint the image and then the tiles
                     using (ImageSurface surface = new ImageSurface("temp"))
                     {
@@ -46,20 +49,46 @@ namespace Frontend
                         {
                             context.SetSource(new SurfacePattern(surface));
                             context.Paint();
-                            Draw(window);
+                            Draw(context);
+
+                            if (DrawLines)
+                            {
+                                DrawGridLines(context);
+                            }
                         }
                     }
                 }
             }
             else
             {
-                Draw(window);  
+                Draw();  
             }
         }
 
-        private void Draw(Gdk.Window window)
+        /// <summary>
+        /// Used when user wants a backdrop.  Saves creating a new context for no reason.
+        /// </summary>
+        /// <param name="context">Context.</param>
+        private void Draw(Context context)
         {
-            using (Context context = Gdk.CairoHelper.Create(window))
+            for (int countHeight = 0; countHeight < Height; countHeight++)
+            {
+                for (int countWidth = 0; countWidth < Width; countWidth++)
+                {
+                    DrawTile(context, new PointD(countWidth, countHeight));
+                }
+                context.ClosePath();
+                context.Stroke();
+            }   
+        }
+
+
+        /// <summary>
+        /// Overload for when user wants no backdrop.  
+        /// </summary>
+        private void Draw()
+        {
+            using(Context context = Gdk.CairoHelper.Create(window))
             {
                 for (int countHeight = 0; countHeight < Height; countHeight++)
                 {
@@ -67,10 +96,58 @@ namespace Frontend
                     {
                         DrawTile(context, new PointD(countWidth, countHeight));
                     }
+                    context.ClosePath();
+                    context.Stroke();
+                }   
+            }
+        }
+
+        /// <summary>
+        /// Draws actual grid lines on the mapping area
+        /// </summary>
+        private void DrawGridLines(Context context)
+        {
+            //vertical grid lines
+            for (int countHeight = 0; countHeight < Height; countHeight++)
+            {
+                for (int countWidth = 0; countWidth < Width; countWidth+= 50)
+                {
+                    DrawVerticalLine(context, new PointD(countWidth, countHeight));
                 }
                 context.ClosePath();
                 context.Stroke();
             }
+
+            //horizontal grid lines
+            for (int countWidth = 0; countWidth < Width; countWidth++)
+            {
+                for (int countHeight = 0; countHeight < Height; countHeight += 50)
+                {
+                    DrawHorizontalLine(context, new PointD(countWidth, countHeight));
+                }
+                context.ClosePath();
+                context.Stroke();
+            }
+        }
+
+        private void DrawVerticalLine(Context context, PointD point)
+        {
+            context.Antialias = Antialias.Default;
+            context.SetSourceRGBA(0.9, 0.5, 0.1, 0.9);
+            context.LineCap = LineCap.Square;
+            context.LineWidth = 0.3;
+            context.MoveTo(point.X, point.Y);
+            context.LineTo(point.X + 5, point.Y);
+        }
+
+        private void DrawHorizontalLine(Context context, PointD point)
+        {
+            context.Antialias = Antialias.Default;
+            context.SetSourceRGBA(0.9, 0.5, 0.1, 0.9);
+            context.LineCap = LineCap.Square;
+            context.LineWidth = 0.3;
+            context.MoveTo(point.X, point.Y);
+            context.LineTo(point.X, point.Y+5);
         }
 
         /// <summary>
@@ -96,7 +173,8 @@ Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" 
 
         protected override bool OnExposeEvent(Gdk.EventExpose args)
         {
-            DrawGrid(args.Window); 
+            window = args.Window;
+            DrawGrid(); 
             return true;
         }
 
