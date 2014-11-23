@@ -273,6 +273,7 @@ public partial class MainWindow: Gtk.Window
 
         //ToggleButton for Grid on/of
         ToggleButton gridToggleButton = new ToggleButton (STR_TOGGLEGRID_BUTTON);
+        gridToggleButton.Clicked += new EventHandler(gridToggleButton_OnClicked);
         gridToggleButton.Show ();
         hboxToggle.PackStart (gridToggleButton, false, false, 3);
 
@@ -302,8 +303,8 @@ public partial class MainWindow: Gtk.Window
         uint width = 600u;
 
         try{
-            height = EngineAPI.getMainGridHeight();
-            width = EngineAPI.getMainGridWidth();
+           // height = EngineAPI.getMainGridHeight();
+            //width = EngineAPI.getMainGridWidth();
 
             //Draw Grid
             gridDrawingArea = new CairoGrid()
@@ -311,6 +312,7 @@ public partial class MainWindow: Gtk.Window
                 Height = height,
                 Width = width,
                 BackdropPath = "testbackdrop.png",
+                DrawLines = true
             };
 
             vboxGrid.Add(gridDrawingArea);
@@ -581,6 +583,23 @@ public partial class MainWindow: Gtk.Window
             EngineAPI.deselectStand();
         }
     }
-        
+
+    /// <summary>
+    /// Determines whether or not to draw the actual grid lines on the mapping area.
+    /// </summary>
+    /// <param name="sender">Sender.</param>
+    /// <param name="e">E.</param>
+    protected void gridToggleButton_OnClicked(object sender, EventArgs e)
+    {
+        if (gridDrawingArea.DrawLines)
+        {
+            gridDrawingArea.DrawLines = false;
+        }
+        else
+        {
+            gridDrawingArea.DrawLines = true;
+        }
+        gridDrawingArea.DrawGrid();
+    }
     #endregion
 }
