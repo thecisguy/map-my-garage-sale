@@ -77,8 +77,6 @@ namespace Frontend
                 {
                     DrawTile(context, new PointD(countWidth, countHeight));
                 }
-                context.ClosePath();
-                context.Stroke();
             }   
         }
 
@@ -96,8 +94,6 @@ namespace Frontend
                     {
                         DrawTile(context, new PointD(countWidth, countHeight));
                     }
-                    context.ClosePath();
-                    context.Stroke();
                 }   
             }
         }
@@ -159,12 +155,15 @@ namespace Frontend
         private void DrawTile(Context context, PointD point)
         {
             Cairo.Color color = EngineAPI.getColorOfTile((uint) point.Y,(uint) point.X); //spoofing color no engine call yet
-Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
+//Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
 
             context.Antialias = Antialias.None;
             context.SetSourceRGBA(color.R, color.G, color.B, color.A);
-            context.LineCap = LineCap.Square;
+            context.LineCap = LineCap.Round;
+            context.MoveTo(point.X, point.Y);
             context.LineTo(point.X, point.Y);
+            context.ClosePath();
+            context.Stroke();
         }
 
         #endregion
