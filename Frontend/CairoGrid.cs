@@ -158,7 +158,7 @@ namespace Frontend
         /// <param name="point">Point.</param>
         private void DrawTile(Context context, PointD point)
         {
-            Cairo.Color color = new Cairo.Color(0, 0, 0, 0.1); //EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); //spoofing color no engine call yet
+            Cairo.Color color = EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); //spoofing color no engine call yet
 
             context.Antialias = Antialias.None;
             context.SetSourceRGBA(color.R, color.G, color.B, color.A);

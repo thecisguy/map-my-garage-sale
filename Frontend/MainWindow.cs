@@ -303,8 +303,8 @@ public partial class MainWindow: Gtk.Window
         uint width = 600u;
 
         try{
-           // height = EngineAPI.getMainGridHeight();
-            //width = EngineAPI.getMainGridWidth();
+            height = EngineAPI.getMainGridHeight();
+            width = EngineAPI.getMainGridWidth();
 
             //Draw Grid
             gridDrawingArea = new CairoGrid()
