@@ -66,8 +66,10 @@ public partial class MainWindow: Gtk.Window
     private HBox standsBox;
     private global::Gtk.HBox hboxToggle;
     private global::Gtk.Label metadataLabel;
-    private DrawingArea testStandTemplateDrawingArea;
-    private CairoGrid gridDrawingArea;
+    private Gtk.Frame StandFrame;
+    private DrawingArea Grid;
+    private NodeView view;
+    private bool isRedraw = false;
 
 
     /// <summary>
@@ -204,11 +206,11 @@ public partial class MainWindow: Gtk.Window
         w4.TopAttach = ((uint)(5));
         w4.BottomAttach = ((uint)(6));
         w4.LeftAttach = ((uint)(1));
-        w4.RightAttach = ((uint)(2));
+        w4.RightAttach = ((uint)(3));
         w4.XOptions = ((Gtk.AttachOptions)(4));
         w4.YOptions = ((Gtk.AttachOptions)(4));
 
-        // Grid VBox
+        //Grid VBox;
         this.vboxGrid = new Gtk.VBox ();
         this.vboxGrid.Name = "vboxGrid";
         this.vboxGrid.Spacing = 6;
@@ -216,7 +218,7 @@ public partial class MainWindow: Gtk.Window
         Gtk.Table.TableChild w5 = ((Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
         w5.TopAttach = ((uint)(2));
         w5.BottomAttach = ((uint)(5));
-        w5.RightAttach = ((uint)(2));
+        w5.RightAttach = ((uint)(3));
         w5.XOptions = ((Gtk.AttachOptions)(4));
 
         #region MenuBar setup
@@ -278,54 +280,55 @@ public partial class MainWindow: Gtk.Window
         hboxToggle.PackStart (gridToggleButton, false, false, 3);
 
         //Stands Frame
-        Gtk.Frame StandFrame = new Gtk.Frame();
+        StandFrame = new Gtk.Frame();
         StandFrame.ExposeEvent += OnStandFrameExposeEvent;
         StandFrame.TooltipText = STR_STANDFRAME_TOOLTIP;
         StandFrame.CanFocus = true;
         StandFrame.ShadowType = ((Gtk.ShadowType)(1));
         StandFrame.BorderWidth = ((uint)(1));
         StandFrame.Show();
+
         standsBox = new HBox(true, 1);
         standsBox.Show();
-        StandFrame.Add(standsBox);
-        MainTable.Attach(StandFrame, 2, 3, 2, 5);
+        //StandFrame.Add(standsBox);
+        MainTable.Attach(StandFrame, 3, 4, 2, 5);
 
         InitializeGrid();
+        InitializeStandTemplates();
     }
 
     /// <summary>
     /// Draws the grid.
     /// </summary>
-    private bool InitializeGrid()
+    private void InitializeGrid()
     {
-        bool isSuccessful = false;
+        //testing
+        Grid = new DrawingArea();
+
+        Grid.ExposeEvent += new ExposeEventHandler(GridExposeEvent);
+        Grid.DragMotion += new DragMotionHandler(GridDragMotion);
+        Grid.DragDataReceived += new DragDataReceivedHandler(GridDragDataReceived);
+        Grid.DragDrop += new DragDropHandler(GridDragDrop);
+
+        Gtk.Drag.DestSet(Grid, DestDefaults.Drop | DestDefaults.Motion, target_table, Gdk.DragAction.Copy);
+        Grid.AddEvents((int)
+            (Gdk.EventMask.ButtonPressMask
+                | Gdk.EventMask.KeyPressMask));
+        Grid.KeyPressEvent += new KeyPressEventHandler(GridKeyPress);
+        Grid.ButtonPressEvent += new ButtonPressEventHandler(GridButtonPress);
+
+        //TODO - load engine data here prior to showing so we aren't leaking exposes everywhere?
+         //this has to set a static prop for a switch in event_expose
+
         uint height = 400u;
-        uint width = 600u;
+        uint width = 750u;
+
+        CairoGrid.Height = height;
+        CairoGrid.Width = width;
 
         try{
             height = EngineAPI.getMainGridHeight();
             width = EngineAPI.getMainGridWidth();
-
-            //Draw Grid
-            gridDrawingArea = new CairoGrid()
-            {
-                Height = height,
-                Width = width,
-                BackdropPath = "testbackdrop.png",
-                DrawLines = true
-            };
-
-            vboxGrid.Add(gridDrawingArea);
-
-            //set drag and drop events for newly drawn grid
-            Gtk.Drag.DestSet(gridDrawingArea, DestDefaults.All, target_table, Gdk.DragAction.Copy | Gdk.DragAction.Move);
-            gridDrawingArea.DragDrop += new DragDropHandler(GridDragDropHandler);
-            gridDrawingArea.DragMotion += new DragMotionHandler(GridDragMotionHandler);
-            gridDrawingArea.DragDataReceived += new DragDataReceivedHandler(GridDragDataReceivedHandler);
-            vboxGrid.ShowAll();
-
-            isSuccessful = true;
-
         }catch(MissingMethodException me)
         {
             //catch this temporarily 
@@ -339,34 +342,113 @@ public partial class MainWindow: Gtk.Window
         {
             Console.WriteLine("Exception while loading grid: " + e.Message + "\n\n" + e.StackTrace);
         }
-        return isSuccessful;
+
+        vboxGrid.Add(Grid); 
+        vboxGrid.ShowAll();//expose fired here for grid
+
+        //endtesting
     }
 
-
-    /// <summary>
-    /// Loads up stand data from the passed in file if able
-    /// </summary>
-    /// <param name="fileName">File name.</param>
-    private void LoadStandTemplates(string fileName = "")
+    private void InitializeStandTemplates()
     {
-        //TODO - load up all existing stands for the StandsFrame here.  Get data from save file
-        //TOOD - I need access to the stand templates from the API
-    }
-        
+        //testing nodeview
+        NodeStore store = new NodeStore(typeof(Stand));
+        store.AddNode(new Stand(0, "Toys", new Cairo.Color(.49584,.78561,.94151,1),  40, 70));
+        store.AddNode(new Stand(1, "Movies", new Cairo.Color(.67854,.78561,.94151,1), 100, 90));
+        store.AddNode(new Stand(2, "Books and CDs", new Cairo.Color(.228,.15611,.7561,1), 75, 90));
+        store.AddNode(new Stand(3, "Vintage Action Figures", new Cairo.Color(.9843,.78561,.94151,1), 60, 40));
+        view = new NodeView(store);
 
-    /// <summary>
-    /// Refreshes the window properties and stands.
-    /// </summary>
-    /// <param name="title">Title.</param>
-    private void RefreshUI(string fileName)
+        Gtk.Drag.SourceSet(view, Gdk.ModifierType.Button1Mask, target_table, Gdk.DragAction.Copy);
+        view.DragDataGet += new Gtk.DragDataGetHandler(StandTemplateSourceDragDataGet);
+        view.DragBegin += new Gtk.DragBeginHandler(StandTemplateSourceDragDataBegin);
+        view.DragEnd += new Gtk.DragEndHandler(StandTemplateSourceDragDataEnd);
+
+        //view.AppendColumn("Icon", new Gtk.CellRendererPixbuf(), "pixbuf", 0);
+        view.AppendColumn("ID", new Gtk.CellRendererText(), "text", 0);
+        view.AppendColumn("Name", new Gtk.CellRendererText(), "text", 1);
+        view.AppendColumn("Height", new Gtk.CellRendererText(), "text", 2);
+        view.AppendColumn("Width", new Gtk.CellRendererText(), "text", 3);
+
+        view.ShowAll();
+        //end testing
+
+        StandFrame.Add(view);
+    }
+
+    protected void GridDragDataReceived(object o, DragDataReceivedArgs args)
     {
-        this.Title = STR_NEWMAP_DIALOG_TITLE + fileName;
-        InitializeGrid();
+        Console.WriteLine("Drag Data Received at: " + args.X + ", " + args.Y);
+        Console.WriteLine("Drag Data SelectionData = " + args.SelectionData.Text);
+        Stand stand = new Stand(args.SelectionData.Text);
 
-        //reload stands for file
-        LoadStandTemplates();
+        //       bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.X, (uint)args.Y);
+        //        if (canApplyStand)
+        //        {
+        //            EngineAPI.doApplyGrabbedStand();
+        //            grid.DrawGrid();
+        //      }
+        //       else
+        //      {
+        //          using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Unable to apply Stand here."))
+        //           {
+        //               md.Run();
+        //               md.Destroy();
+        //           }
+        //        }
+
+        CairoStand.Height = stand.Height;
+        CairoStand.Width = stand.Width;
+        CairoStand.Color = stand.Color;
+        Grid.QueueDrawArea(args.X, args.Y, stand.Width, stand.Height);
     }
-        
+
+    protected void GridDragDrop(object o, DragDropArgs args)
+    {
+        Console.WriteLine("Grid Drag Drop: " + args.X + ", " + args.Y);
+    }
+
+    protected void GridExposeEvent(object o, ExposeEventArgs args)
+    {
+        Console.WriteLine("Grid expose fired.");
+        if (isRedraw)
+        {
+            Console.WriteLine("Grid - isredraw");
+            using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
+            {
+                CairoStand.Draw(context, args.Event.Area.X, args.Event.Area.Y);
+            }
+            isRedraw = false;
+        }
+        else
+        {
+            Console.WriteLine("not redraw (or drag action)");
+            using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
+            {
+                CairoGrid.DrawGrid(context);
+            }
+        }
+    }
+
+    protected void GridDragMotion(object o, DragMotionArgs args)
+    {
+        Console.WriteLine("Grid Drag Motion: " + args.X + ", " + args.Y);
+    }
+
+    protected void GridKeyPress(object o, KeyPressEventArgs args)
+    {
+        Console.WriteLine("Key press: " + args.Event.Key.ToString());
+    }
+
+    protected void GridButtonPress(object o, ButtonPressEventArgs args)
+    {
+        Console.WriteLine("Button press: " + args.Event.Button.ToString());
+    }
+
+    protected void GridPointerMotion(object o, MotionNotifyEventArgs args)
+    {
+        Console.WriteLine("Pointer motion: " + args.Event.X + ", " + args.Event.Y);
+    }
     #endregion
 
 	#region Control Events
@@ -495,28 +577,39 @@ public partial class MainWindow: Gtk.Window
     {
         //Testing drawing a stand template 
         Gtk.Frame standFrame = (Gtk.Frame)o;
+       
+      
 
-        HBox stand = new HBox(true, 0);
-        testStandTemplateDrawingArea = new CairoGraphic(0, 0, 75, 60);
-        Gtk.Drag.SourceSet(testStandTemplateDrawingArea, Gdk.ModifierType.Button1Mask, target_table, Gdk.DragAction.Copy | Gdk.DragAction.Move);
-        testStandTemplateDrawingArea.DragDataGet += new Gtk.DragDataGetHandler(StandTemplateSourceDragDataGet);
-        testStandTemplateDrawingArea.DragBegin += new Gtk.DragBeginHandler(StandTemplateSourceDragDataBegin);
-        testStandTemplateDrawingArea.DragEnd += new Gtk.DragEndHandler(StandTemplateSourceDragDataEnd);
 
-        stand.Add(testStandTemplateDrawingArea);
-        stand.ShowAll();
-        standsBox.Add(stand);
+        //HBox stand = new HBox(true, 0);
+        //testStandTemplateDrawingArea = new CairoGraphic(0, 0, 75, 60);
+       
+
+        //stand.Add(testStandTemplateDrawingArea);
+        //stand.ShowAll();
+        //standsBox.Add(stand);
+
     }
+        
 
     protected void StandTemplateSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
     {
         Console.WriteLine("Stand now being dragged.");
-        EngineAPI.grabNewStand(0); //TODO - Need to discuss with blake on determining ID
+        isRedraw = true;
+        //EngineAPI.grabNewStand(0);
     }
 
     protected void StandTemplateSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)
     {
         Console.WriteLine("Stand Drag data get");
+        ITreeNode selectedNode = view.NodeSelection.SelectedNode;
+        if (selectedNode != null)
+        {
+            Stand stand = (Stand)view.NodeSelection.SelectedNode;
+            args.SelectionData.Text = stand.getPropertyString();
+            Console.WriteLine(args.SelectionData.Text);
+        }
+
     }
 
     protected void StandTemplateSourceDragDataEnd(object sender, Gtk.DragEndArgs args)
@@ -526,33 +619,8 @@ public partial class MainWindow: Gtk.Window
 
     void GridDragDropHandler(object o, DragDropArgs args)
     {
+        Console.WriteLine("Grid Drag Dropped");
         Console.WriteLine("Stand dropped at (" + args.X + ", " + args.Y + ")");
-//       bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.X, (uint)args.Y);
-//        if (canApplyStand)
-//        {
-//            EngineAPI.doApplyGrabbedStand();
-//            grid.DrawGrid();
-//      }
-//       else
-//      {
-//          using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Unable to apply Stand here."))
-//           {
-//               md.Run();
-//               md.Destroy();
-//           }
-//        }
-
-    }
-
-    void GridDragDataReceivedHandler(object o, DragDataReceivedArgs args)
-    {
-        Console.WriteLine("Grid received drag data");
-
-    }
-
-    void GridDragMotionHandler(object o, DragMotionArgs args)
-    {
-        Console.WriteLine("Grid Drag motion detected at (" + args.X + ", " + args.Y + ")");
     }
 
     /// <summary>
@@ -567,7 +635,7 @@ public partial class MainWindow: Gtk.Window
         {
             string fileName = btn.Filename;
             EngineAPI.loadUserFile(fileName);
-            RefreshUI(fileName);
+           // RefreshUI(fileName);
         }
     }
 
@@ -591,15 +659,14 @@ public partial class MainWindow: Gtk.Window
     /// <param name="e">E.</param>
     protected void gridToggleButton_OnClicked(object sender, EventArgs e)
     {
-        if (gridDrawingArea.DrawLines)
-        {
-            gridDrawingArea.DrawLines = false;
-        }
-        else
-        {
-            gridDrawingArea.DrawLines = true;
-        }
-        gridDrawingArea.DrawGrid();
+//        if (gridDrawingArea.DrawLines)
+//        {
+//            gridDrawingArea.DrawLines = false;
+//        }
+//        else
+//        {
+//            gridDrawingArea.DrawLines = true;
+//        }
     }
     #endregion
 }
