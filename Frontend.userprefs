@@ -1,15 +1,20 @@
 ﻿<Properties GitUserInfo="UsingGIT">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Frontend\MainWindow.cs">
+    <Files>
+      <File FileName="Frontend\CairoGrid.cs" Line="18" Column="18" />
+      <File FileName="Frontend\Stand.cs" Line="59" Column="59" />
+      <File FileName="Frontend\MainWindow.cs" Line="67" Column="67" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/home/jordan/map-my-garage-sale/Frontend/MainWindow.cs" line="171" column="1" />
+      <Breakpoint file="A:\Development\IDEs\Xamarin\Projects\map-my-garage-sale\Frontend\MainWindow.cs" line="370" column="1" />
+      <Breakpoint file="A:\Development\IDEs\Xamarin\Projects\map-my-garage-sale\Frontend\MainWindow.cs" line="608" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches>
     <Watch file="Frontend\MainWindow.cs" line="113" offsetX="342" offsetY="2016" expression="EngineAPI" liveUpdate="False" />
-    <Watch file="Frontend\MainWindow.cs" line="513" offsetX="619" offsetY="6270" expression="args" liveUpdate="False" />
-    <Watch file="Frontend\MainWindow.cs" line="513" offsetX="619" offsetY="6270" expression="args" liveUpdate="False" />
-    <Watch file="Frontend\MainWindow.cs" line="513" offsetX="619" offsetY="6270" expression="args" liveUpdate="False" />
   </MonoDevelop.Ide.DebuggingService.PinnedWatches>
 </Properties>

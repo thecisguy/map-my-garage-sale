@@ -101,6 +101,5 @@ public partial class MainWindow
 		}
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
-		this.KeyPressEvent += new global::Gtk.KeyPressEventHandler (this.MainWindow_OnKeyPress);
 	}
 }

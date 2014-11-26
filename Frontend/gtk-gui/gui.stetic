@@ -17,7 +17,6 @@
     <property name="DefaultWidth">1024</property>
     <property name="DefaultHeight">576</property>
     <signal name="DeleteEvent" handler="OnDeleteEvent" />
-    <signal name="KeyPressEvent" handler="MainWindow_OnKeyPress" />
     <child>
       <widget class="Gtk.Table" id="MainTable">
         <property name="MemberName">MainTable</property>
