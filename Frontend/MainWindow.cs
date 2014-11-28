@@ -69,7 +69,11 @@ public partial class MainWindow: Gtk.Window
     private Gtk.Frame StandFrame;
     private DrawingArea Grid;
     private NodeView view;
+    private NodeStore store;
     private bool isRedraw = false;
+    private bool isMousePressed = false;
+    private List<CairoMouse> clicks;
+    private int DrawType;
 
 
     /// <summary>
@@ -155,7 +159,7 @@ public partial class MainWindow: Gtk.Window
 
         //Stand options Widget setup
         //New Stand button
-        Widget newStandWidget = operationWidget.CreateOperationWidget (RES_NEWFILE_ICON, STR_NEWSTAND_BUTTON);
+        Widget newStandWidget = operationWidget.CreateOperationWidget (RES_ADDSTAND_ICON, STR_NEWSTAND_BUTTON);
         newStandWidget.Show ();
         Gtk.Button newStandButton = new Gtk.Button (newStandWidget);
         newStandButton.Clicked += newStandButton_Clicked;
@@ -281,7 +285,6 @@ public partial class MainWindow: Gtk.Window
 
         //Stands Frame
         StandFrame = new Gtk.Frame();
-        StandFrame.ExposeEvent += OnStandFrameExposeEvent;
         StandFrame.TooltipText = STR_STANDFRAME_TOOLTIP;
         StandFrame.CanFocus = true;
         StandFrame.ShadowType = ((Gtk.ShadowType)(1));
@@ -309,13 +312,17 @@ public partial class MainWindow: Gtk.Window
         Grid.DragMotion += new DragMotionHandler(GridDragMotion);
         Grid.DragDataReceived += new DragDataReceivedHandler(GridDragDataReceived);
         Grid.DragDrop += new DragDropHandler(GridDragDrop);
+        Grid.MotionNotifyEvent += new MotionNotifyEventHandler(GridMotionNotifyEvent);
 
         Gtk.Drag.DestSet(Grid, DestDefaults.Drop | DestDefaults.Motion, target_table, Gdk.DragAction.Copy);
         Grid.AddEvents((int)
             (Gdk.EventMask.ButtonPressMask
-                | Gdk.EventMask.KeyPressMask));
+                | Gdk.EventMask.ButtonReleaseMask
+                | Gdk.EventMask.KeyPressMask
+                | Gdk.EventMask.PointerMotionMask));
         Grid.KeyPressEvent += new KeyPressEventHandler(GridKeyPress);
         Grid.ButtonPressEvent += new ButtonPressEventHandler(GridButtonPress);
+        Grid.ButtonReleaseEvent += new ButtonReleaseEventHandler(GridButtonRelease);
 
         //TODO - load engine data here prior to showing so we aren't leaking exposes everywhere?
          //this has to set a static prop for a switch in event_expose
@@ -352,7 +359,7 @@ public partial class MainWindow: Gtk.Window
     private void InitializeStandTemplates()
     {
         //testing nodeview
-        NodeStore store = new NodeStore(typeof(Stand));
+        store = new NodeStore(typeof(Stand));
         store.AddNode(new Stand(0, "Toys", new Cairo.Color(.49584,.78561,.94151,1),  40, 70));
         store.AddNode(new Stand(1, "Movies", new Cairo.Color(.67854,.78561,.94151,1), 100, 90));
         store.AddNode(new Stand(2, "Books and CDs", new Cairo.Color(.228,.15611,.7561,1), 75, 90));
@@ -363,12 +370,13 @@ public partial class MainWindow: Gtk.Window
         view.DragDataGet += new Gtk.DragDataGetHandler(StandTemplateSourceDragDataGet);
         view.DragBegin += new Gtk.DragBeginHandler(StandTemplateSourceDragDataBegin);
         view.DragEnd += new Gtk.DragEndHandler(StandTemplateSourceDragDataEnd);
+        view.NodeSelection.Changed += new System.EventHandler(StandTemplateNodeSelectionChanged);
 
-        //view.AppendColumn("Icon", new Gtk.CellRendererPixbuf(), "pixbuf", 0);
         view.AppendColumn("ID", new Gtk.CellRendererText(), "text", 0);
-        view.AppendColumn("Name", new Gtk.CellRendererText(), "text", 1);
-        view.AppendColumn("Height", new Gtk.CellRendererText(), "text", 2);
-        view.AppendColumn("Width", new Gtk.CellRendererText(), "text", 3);
+        view.AppendColumn("Icon", new Gtk.CellRendererPixbuf(), "pixbuf", 1);
+        view.AppendColumn("Name", new Gtk.CellRendererText(), "text", 2);
+//        view.AppendColumn("Height", new Gtk.CellRendererText(), "text", 3);
+//        view.AppendColumn("Width", new Gtk.CellRendererText(), "text", 4);
 
         view.ShowAll();
         //end testing
@@ -425,14 +433,50 @@ public partial class MainWindow: Gtk.Window
             Console.WriteLine("not redraw (or drag action)");
             using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
             {
+                CairoGrid.BackdropPath = "testbackdrop.png";
                 CairoGrid.DrawGrid(context);
             }
+        }
+        switch (DrawType)
+        {
+            case (int)Enumerations.DrawType.ExistingStandRedraw:
+                {
+                    using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
+                    {
+                        Console.WriteLine("Existing stand draw option on expose");
+                        //new CairoMouse(new Point(args.Event.Area.X, args.Event.Area.Y)).Draw(context);
+
+                        //store old location values for stand
+                        //redraw original location stand was in using values from the grid
+
+                        //redraw new location for stand using cairostand props
+                        //EngineAPI.doApplyGrabbedStand();
+                        //TODO - send in width and height of stand from engine to create a new rectangle - need additional info from engine to do this
+                        CairoStand.Draw(context, args.Event.Area.X, args.Event.Area.Y); 
+
+                    }
+                    break;
+                }
+            default:
+                {
+                    Console.WriteLine("Default option on expose");
+                    break;
+                }
         }
     }
 
     protected void GridDragMotion(object o, DragMotionArgs args)
     {
         Console.WriteLine("Grid Drag Motion: " + args.X + ", " + args.Y);
+    }
+
+    protected void GridMotionNotifyEvent(object o, MotionNotifyEventArgs args)
+    {
+        if (isMousePressed)
+        {
+            Console.WriteLine("Grid motion with mouse at:" + args.Event.X + ", " + args.Event.Y);
+            clicks.Add(new CairoMouse(new Point(Convert.ToInt32(args.Event.X), Convert.ToInt32(args.Event.Y))));
+        }
     }
 
     protected void GridKeyPress(object o, KeyPressEventArgs args)
@@ -442,13 +486,38 @@ public partial class MainWindow: Gtk.Window
 
     protected void GridButtonPress(object o, ButtonPressEventArgs args)
     {
+        //TODO - did user click on a stand?
+            //if yes, draw a highlighting line around the coords received by engine
+        //EngineAPI.selectStand((uint)args.Event.X, (uint)args.Event.Y);
+
         Console.WriteLine("Button press: " + args.Event.Button.ToString());
+        isMousePressed = true;
+        if (clicks != null)
+        {
+            clicks.Clear();
+        }
+        else
+        {
+            clicks = new List<CairoMouse>();
+        }
     }
 
-    protected void GridPointerMotion(object o, MotionNotifyEventArgs args)
+    protected void GridButtonRelease(object o, ButtonReleaseEventArgs args)
     {
-        Console.WriteLine("Pointer motion: " + args.Event.X + ", " + args.Event.Y);
+        //TODO - did user click outside of a stand?  deselect currently selected stand.  
+        //TODO - Need a CairoSelector class to keep track of selected stand rectangle coords for redraws
+        Console.WriteLine("Button release: " + args.Event.Button.ToString());
+        isMousePressed = false;
+        if (clicks.Count > 0)
+        {
+            DrawType = (int)Enumerations.DrawType.ExistingStandRedraw;
+            foreach (CairoMouse m in clicks)
+            {
+                Grid.QueueDrawArea(m.Point.X, m.Point.Y, 5, 5);
+            }
+        }
     }
+
     #endregion
 
 	#region Control Events
@@ -463,13 +532,12 @@ public partial class MainWindow: Gtk.Window
     {
         if (AppState.IsUIDirty)
         {
-            //TODO - Save map
+            //TODO - Save map - need call
         }
     }
 
     protected void newMapButton_Clicked(object sender, EventArgs e)
     {
-        //TODO - Create AppState class that taps engine to check for a dirty file prior to showing this?  Can the csapi lib get this functionality?
         AppState.IsUIDirty = true;
 
         FileChooserDialog newMapSaveDialog = null;
@@ -504,7 +572,6 @@ public partial class MainWindow: Gtk.Window
             case ResponseType.Ok:
                 {
                     //TODO - Save map data.  Need an api call to complete this
-
                     Console.WriteLine("Done saving new Map - " + fileName + ".  Working to implement Saving of object.");
                     break;
                 }
@@ -523,7 +590,7 @@ public partial class MainWindow: Gtk.Window
 
         try
         {
-            newStandDialog = new NewStandTemplateDialog();
+            newStandDialog = new NewStandTemplateDialog(store);
             response = (ResponseType)newStandDialog.Run();
         }
         finally
@@ -538,7 +605,8 @@ public partial class MainWindow: Gtk.Window
         {
             case ResponseType.Ok: //set on the button's properties in the dialog
                 {
-                    Console.WriteLine("Done creating Stand.  Working to implement Saving of object.");
+                    Console.WriteLine("Done creating Stand.  Working to implement backend creation of new Stand object.");
+                    //TODO - create stand in engine
                     break;
                 }
             default:
@@ -554,43 +622,37 @@ public partial class MainWindow: Gtk.Window
     /// </summary>
     /// <param name="sender">Sender.</param>
     /// <param name="e">E.</param>
-    protected void rotateButton_Clicked(object sender, EventArgs e)
+    protected void rotateButton_Clicked(object sender, EventArgs args)
     {
-        EngineAPI.rotateSelectedStand(true);
+        //EngineAPI.rotateSelectedStand(true);
     }
 
-    protected void removeStandButton_Clicked(object sender, EventArgs e)
+    protected void removeStandButton_Clicked(object sender, EventArgs args)
     {
-
+        //EngineAPI.removeSelectedStand();
     }
 
-    protected void deleteStandButton_Clicked(object sender, EventArgs e)
+    protected void deleteStandButton_Clicked(object sender, EventArgs args)
     {
+        //TODO - need an api call to do this engine side - waiting on implementation
     }
 
-    protected void renameStandButton_Clicked(object sender, EventArgs e)
+    protected void renameStandButton_Clicked(object sender, EventArgs args)
     {
+        ITreeNode selectedNode = view.NodeSelection.SelectedNode;
+        if (selectedNode != null)
+        {
+            Stand stand = (Stand)view.NodeSelection.SelectedNode;
+            //TODO - need an api call to do this - waiting on implementation
+        }
+    }        
 
-    }
-       
-    protected void OnStandFrameExposeEvent (object o, ExposeEventArgs args)
+    protected void StandTemplateNodeSelectionChanged(object sender, EventArgs args)
     {
-        //Testing drawing a stand template 
-        Gtk.Frame standFrame = (Gtk.Frame)o;
-       
-      
-
-
-        //HBox stand = new HBox(true, 0);
-        //testStandTemplateDrawingArea = new CairoGraphic(0, 0, 75, 60);
-       
-
-        //stand.Add(testStandTemplateDrawingArea);
-        //stand.ShowAll();
-        //standsBox.Add(stand);
-
+        NodeSelection selectedNode = (NodeSelection)sender;
+        Stand node = (Stand)selectedNode.SelectedNode;
+        metadataLabel.Text = "Stand ID: " + node.StandID + " | Name: " + node.Name + " | Width: " + node.Width + "px | Height: " + node.Height + "px";
     }
-        
 
     protected void StandTemplateSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
     {
@@ -635,7 +697,7 @@ public partial class MainWindow: Gtk.Window
         {
             string fileName = btn.Filename;
             EngineAPI.loadUserFile(fileName);
-           // RefreshUI(fileName);
+            //TODO - refresh UI
         }
     }
 
