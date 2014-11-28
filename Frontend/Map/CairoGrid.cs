@@ -137,7 +137,7 @@ namespace Frontend.Map
             context.Antialias = Antialias.Default;
             context.SetSourceRGBA(0.9, 0.5, 0.1, 0.9);
             context.LineCap = LineCap.Square;
-            context.LineWidth = 0.3;
+            context.LineWidth = 0.2;
             context.MoveTo(point.X, point.Y);
             context.LineTo(point.X + 5, point.Y);
         }
@@ -147,7 +147,7 @@ namespace Frontend.Map
             context.Antialias = Antialias.Default;
             context.SetSourceRGBA(0.9, 0.5, 0.1, 0.9);
             context.LineCap = LineCap.Square;
-            context.LineWidth = 0.3;
+            context.LineWidth = 0.2;
             context.MoveTo(point.X, point.Y);
             context.LineTo(point.X, point.Y+5);
         }
@@ -160,9 +160,9 @@ namespace Frontend.Map
         /// <param name="point">Point.</param>
         private static void DrawTile(Context context, PointD point)
         {
-            Cairo.Color color1 = new Cairo.Color(0, 0, 0, 1);
+            Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
 
-            Cairo.Color color = color1;//EngineAPI.getColorOfTile((uint) point.Y,(uint) point.X); //spoofing color no engine call yet
+            Cairo.Color color = EngineAPI.getColorOfTile((uint) point.Y,(uint) point.X); //spoofing color no engine call yet
             //Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
 
             context.Antialias = Antialias.None;
