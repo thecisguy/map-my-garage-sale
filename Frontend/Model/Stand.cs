@@ -33,16 +33,18 @@ namespace Frontend
         public int StandID {get; set;}
 
         [Gtk.TreeNodeValue (Column=1)]
-        public string Name {get; set;}
+        public Pixbuf Icon{get; set;}
 
         [Gtk.TreeNodeValue (Column=2)]
+        public string Name {get; set;}
+
+//        [Gtk.TreeNodeValue (Column=3)]
         public int Height {get; set;}
 
-        [Gtk.TreeNodeValue (Column=3)]
+//        [Gtk.TreeNodeValue (Column=4)]
         public int Width { get; set;}
 
-        [Gtk.TreeNodeValue (Column=4)]
-        public Pixbuf ThumbNail{get; set;}
+
 
         public Cairo.Color Color{get; set;}
 
@@ -53,6 +55,7 @@ namespace Frontend
             this.Color = color;
             this.Width = width;
             this.Height = height;
+            this.Icon = createIcon();
         }
 
         public Stand(string propertyString)
@@ -73,11 +76,28 @@ namespace Frontend
             builder.Append (this.Color.R + ";" + this.Color.G + ";" + this.Color.B  + ";" + this.Color.A  + ";");
             builder.Append (this.Width.ToString () +";");
             builder.Append (this.Height.ToString ());
-            //TODO - icon as base64?
             return builder.ToString ();
         }
 
-
+        private Pixbuf createIcon()
+        {
+            Pixbuf icon;
+            using(ImageSurface surface = new ImageSurface(Format.ARGB32, 20, 20))
+            {
+                using(Context context = new Context(surface))
+                {
+                    context.SetSourceRGBA(this.Color.R, this.Color.G, this.Color.B, this.Color.A);
+                    context.Rectangle(new Cairo.Rectangle(0, 0, 20, 20));
+                    context.LineWidth = 3;
+                    context.Paint();
+                    context.Stroke();
+                    //icon = new Pixbuf(surface.Data); //unrecognized image format exception??
+                    surface.WriteToPng("icontemp.png");
+                    icon = new Pixbuf("icontemp.png");
+                }
+            }
+            return icon;
+        }
 
 
     }
