@@ -23,6 +23,7 @@
 using System;
 using Gtk;
 using Cairo;
+using csapi;
 
 namespace Frontend
 {
@@ -37,14 +38,15 @@ namespace Frontend
 
         private ColorSelection standColorSelector;
         private Entry nameEntry, widthEntry, heightEntry;
+        private NodeStore templatesStore;
         #endregion
 
         #region Constructor
-        public NewStandTemplateDialog()
+        public NewStandTemplateDialog(NodeStore mainTemplatesStore)
         {
             Build();
             SetupUI();
-           
+            this.templatesStore = mainTemplatesStore;
         }
         #endregion
 
@@ -108,7 +110,7 @@ namespace Frontend
             float.TryParse(widthEntry.Text.Trim(), out width);
             float.TryParse(heightEntry.Text.Trim(), out height);
 
-            if (name.Length > 0 && color.Equals(default(Gdk.Color)) && width > 0.0f && height > 0.0f)
+            if (name.Length > 0 && !color.Equals(default(Gdk.Color)) && width > 0.0f && height > 0.0f)
             {
                 retVal = true;
             }
@@ -124,7 +126,11 @@ namespace Frontend
             {
                 if (validate())
                 {
-                    //TODO - Create new Stand object
+                    //TODO - Create new Stand object - need an api call to do this
+                    //using static id for now
+                    Cairo.Color color = ToCairoColor(standColorSelector.CurrentColor);
+                    Stand newStand = new Stand(0, nameEntry.Text.Trim(), color, Convert.ToInt32(widthEntry.Text.Trim()), Convert.ToInt32(heightEntry.Text.Trim()));
+                    templatesStore.AddNode(newStand);
                 }
 
             }
@@ -132,6 +138,15 @@ namespace Frontend
             {
                 Destroy();
             }
+        }
+
+        private Cairo.Color ToCairoColor(Gdk.Color gColor)
+        {
+            Cairo.Color color = new Cairo.Color(
+                                    (double)gColor.Red / ushort.MaxValue,
+                                    (double)gColor.Green / ushort.MaxValue,
+                                    (double)gColor.Blue / ushort.MaxValue, 1);
+            return color;
         }
         #endregion
     }
