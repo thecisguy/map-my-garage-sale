@@ -39,7 +39,7 @@ namespace Frontend
                 win.Destroy();
 
                 using(MessageDialog md = new MessageDialog(win, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
-                    string.Format("Error.  Send a screenshot of this to the devs so they can fix it: \n{0} \n\n{1}", exc.Message, exc.StackTrace)))
+                    string.Format("Error.  Send a screenshot of this to the devs so they can fix it: \n{0} \n{1}", exc.Message, exc.TargetSite)))
                 {
                     md.Run();
                     md.Destroy();
