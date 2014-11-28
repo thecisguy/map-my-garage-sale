@@ -2,10 +2,14 @@
 
 namespace Frontend
 {
-    public class Enumerations
+    public static class Enumerations
     {
-        public Enumerations()
+        public enum DrawType
         {
+            InitialGridDraw,
+            NewStandDraw,
+            ExistingStandRedraw,
+            RotateStandDraw
         }
     }
 }
