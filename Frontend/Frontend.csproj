@@ -90,6 +90,8 @@
     <Compile Include="Map\CairoGrid.cs" />
     <Compile Include="Map\CairoStand.cs" />
     <Compile Include="Model\Stand.cs" />
+    <Compile Include="CairoMouse.cs" />
+    <Compile Include="Enumerations.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
