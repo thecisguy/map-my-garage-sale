@@ -66,7 +66,7 @@ namespace Frontend.Map
                     {
                             context.SetSource(surface);
                             context.Paint();
-                            Draw(context);
+                            //Draw(context);
 
                             if (DrawLines)
                             {
@@ -158,9 +158,9 @@ namespace Frontend.Map
         /// </summary>
         /// <param name="color">Color.</param>
         /// <param name="point">Point.</param>
-        private static void DrawTile(Context context, PointD point)
+        public static void DrawTile(Context context, PointD point)
         {
-            Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
+           // Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
 
             Cairo.Color color = EngineAPI.getColorOfTile((uint) point.Y,(uint) point.X); //spoofing color no engine call yet
             //Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
@@ -174,7 +174,6 @@ namespace Frontend.Map
             context.Stroke();
 
         }
-
         #endregion
     }
 }

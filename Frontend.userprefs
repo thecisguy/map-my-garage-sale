@@ -2,16 +2,28 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Frontend\MainWindow.cs">
     <Files>
-      <File FileName="Frontend\CairoGrid.cs" Line="18" Column="18" />
-      <File FileName="Frontend\Stand.cs" Line="59" Column="59" />
-      <File FileName="Frontend\MainWindow.cs" Line="67" Column="67" />
+      <File FileName="Frontend\MainWindow.cs" Line="45" Column="45" NotebookId="2" />
+      <File FileName="Frontend\CairoMouse.cs" Line="13" Column="13" NotebookId="2" />
+      <File FileName="Frontend\Enumerations.cs" Line="29" Column="29" NotebookId="2" />
+      <File FileName="Frontend\NewStandTemplateDialog.cs" Line="1" Column="1" NotebookId="2" />
     </Files>
+    <FloatingWindows>
+      <FloatingWindow WindowId="1" X="1923" Y="0" Width="944" Height="1011">
+        <Files>
+          <File FileName="Frontend\Map\CairoGrid.cs" Line="3" Column="3" />
+        </Files>
+      </FloatingWindow>
+      <FloatingWindow WindowId="2" X="2880" Y="0" Width="944" Height="1011">
+        <Files>
+          <File FileName="Frontend\Map\CairoStand.cs" Line="47" Column="47" NotebookId="1" />
+          <File FileName="Frontend\Model\Stand.cs" Line="56" Column="56" NotebookId="1" />
+        </Files>
+      </FloatingWindow>
+    </FloatingWindows>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/home/jordan/map-my-garage-sale/Frontend/MainWindow.cs" line="171" column="1" />
-      <Breakpoint file="A:\Development\IDEs\Xamarin\Projects\map-my-garage-sale\Frontend\MainWindow.cs" line="370" column="1" />
-      <Breakpoint file="A:\Development\IDEs\Xamarin\Projects\map-my-garage-sale\Frontend\MainWindow.cs" line="608" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches>

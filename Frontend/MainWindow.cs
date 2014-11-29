@@ -350,6 +350,7 @@ public partial class MainWindow: Gtk.Window
             Console.WriteLine("Exception while loading grid: " + e.Message + "\n\n" + e.StackTrace);
         }
 
+        DrawType = (int)Enumerations.DrawType.InitialGridDraw;
         vboxGrid.Add(Grid); 
         vboxGrid.ShowAll();//expose fired here for grid
 
@@ -387,7 +388,6 @@ public partial class MainWindow: Gtk.Window
     protected void GridDragDataReceived(object o, DragDataReceivedArgs args)
     {
         Console.WriteLine("Drag Data Received at: " + args.X + ", " + args.Y);
-        Console.WriteLine("Drag Data SelectionData = " + args.SelectionData.Text);
         Stand stand = new Stand(args.SelectionData.Text);
 
         //       bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.X, (uint)args.Y);
@@ -408,7 +408,10 @@ public partial class MainWindow: Gtk.Window
         CairoStand.Height = stand.Height;
         CairoStand.Width = stand.Width;
         CairoStand.Color = stand.Color;
-        Grid.QueueDrawArea(args.X, args.Y, stand.Width, stand.Height);
+        DrawType = (int)Enumerations.DrawType.NewStandDraw;
+        int upLeftX = args.X - (CairoStand.Width / 2);  //TODO - these will be values from the selected stand
+        int upLeftY = args.Y - (CairoStand.Height / 2);
+        Grid.QueueDrawArea(upLeftX, upLeftY, CairoStand.Width, CairoStand.Height);
     }
 
     protected void GridDragDrop(object o, DragDropArgs args)
@@ -419,41 +422,32 @@ public partial class MainWindow: Gtk.Window
     protected void GridExposeEvent(object o, ExposeEventArgs args)
     {
         Console.WriteLine("Grid expose fired.");
-        if (isRedraw)
-        {
-            Console.WriteLine("Grid - isredraw");
-            using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
-            {
-                CairoStand.Draw(context, args.Event.Area.X, args.Event.Area.Y);
-            }
-            isRedraw = false;
-        }
-        else
-        {
-            Console.WriteLine("not redraw (or drag action)");
-            using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
-            {
-                CairoGrid.BackdropPath = "testbackdrop.png";
-                CairoGrid.DrawGrid(context);
-            }
-        }
+
         switch (DrawType)
         {
-            case (int)Enumerations.DrawType.ExistingStandRedraw:
+            case (int)Enumerations.DrawType.NewStandDraw:
                 {
                     using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
                     {
-                        Console.WriteLine("Existing stand draw option on expose");
-                        //new CairoMouse(new Point(args.Event.Area.X, args.Event.Area.Y)).Draw(context);
-
-                        //store old location values for stand
-                        //redraw original location stand was in using values from the grid
-
-                        //redraw new location for stand using cairostand props
                         //EngineAPI.doApplyGrabbedStand();
-                        //TODO - send in width and height of stand from engine to create a new rectangle - need additional info from engine to do this
-                        CairoStand.Draw(context, args.Event.Area.X, args.Event.Area.Y); 
 
+                        //starting from upper left corner, increment the upLeft value width * height times and redraw grid
+                        for (int i = 0; i < args.Event.Region.Clipbox.Height; i++)
+                        {
+                            for (int k = 0; k < args.Event.Region.Clipbox.Width; k++)
+                            {
+                                CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
+                            }
+                        }
+                    }
+                    break;
+                }
+            case (int)Enumerations.DrawType.InitialGridDraw:
+                {
+                    using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
+                    {
+                        CairoGrid.BackdropPath = "testbackdrop.png";
+                        CairoGrid.DrawGrid(context);
                     }
                     break;
                 }
@@ -508,14 +502,16 @@ public partial class MainWindow: Gtk.Window
         //TODO - Need a CairoSelector class to keep track of selected stand rectangle coords for redraws
         Console.WriteLine("Button release: " + args.Event.Button.ToString());
         isMousePressed = false;
-        if (clicks.Count > 0)
-        {
-            DrawType = (int)Enumerations.DrawType.ExistingStandRedraw;
-            foreach (CairoMouse m in clicks)
-            {
-                Grid.QueueDrawArea(m.Point.X, m.Point.Y, 5, 5);
-            }
-        }
+
+        //this should not need to be done
+//        if (clicks.Count > 0)
+//        {
+//            DrawType = (int)Enumerations.DrawType.NewStandDraw;
+//            foreach (CairoMouse m in clicks)
+//            {
+//                Grid.QueueDrawArea(m.Point.X, m.Point.Y, 5, 5);
+//            }
+//        }
     }
 
     #endregion
