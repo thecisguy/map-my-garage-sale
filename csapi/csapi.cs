@@ -73,6 +73,9 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void loadUserFileRaw(string filename);
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void setSelectedStandNameRaw(string newname);
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
@@ -130,6 +133,10 @@ namespace csapi {
 
 		public static void loadUserFile(string filename) {
 			loadUserFileRaw(filename);
+		}
+
+		public static void setSelectedStandName(string newname) {
+			setSelectedStandNameRaw(newname);
 		}
 	}
 }

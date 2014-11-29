@@ -62,6 +62,7 @@ static void grab_selected_stand(void);
 static uint32_t get_main_grid_height(void);
 static uint32_t get_main_grid_width(void);
 static void load_user_file(MonoString *ufile);
+static void set_selected_stand_name(MonoString *newname);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -147,6 +148,8 @@ static void register_api_functions(void) {
 	                       get_main_grid_width);
 	mono_add_internal_call("csapi.EngineAPI::loadUserFileRaw",
 	                       load_user_file);
+	mono_add_internal_call("csapi.EngineAPI::setSelectedStandNameRaw",
+	                       set_selected_stand_name);
 }
 
 void initialize_mono(const char *filename) {
@@ -268,4 +271,21 @@ static void load_user_file(MonoString *ufile) {
 	load_file(userfile);
 	fclose(userfile);
 	mono_free(filename);
+}
+
+/* Sets the Selected Stand's name to the given string */
+static void set_selected_stand_name(MonoString *newname) {
+	char *mononame = mono_string_to_utf8(ufile);
+	// we duplicate this because the string from mono
+	// requires mono_free, which doesn't jive with our other code
+	char *cname = (char *) malloc(sizeof(char) * (strlen(mononame) + 1));
+	if (!cname)
+		goto out_mononame;
+	strcpy(cname, mononame);
+	if (selected_stand->name)
+		free(selected_stand->name);
+	selected_stand->name = cname;
+
+	out_mononame:
+		mono_free(mononame);
 }
