@@ -7,9 +7,8 @@ namespace Frontend
         public enum DrawType
         {
             InitialGridDraw,
-            NewStandDraw,
-            ExistingStandRedraw,
-            RotateStandDraw
+            StandDraw,
+            ExistingStandRedraw
         }
     }
 }

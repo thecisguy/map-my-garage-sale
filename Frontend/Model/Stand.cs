@@ -29,6 +29,7 @@ namespace Frontend
     [Gtk.TreeNode (ListOnly=true)]
     public class Stand: Gtk.TreeNode 
     {   
+        #region Properties
         [Gtk.TreeNodeValue (Column=0)]
         public int StandID {get; set;}
 
@@ -38,16 +39,12 @@ namespace Frontend
         [Gtk.TreeNodeValue (Column=2)]
         public string Name {get; set;}
 
-//        [Gtk.TreeNodeValue (Column=3)]
         public int Height {get; set;}
-
-//        [Gtk.TreeNodeValue (Column=4)]
         public int Width { get; set;}
-
-
-
         public Cairo.Color Color{get; set;}
+        #endregion
 
+        #region Constructors
         public Stand (int id, string name, Cairo.Color color, int width, int height)
         {
             this.StandID = id;
@@ -67,7 +64,9 @@ namespace Frontend
             this.Width = Convert.ToInt32(properties [6]);
             this.Height = Convert.ToInt32(properties[7]);
         }
+        #endregion
 
+        #region Public Methods
         public string getPropertyString()
         {
             System.Text.StringBuilder builder = new System.Text.StringBuilder();
@@ -78,7 +77,9 @@ namespace Frontend
             builder.Append (this.Height.ToString ());
             return builder.ToString ();
         }
+        #endregion
 
+        #region Private Methods
         private Pixbuf createIcon()
         {
             Pixbuf icon;
@@ -98,8 +99,7 @@ namespace Frontend
             }
             return icon;
         }
-
-
+        #endregion
     }
 }
 

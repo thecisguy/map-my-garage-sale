@@ -64,24 +64,22 @@ public partial class MainWindow: Gtk.Window
 
     //UI members
     private HBox standsBox;
-    private global::Gtk.HBox hboxToggle;
-    private global::Gtk.Label metadataLabel;
-    private Gtk.Frame StandFrame;
+    private HBox hboxToggle;
+    private Label metadataLabel;
+    private Frame StandFrame;
     private DrawingArea Grid;
     private NodeView view;
     private NodeStore store;
-    private bool isRedraw = false;
     private bool isMousePressed = false;
-    private List<CairoMouse> clicks;
     private int DrawType;
-
 
     /// <summary>
     /// Maintains a list of all stands.  Design for how this works is a WIP.
     /// </summary>
     private AppState AppState;
 
-    enum TargetType {
+    //Drag and Drop target values
+    private enum TargetType {
         String,
         RootWindow
     };
@@ -103,7 +101,6 @@ public partial class MainWindow: Gtk.Window
 	}
     #endregion
 
-
     #region Private Methods
 
     /// <summary>
@@ -119,6 +116,7 @@ public partial class MainWindow: Gtk.Window
          * objects and properties than doing this in the Build() since that is machine generated code. - JPolaniec
          */
 
+        #region File Operation Buttons
         //New, Save and Open Widget setup
         OperationWidget operationWidget = new OperationWidget();
 
@@ -154,10 +152,13 @@ public partial class MainWindow: Gtk.Window
         fileChooserButton.FileSet += fileChooserButton_FileSet;
         hboxNSO.PackEnd(fileChooserButton, false, false, 0);
 
+        #endregion
+
         VSeparator middleSeparator = new VSeparator ();
         hboxStand.Add (middleSeparator);
 
-        //Stand options Widget setup
+        #region Stand Buttons
+
         //New Stand button
         Widget newStandWidget = operationWidget.CreateOperationWidget (RES_ADDSTAND_ICON, STR_NEWSTAND_BUTTON);
         newStandWidget.Show ();
@@ -187,18 +188,28 @@ public partial class MainWindow: Gtk.Window
         rotateBox.PackStart (removeStandButton, false, false, 3);
         hboxStand.PackStart (rotateBox, false, false, 3);
 
-        //More ui stuff outside of stetic generation - this seems to be MUCH more stable than making changes in the designer
+        //Create a box to hold both the delete and rename buttons
+        VBox deleteAndRenameBox = new VBox (false, 6);
 
-        // Toggle
-        this.hboxToggle = new Gtk.HBox ();
-        this.hboxToggle.Name = "hboxToggle";
-        this.hboxToggle.Spacing = 6;
-        this.MainTable.Add (this.hboxToggle);
-        Gtk.Table.TableChild w6 = ((Gtk.Table.TableChild)(this.MainTable [this.hboxToggle]));
-        w6.TopAttach = ((uint)(5));
-        w6.BottomAttach = ((uint)(6));
-        w6.XOptions = ((Gtk.AttachOptions)(4));
-        w6.YOptions = ((Gtk.AttachOptions)(4));
+        //Delete Widget setup
+        Button deleteStandButton = new Button (STR_DELETESTAND_BUTTON);
+        deleteStandButton.Show ();
+        deleteStandButton.Clicked += deleteStandButton_Clicked;
+        deleteStandButton.TooltipText = STR_DELETESTAND_TOOLTIP;
+        deleteAndRenameBox.PackStart (deleteStandButton, false, false, 3);
+
+        //Rename Widget setup
+        Button renameStandButton = new Button (STR_RENAMESTAND_BUTTON);
+        renameStandButton.Show ();
+        renameStandButton.Clicked += renameStandButton_Clicked;
+        renameStandButton.TooltipText = STR_RENAMESTAND_TOOLTIP;
+        deleteAndRenameBox.PackStart (renameStandButton, false, false, 3);
+
+        hboxRename.PackEnd (deleteAndRenameBox, false, false, 3);
+        #endregion
+
+        #region Grid and Grid Buttons and Labels
+
 
         // Metadata label
         this.metadataLabel = new global::Gtk.Label ();
@@ -224,6 +235,42 @@ public partial class MainWindow: Gtk.Window
         w5.BottomAttach = ((uint)(5));
         w5.RightAttach = ((uint)(3));
         w5.XOptions = ((Gtk.AttachOptions)(4));
+
+        // Toggle
+        this.hboxToggle = new Gtk.HBox ();
+        this.hboxToggle.Name = "hboxToggle";
+        this.hboxToggle.Spacing = 6;
+        this.MainTable.Add (this.hboxToggle);
+        Gtk.Table.TableChild w6 = ((Gtk.Table.TableChild)(this.MainTable [this.hboxToggle]));
+        w6.TopAttach = ((uint)(5));
+        w6.BottomAttach = ((uint)(6));
+        w6.XOptions = ((Gtk.AttachOptions)(4));
+        w6.YOptions = ((Gtk.AttachOptions)(4));
+
+        //ToggleButton for Grid on/of
+        ToggleButton gridToggleButton = new ToggleButton (STR_TOGGLEGRID_BUTTON);
+        gridToggleButton.Clicked += new EventHandler(gridToggleButton_OnClicked);
+        gridToggleButton.Show ();
+        hboxToggle.PackStart (gridToggleButton, false, false, 3);
+
+        InitializeGrid();
+
+        #endregion
+
+        #region Stand Templates
+        //Stands Frame
+        StandFrame = new Gtk.Frame();
+        StandFrame.TooltipText = STR_STANDFRAME_TOOLTIP;
+        StandFrame.CanFocus = true;
+        StandFrame.ShadowType = ((Gtk.ShadowType)(1));
+        StandFrame.BorderWidth = ((uint)(1));
+        StandFrame.Show();
+
+        standsBox = new HBox(true, 1);
+        standsBox.Show();
+        MainTable.Attach(StandFrame, 3, 4, 2, 5);
+        InitializeStandTemplates();
+        #endregion
 
         #region MenuBar setup
         MenuItem menuItem = new MenuItem("File");
@@ -258,46 +305,6 @@ public partial class MainWindow: Gtk.Window
         menuChild.RightAttach = ((uint)(3));
         #endregion
 
-        //Create a box to hold both the delete and rename buttons
-        VBox deleteAndRenameBox = new VBox (false, 6);
-
-        //Delete Widget setup
-        Button deleteStandButton = new Button (STR_DELETESTAND_BUTTON);
-        deleteStandButton.Show ();
-        deleteStandButton.Clicked += deleteStandButton_Clicked;
-        deleteStandButton.TooltipText = STR_DELETESTAND_TOOLTIP;
-        deleteAndRenameBox.PackStart (deleteStandButton, false, false, 3);
-
-        //Rename Widget setup
-        Button renameStandButton = new Button (STR_RENAMESTAND_BUTTON);
-        renameStandButton.Show ();
-        renameStandButton.Clicked += renameStandButton_Clicked;
-        renameStandButton.TooltipText = STR_RENAMESTAND_TOOLTIP;
-        deleteAndRenameBox.PackStart (renameStandButton, false, false, 3);
-
-        hboxRename.PackEnd (deleteAndRenameBox, false, false, 3);
-
-        //ToggleButton for Grid on/of
-        ToggleButton gridToggleButton = new ToggleButton (STR_TOGGLEGRID_BUTTON);
-        gridToggleButton.Clicked += new EventHandler(gridToggleButton_OnClicked);
-        gridToggleButton.Show ();
-        hboxToggle.PackStart (gridToggleButton, false, false, 3);
-
-        //Stands Frame
-        StandFrame = new Gtk.Frame();
-        StandFrame.TooltipText = STR_STANDFRAME_TOOLTIP;
-        StandFrame.CanFocus = true;
-        StandFrame.ShadowType = ((Gtk.ShadowType)(1));
-        StandFrame.BorderWidth = ((uint)(1));
-        StandFrame.Show();
-
-        standsBox = new HBox(true, 1);
-        standsBox.Show();
-        //StandFrame.Add(standsBox);
-        MainTable.Attach(StandFrame, 3, 4, 2, 5);
-
-        InitializeGrid();
-        InitializeStandTemplates();
     }
 
     /// <summary>
@@ -305,7 +312,6 @@ public partial class MainWindow: Gtk.Window
     /// </summary>
     private void InitializeGrid()
     {
-        //testing
         Grid = new DrawingArea();
 
         Grid.ExposeEvent += new ExposeEventHandler(GridExposeEvent);
@@ -324,9 +330,7 @@ public partial class MainWindow: Gtk.Window
         Grid.ButtonPressEvent += new ButtonPressEventHandler(GridButtonPress);
         Grid.ButtonReleaseEvent += new ButtonReleaseEventHandler(GridButtonRelease);
 
-        //TODO - load engine data here prior to showing so we aren't leaking exposes everywhere?
-         //this has to set a static prop for a switch in event_expose
-
+        //TODO
         uint height = 400u;
         uint width = 750u;
 
@@ -338,7 +342,7 @@ public partial class MainWindow: Gtk.Window
             width = EngineAPI.getMainGridWidth();
         }catch(MissingMethodException me)
         {
-            //catch this temporarily 
+            //TODO-
             Console.WriteLine("Missing method exception hit: \n" + me.Message + "\n\n" + me.StackTrace);
         }
         catch(System.Security.SecurityException se)
@@ -353,13 +357,13 @@ public partial class MainWindow: Gtk.Window
         DrawType = (int)Enumerations.DrawType.InitialGridDraw;
         vboxGrid.Add(Grid); 
         vboxGrid.ShowAll();//expose fired here for grid
-
-        //endtesting
     }
 
+    /// <summary>
+    /// Initializes the stand templates.
+    /// </summary>
     private void InitializeStandTemplates()
     {
-        //testing nodeview
         store = new NodeStore(typeof(Stand));
         store.AddNode(new Stand(0, "Toys", new Cairo.Color(.49584,.78561,.94151,1),  40, 70));
         store.AddNode(new Stand(1, "Movies", new Cairo.Color(.67854,.78561,.94151,1), 100, 90));
@@ -376,14 +380,18 @@ public partial class MainWindow: Gtk.Window
         view.AppendColumn("ID", new Gtk.CellRendererText(), "text", 0);
         view.AppendColumn("Icon", new Gtk.CellRendererPixbuf(), "pixbuf", 1);
         view.AppendColumn("Name", new Gtk.CellRendererText(), "text", 2);
-//        view.AppendColumn("Height", new Gtk.CellRendererText(), "text", 3);
-//        view.AppendColumn("Width", new Gtk.CellRendererText(), "text", 4);
-
         view.ShowAll();
-        //end testing
 
         StandFrame.Add(view);
     }
+   
+    #endregion
+
+	#region Control Events
+
+    #region Grid Events
+
+    #region Grid Drag and Drop
 
     protected void GridDragDataReceived(object o, DragDataReceivedArgs args)
     {
@@ -408,7 +416,7 @@ public partial class MainWindow: Gtk.Window
         CairoStand.Height = stand.Height;
         CairoStand.Width = stand.Width;
         CairoStand.Color = stand.Color;
-        DrawType = (int)Enumerations.DrawType.NewStandDraw;
+        DrawType = (int)Enumerations.DrawType.StandDraw;
         int upLeftX = args.X - (CairoStand.Width / 2);  //TODO - these will be values from the selected stand
         int upLeftY = args.Y - (CairoStand.Height / 2);
         Grid.QueueDrawArea(upLeftX, upLeftY, CairoStand.Width, CairoStand.Height);
@@ -419,13 +427,63 @@ public partial class MainWindow: Gtk.Window
         Console.WriteLine("Grid Drag Drop: " + args.X + ", " + args.Y);
     }
 
+    protected void GridDragMotion(object o, DragMotionArgs args)
+    {
+        Console.WriteLine("Grid Drag Motion: " + args.X + ", " + args.Y);
+    }
+
+    protected void GridMotionNotifyEvent(object o, MotionNotifyEventArgs args)
+    {
+        if (isMousePressed)
+        {
+            Console.WriteLine("Grid motion with mouse at:" + args.Event.X + ", " + args.Event.Y);
+        }
+    }
+
+    protected void GridKeyPress(object o, KeyPressEventArgs args)
+    {
+        Console.WriteLine("Key press: " + args.Event.Key.ToString());
+    }
+
+    protected void GridButtonPress(object o, ButtonPressEventArgs args)
+    {
+        //TODO - did user click on a stand?
+        //if yes, draw a highlighting line around the coords received by engine
+        //EngineAPI.selectStand((uint)args.Event.X, (uint)args.Event.Y);
+
+        Console.WriteLine("Button press: " + args.Event.Button.ToString());
+        isMousePressed = true;
+
+    }
+
+    protected void GridButtonRelease(object o, ButtonReleaseEventArgs args)
+    {
+        //TODO - did user click outside of a stand?  deselect currently selected stand.  
+        //TODO - Need a CairoSelector class to keep track of selected stand rectangle coords for redraws
+        Console.WriteLine("Button release: " + args.Event.Button.ToString());
+        isMousePressed = false;
+
+        //this should not need to be done
+        //        if (clicks.Count > 0)
+        //        {
+        //            DrawType = (int)Enumerations.DrawType.NewStandDraw;
+        //            foreach (CairoMouse m in clicks)
+        //            {
+        //                Grid.QueueDrawArea(m.Point.X, m.Point.Y, 5, 5);
+        //            }
+        //        }
+    }
+
+    #endregion
+
+    #region Grid Drawing
     protected void GridExposeEvent(object o, ExposeEventArgs args)
     {
         Console.WriteLine("Grid expose fired.");
 
         switch (DrawType)
         {
-            case (int)Enumerations.DrawType.NewStandDraw:
+            case (int)Enumerations.DrawType.StandDraw:
                 {
                     using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
                     {
@@ -458,72 +516,50 @@ public partial class MainWindow: Gtk.Window
                 }
         }
     }
-
-    protected void GridDragMotion(object o, DragMotionArgs args)
-    {
-        Console.WriteLine("Grid Drag Motion: " + args.X + ", " + args.Y);
-    }
-
-    protected void GridMotionNotifyEvent(object o, MotionNotifyEventArgs args)
-    {
-        if (isMousePressed)
-        {
-            Console.WriteLine("Grid motion with mouse at:" + args.Event.X + ", " + args.Event.Y);
-            clicks.Add(new CairoMouse(new Point(Convert.ToInt32(args.Event.X), Convert.ToInt32(args.Event.Y))));
-        }
-    }
-
-    protected void GridKeyPress(object o, KeyPressEventArgs args)
-    {
-        Console.WriteLine("Key press: " + args.Event.Key.ToString());
-    }
-
-    protected void GridButtonPress(object o, ButtonPressEventArgs args)
-    {
-        //TODO - did user click on a stand?
-            //if yes, draw a highlighting line around the coords received by engine
-        //EngineAPI.selectStand((uint)args.Event.X, (uint)args.Event.Y);
-
-        Console.WriteLine("Button press: " + args.Event.Button.ToString());
-        isMousePressed = true;
-        if (clicks != null)
-        {
-            clicks.Clear();
-        }
-        else
-        {
-            clicks = new List<CairoMouse>();
-        }
-    }
-
-    protected void GridButtonRelease(object o, ButtonReleaseEventArgs args)
-    {
-        //TODO - did user click outside of a stand?  deselect currently selected stand.  
-        //TODO - Need a CairoSelector class to keep track of selected stand rectangle coords for redraws
-        Console.WriteLine("Button release: " + args.Event.Button.ToString());
-        isMousePressed = false;
-
-        //this should not need to be done
-//        if (clicks.Count > 0)
-//        {
-//            DrawType = (int)Enumerations.DrawType.NewStandDraw;
-//            foreach (CairoMouse m in clicks)
-//            {
-//                Grid.QueueDrawArea(m.Point.X, m.Point.Y, 5, 5);
-//            }
-//        }
-    }
-
     #endregion
 
-	#region Control Events
+    /// <summary>
+    /// Determines whether or not to draw the actual grid lines on the mapping area.
+    /// </summary>
+    /// <param name="sender">Sender.</param>
+    /// <param name="e">E.</param>
+    protected void gridToggleButton_OnClicked(object sender, EventArgs e)
+    {
+        //        if (gridDrawingArea.DrawLines)
+        //        {
+        //            gridDrawingArea.DrawLines = false;
+        //        }
+        //        else
+        //        {
+        //            gridDrawingArea.DrawLines = true;
+        //        }
+    }
+    #endregion
+
+    #region MainWindow Events
 
     protected void OnDeleteEvent (object sender, DeleteEventArgs a)
 	{
 		Application.Quit ();
 		a.RetVal = true;
 	}
+
+    /// <summary>
+    /// When the user presses escape, deselect the currently selected stand in the grid if there is one
+    /// </summary>
+    /// <param name="o">O.</param>
+    /// <param name="args">Arguments.</param>
+    protected void MainWindow_OnKeyPress (object o, KeyPressEventArgs args)
+    {
+        if(args.Event.Key.Equals("Escape"))
+        {
+            EngineAPI.deselectStand();
+        }
+    }
+
+    #endregion
         
+    #region File Operation Button Events
     protected void saveButton_Clicked(object sender, EventArgs e)
     {
         if (AppState.IsUIDirty)
@@ -579,6 +615,25 @@ public partial class MainWindow: Gtk.Window
         }
     }
 
+    /// <summary>
+    /// Users selects a file from the File dialog
+    /// </summary>
+    /// <param name="sender">Sender.</param>
+    /// <param name="e">E.</param>
+    protected void fileChooserButton_FileSet(object sender, EventArgs e)
+    {
+        FileChooserButton btn = (FileChooserButton)sender;
+        if (System.IO.File.Exists(btn.Filename))
+        {
+            string fileName = btn.Filename;
+            EngineAPI.loadUserFile(fileName);
+            //TODO - refresh UI
+        }
+    }
+
+    #endregion
+
+    #region Stand Button Events
     protected void newStandButton_Clicked(object sender, EventArgs e)
     {
         NewStandTemplateDialog newStandDialog = null;
@@ -630,7 +685,7 @@ public partial class MainWindow: Gtk.Window
 
     protected void deleteStandButton_Clicked(object sender, EventArgs args)
     {
-        //TODO - need an api call to do this engine side - waiting on implementation
+        //TODO - need an api call to do this engine side
     }
 
     protected void renameStandButton_Clicked(object sender, EventArgs args)
@@ -641,8 +696,11 @@ public partial class MainWindow: Gtk.Window
             Stand stand = (Stand)view.NodeSelection.SelectedNode;
             //TODO - need an api call to do this - waiting on implementation
         }
-    }        
+    }       
 
+    #endregion
+
+    #region Stand Template Events
     protected void StandTemplateNodeSelectionChanged(object sender, EventArgs args)
     {
         NodeSelection selectedNode = (NodeSelection)sender;
@@ -653,8 +711,10 @@ public partial class MainWindow: Gtk.Window
     protected void StandTemplateSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
     {
         Console.WriteLine("Stand now being dragged.");
-        isRedraw = true;
-        //EngineAPI.grabNewStand(0);
+        NodeSelection selectedNode = (NodeSelection)sender;
+        Stand node = (Stand)selectedNode.SelectedNode;
+
+        //EngineAPI.grabNewStand(node.StandID); //TODO - is engine ready for id?
     }
 
     protected void StandTemplateSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)
@@ -681,50 +741,7 @@ public partial class MainWindow: Gtk.Window
         Console.WriteLine("Stand dropped at (" + args.X + ", " + args.Y + ")");
     }
 
-    /// <summary>
-    /// Users selects a file from the File dialog
-    /// </summary>
-    /// <param name="sender">Sender.</param>
-    /// <param name="e">E.</param>
-    protected void fileChooserButton_FileSet(object sender, EventArgs e)
-    {
-        FileChooserButton btn = (FileChooserButton)sender;
-        if (System.IO.File.Exists(btn.Filename))
-        {
-            string fileName = btn.Filename;
-            EngineAPI.loadUserFile(fileName);
-            //TODO - refresh UI
-        }
-    }
+    #endregion
 
-    /// <summary>
-    /// When the user presses escape, deselect the currently selected stand in the grid if there is one
-    /// </summary>
-    /// <param name="o">O.</param>
-    /// <param name="args">Arguments.</param>
-    protected void MainWindow_OnKeyPress (object o, KeyPressEventArgs args)
-    {
-        if(args.Event.Key.Equals("Escape"))
-        {
-            EngineAPI.deselectStand();
-        }
-    }
-
-    /// <summary>
-    /// Determines whether or not to draw the actual grid lines on the mapping area.
-    /// </summary>
-    /// <param name="sender">Sender.</param>
-    /// <param name="e">E.</param>
-    protected void gridToggleButton_OnClicked(object sender, EventArgs e)
-    {
-//        if (gridDrawingArea.DrawLines)
-//        {
-//            gridDrawingArea.DrawLines = false;
-//        }
-//        else
-//        {
-//            gridDrawingArea.DrawLines = true;
-//        }
-    }
     #endregion
 }

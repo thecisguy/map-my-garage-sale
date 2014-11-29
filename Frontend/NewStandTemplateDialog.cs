@@ -50,7 +50,6 @@ namespace Frontend
         }
         #endregion
 
-
         #region Private methods
         /// <summary>
         /// Complete setup of UI.
@@ -116,6 +115,15 @@ namespace Frontend
             }
             return retVal;
         }
+
+        private Cairo.Color ToCairoColor(Gdk.Color gColor)
+        {
+            Cairo.Color color = new Cairo.Color(
+                (double)gColor.Red / ushort.MaxValue,
+                (double)gColor.Green / ushort.MaxValue,
+                (double)gColor.Blue / ushort.MaxValue, 1);
+            return color;
+        }
         #endregion
 
 
@@ -140,14 +148,7 @@ namespace Frontend
             }
         }
 
-        private Cairo.Color ToCairoColor(Gdk.Color gColor)
-        {
-            Cairo.Color color = new Cairo.Color(
-                                    (double)gColor.Red / ushort.MaxValue,
-                                    (double)gColor.Green / ushort.MaxValue,
-                                    (double)gColor.Blue / ushort.MaxValue, 1);
-            return color;
-        }
+
         #endregion
     }
 }

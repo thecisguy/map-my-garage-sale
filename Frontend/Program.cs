@@ -32,7 +32,6 @@ namespace Frontend
 
 			Application.Init ();
             MainWindow win = new MainWindow (); 
-           
 
             GLib.ExceptionManager.UnhandledException += (GLib.UnhandledExceptionArgs e) => {
                 Exception exc = (Exception)e.ExceptionObject;

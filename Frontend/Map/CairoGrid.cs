@@ -27,14 +27,16 @@ using System;
 
 namespace Frontend.Map
 {
-    public static class CairoGrid 
+    public static class CairoGrid
     {
+        #region Properties
+
         public static uint Height { get; set; }
         public static uint Width { get; set; }
         public static string BackdropPath = string.Empty;
         public static bool DrawLines = true;
-        public static ImageSurface mainSurface;
 
+        #endregion
 
         #region Drawing Methods
 
@@ -48,30 +50,35 @@ namespace Frontend.Map
         {
             if (BackdropPath.Length > 0)
             {
-
                 //conversion to signed integer needed for scaling
-                using (Gdk.Pixbuf pb = new Gdk.Pixbuf("testbackdrop.png").ScaleSimple(Convert.ToInt32(Width), Convert.ToInt32(Height), Gdk.InterpType.Bilinear))
+                using (Gdk.Pixbuf pb = new Gdk.Pixbuf(BackdropPath).ScaleSimple(Convert.ToInt32(Width), Convert.ToInt32(Height), Gdk.InterpType.Bilinear))
                 {
                     try
                     {
                         pb.Save("temp", "png");
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Unable to save a scaled copy of the backdrop image");
-                    }
-                        
-                    //paint the image and then the tiles
-                    using (ImageSurface surface = new ImageSurface("temp"))
-                    {
+
+                        //paint the image and then the tiles
+                        using (ImageSurface surface = new ImageSurface("temp"))
+                        {
                             context.SetSource(surface);
                             context.Paint();
-                            //Draw(context);
+                            Draw(context);
 
                             if (DrawLines)
                             {
                                 DrawGridLines(context);
                             }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        using (MessageDialog md = new MessageDialog(null, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
+                                                     string.Format("Unable to save a scaled copy of the backdrop image")))
+                        {
+                            md.Run();
+                            md.Destroy();
+                        }
+                        Console.WriteLine("Unable to save a scaled copy of the backdrop image");
                     }
                 }
             }
@@ -91,18 +98,16 @@ namespace Frontend.Map
         /// <param name="context">Context.</param>
         public static void Draw(Context context)
         {
-            //context.SetSource(mainSurface);
-
-                for (int countHeight = 0; countHeight < Height; countHeight++)
+            for (int countHeight = 0; countHeight < Height; countHeight++)
+            {
+                for (int countWidth = 0; countWidth < Width; countWidth++)
                 {
-                    for (int countWidth = 0; countWidth < Width; countWidth++)
-                    {
-                        DrawTile(context, new PointD(countWidth, countHeight));
-                    }
+                    DrawTile(context, new PointD(countWidth, countHeight));
                 }
-
+            }
         }
 
+        #region Grid Lines
 
         /// <summary>
         /// Draws actual grid lines on the mapping area
@@ -112,7 +117,7 @@ namespace Frontend.Map
             //vertical grid lines
             for (int countHeight = 0; countHeight < Height; countHeight++)
             {
-                for (int countWidth = 0; countWidth < Width; countWidth+= 50)
+                for (int countWidth = 0; countWidth < Width; countWidth += 50)
                 {
                     DrawVerticalLine(context, new PointD(countWidth, countHeight));
                 }
@@ -149,8 +154,12 @@ namespace Frontend.Map
             context.LineCap = LineCap.Square;
             context.LineWidth = 0.2;
             context.MoveTo(point.X, point.Y);
-            context.LineTo(point.X, point.Y+5);
+            context.LineTo(point.X, point.Y + 5);
         }
+
+        #endregion
+
+        #region Draw Tiles
 
         /// <summary>
         /// Takes in color and starting point and draws a line.  This line is a
@@ -160,9 +169,9 @@ namespace Frontend.Map
         /// <param name="point">Point.</param>
         public static void DrawTile(Context context, PointD point)
         {
-           // Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
+            // Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
 
-            Cairo.Color color = EngineAPI.getColorOfTile((uint) point.Y,(uint) point.X); //spoofing color no engine call yet
+            Cairo.Color color = EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); //spoofing color no engine call yet
             //Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
 
             context.Antialias = Antialias.None;
@@ -172,8 +181,10 @@ namespace Frontend.Map
             context.LineTo(point.X, point.Y);
             context.ClosePath();
             context.Stroke();
-
         }
+
+        #endregion
+
         #endregion
     }
 }
