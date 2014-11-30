@@ -43,6 +43,14 @@ namespace Frontend
                     md.Run();
                     md.Destroy();
                     win.Destroy();
+                    System.Diagnostics.Process[] proc = System.Diagnostics.Process.GetProcessesByName("main.exe");
+                    if(proc.Length > 0)
+                    {
+                        foreach(System.Diagnostics.Process p in proc)
+                        {
+                            p.Kill(); //will kill main.exe
+                        }
+                    }
                 }
             };
             win.ShowAll ();
