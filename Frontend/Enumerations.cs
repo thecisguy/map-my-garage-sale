@@ -8,7 +8,8 @@ namespace Frontend
         {
             InitialGridDraw,
             StandDraw,
-            ExistingStandRedraw
+            ExistingStandRedraw,
+            BackdropChangeDraw
         }
     }
 }
