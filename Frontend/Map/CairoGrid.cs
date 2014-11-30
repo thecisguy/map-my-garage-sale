@@ -48,14 +48,14 @@ namespace Frontend.Map
         /// <param name="height">Height.</param>
         public static void DrawGrid(Context context)
         {
+
             for (int countHeight = 0; countHeight < Height; countHeight++)
             {
-                for (int countWidth = 0; countWidth < Width; countWidth++)
+                for (int countWidth = 0; countWidth < Width; countWidth+=5)
                 {
-                    //DrawTile(context, new PointD(countWidth, countHeight));
+                    DrawTile(context, new PointD(countWidth, countHeight));
                 }
             }
-
             if (DrawLines)
             {
                 DrawGridLines(context);
@@ -124,7 +124,7 @@ namespace Frontend.Map
         public static void DrawVerticalLine(Context context, PointD point)
         {
             context.Antialias = Antialias.Default;
-            context.SetSourceRGBA(0.9, 0.5, 0.1, 0.9);
+            context.SetSourceRGBA(0.9, 0.5, 0.1, 0.5);
             context.LineCap = LineCap.Square;
             context.LineWidth = 0.2;
             context.MoveTo(point.X, point.Y);
@@ -134,7 +134,7 @@ namespace Frontend.Map
         public static void DrawHorizontalLine(Context context, PointD point)
         {
             context.Antialias = Antialias.Default;
-            context.SetSourceRGBA(0.9, 0.5, 0.1, 0.9);
+            context.SetSourceRGBA(0.9, 0.5, 0.1, 0.5);
             context.LineCap = LineCap.Square;
             context.LineWidth = 0.2;
             context.MoveTo(point.X, point.Y);
@@ -155,14 +155,14 @@ namespace Frontend.Map
         {
             Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
 
-            Cairo.Color color = color1; //EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); //spoofing color no engine call yet
+            Cairo.Color color = EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); //spoofing color no engine call yet
             //Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
 
             context.Antialias = Antialias.None;
-            context.SetSourceRGBA(color.R, color.G, color.B, color.A);
+            context.SetSourceRGBA(color.R, color.G, color.B, 0.4);
             context.LineCap = LineCap.Round;
             context.MoveTo(point.X, point.Y);
-            context.LineTo(point.X, point.Y);
+            context.LineTo(point.X + 5, point.Y);
             context.ClosePath();
             context.Stroke();
         }
