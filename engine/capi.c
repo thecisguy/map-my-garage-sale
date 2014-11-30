@@ -234,6 +234,8 @@ static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column) {
  */
 static void do_apply_grabbed_stand(void) {
 	do_apply(grabbed_stand);
+	selected_stand = grabbed_stand;
+	grabbed_stand = NULL;
 }
 
 /* Deletes the grabbed stand.
