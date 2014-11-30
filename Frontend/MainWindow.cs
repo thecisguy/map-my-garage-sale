@@ -49,6 +49,8 @@ public partial class MainWindow: Gtk.Window
     private const string STR_RENAMESTAND_BUTTON = "Rename selected Stand";
     private const string STR_RENAMESTAND_TOOLTIP = "Rename the selected Stand.";
     private const string STR_TOGGLEGRID_BUTTON = "Display Grid";
+    private const string STR_BACKDROP_BUTTON = "Change Backdrop...";
+    private const string STR_BACKDROP_TOOLTIP = "Change the backdrop shown behind the map design area.";
     private const string STR_STANDFRAME_TOOLTIP = "Contains all user created Stands for placement";
     private const string STR_STANDFRAME_LABEL = "Stands";
     private const string STR_WINDOWTITLE = "Map my Garage Sale - ";
@@ -63,7 +65,6 @@ public partial class MainWindow: Gtk.Window
     private const string RES_SAVE_ICON = "Frontend.Assets.saveicon.png";
 
     //UI members
-    private HBox standsBox;
     private HBox hboxToggle;
     private Label metadataLabel;
     private Frame StandFrame;
@@ -120,6 +121,7 @@ public partial class MainWindow: Gtk.Window
         //New, Save and Open Widget setup
         OperationWidget operationWidget = new OperationWidget();
 
+
         //New Map button
         Widget mapWidget = operationWidget.CreateOperationWidget (RES_NEWFILE_ICON, STR_NEWMAP_BUTTON);
         mapWidget.Show ();
@@ -127,7 +129,7 @@ public partial class MainWindow: Gtk.Window
         newMapButton.Clicked += newMapButton_Clicked;
         newMapButton.TooltipText = STR_NEWMAP_TOOLTIP;
         newMapButton.Show ();
-        hboxNSO.PackStart (newMapButton, false, false, 3);
+        hboxNSO.PackStart (newMapButton, false, false, 0);
 
         //Save button
         Widget saveWidget = operationWidget.CreateOperationWidget (RES_SAVE_ICON, STR_SAVEMAP_BUTTON);
@@ -136,7 +138,7 @@ public partial class MainWindow: Gtk.Window
         saveButton.Clicked += saveButton_Clicked;
         saveButton.TooltipText = STR_SAVEMAP_TOOLTIP;
         saveButton.Show ();
-        hboxNSO.PackStart (saveButton, false, false, 3);
+        hboxNSO.PackStart(saveButton, false, false, 0);
 
         //Open button
         FileChooserButton fileChooserButton = new FileChooserButton (STR_OPENMAP_BUTTON, FileChooserAction.Open);
@@ -150,7 +152,7 @@ public partial class MainWindow: Gtk.Window
         fileChooserButton.AddFilter(mmgsFileFilter);
         fileChooserButton.AddFilter(allFileFilter);
         fileChooserButton.FileSet += fileChooserButton_FileSet;
-        hboxNSO.PackEnd(fileChooserButton, false, false, 0);
+        hboxNSO.PackStart(fileChooserButton, false, false, 10);
 
         #endregion
 
@@ -205,36 +207,24 @@ public partial class MainWindow: Gtk.Window
         renameStandButton.TooltipText = STR_RENAMESTAND_TOOLTIP;
         deleteAndRenameBox.PackStart (renameStandButton, false, false, 3);
 
-        hboxRename.PackEnd (deleteAndRenameBox, false, false, 3);
+        hboxStand.PackEnd (deleteAndRenameBox, false, false, 3);
         #endregion
 
         #region Grid and Grid Buttons and Labels
 
-
         // Metadata label
-        this.metadataLabel = new global::Gtk.Label ();
-        this.metadataLabel.Name = "metadataLabel";
-        this.metadataLabel.LabelProp = STR_METADATA_LABEL;
-        this.metadataLabel.Justify = ((Gtk.Justification)(1));
-        this.MainTable.Add (this.metadataLabel);
-        Gtk.Table.TableChild w4 = ((Gtk.Table.TableChild)(this.MainTable [this.metadataLabel]));
-        w4.TopAttach = ((uint)(5));
-        w4.BottomAttach = ((uint)(6));
-        w4.LeftAttach = ((uint)(1));
-        w4.RightAttach = ((uint)(3));
-        w4.XOptions = ((Gtk.AttachOptions)(4));
-        w4.YOptions = ((Gtk.AttachOptions)(4));
-
-        //Grid VBox;
-        this.vboxGrid = new Gtk.VBox ();
-        this.vboxGrid.Name = "vboxGrid";
-        this.vboxGrid.Spacing = 6;
-        this.MainTable.Add (this.vboxGrid);
-        Gtk.Table.TableChild w5 = ((Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
-        w5.TopAttach = ((uint)(2));
-        w5.BottomAttach = ((uint)(5));
-        w5.RightAttach = ((uint)(3));
-        w5.XOptions = ((Gtk.AttachOptions)(4));
+//        this.metadataLabel = new global::Gtk.Label ();
+//        this.metadataLabel.Name = "metadataLabel";
+//        this.metadataLabel.LabelProp = STR_METADATA_LABEL;
+//        this.metadataLabel.Justify = ((Gtk.Justification)(1));
+//        this.MainTable.Add (this.metadataLabel);
+//        Gtk.Table.TableChild w4 = ((Gtk.Table.TableChild)(this.MainTable [this.metadataLabel]));
+//        w4.TopAttach = ((uint)(5));
+//        w4.BottomAttach = ((uint)(6));
+//        w4.LeftAttach = ((uint)(1));
+//        w4.RightAttach = ((uint)(4));
+//        w4.XOptions = ((Gtk.AttachOptions)(2));
+//        w4.YOptions = ((Gtk.AttachOptions)(2));
 
         // Toggle
         this.hboxToggle = new Gtk.HBox ();
@@ -244,14 +234,24 @@ public partial class MainWindow: Gtk.Window
         Gtk.Table.TableChild w6 = ((Gtk.Table.TableChild)(this.MainTable [this.hboxToggle]));
         w6.TopAttach = ((uint)(5));
         w6.BottomAttach = ((uint)(6));
-        w6.XOptions = ((Gtk.AttachOptions)(4));
-        w6.YOptions = ((Gtk.AttachOptions)(4));
+        w6.XOptions = ((Gtk.AttachOptions)(2));
+        w6.YOptions = ((Gtk.AttachOptions)(2));
 
         //ToggleButton for Grid on/of
         ToggleButton gridToggleButton = new ToggleButton (STR_TOGGLEGRID_BUTTON);
         gridToggleButton.Clicked += new EventHandler(gridToggleButton_OnClicked);
         gridToggleButton.Show ();
         hboxToggle.PackStart (gridToggleButton, false, false, 3);
+
+        //progress bar
+        //progressbar1.Hide();
+
+
+        //Change backdrop button
+        Button backdropButton = new Button(STR_BACKDROP_BUTTON);
+        backdropButton.Clicked += new EventHandler(backdropButton_OnClicked);
+        backdropButton.Show();
+        hboxToggle.PackStart(backdropButton, false, false,3);
 
         InitializeGrid();
 
@@ -265,11 +265,12 @@ public partial class MainWindow: Gtk.Window
         StandFrame.ShadowType = ((Gtk.ShadowType)(1));
         StandFrame.BorderWidth = ((uint)(1));
         StandFrame.Show();
+       
+        MainTable.Attach(StandFrame, 3,4,2,5);
 
-        standsBox = new HBox(true, 1);
-        standsBox.Show();
-        MainTable.Attach(StandFrame, 3, 4, 2, 5);
         InitializeStandTemplates();
+        StandFrame.Add(view);
+
         #endregion
 
         #region MenuBar setup
@@ -355,8 +356,15 @@ public partial class MainWindow: Gtk.Window
         }
 
         DrawType = (int)Enumerations.DrawType.InitialGridDraw;
-        vboxGrid.Add(Grid); 
-        vboxGrid.ShowAll();//expose fired here for grid
+        MainTable.Add(Grid);
+
+        Gtk.Table.TableChild gridChild = ((Gtk.Table.TableChild)(this.MainTable [this.Grid]));
+        gridChild.TopAttach = ((uint)(2));
+        gridChild.BottomAttach = ((uint)(5));
+        gridChild.LeftAttach = ((uint)(0));
+        gridChild.RightAttach = ((uint)(3));
+        gridChild.XOptions = ((Gtk.AttachOptions)(4));
+        gridChild.YOptions = ((Gtk.AttachOptions)(4));
     }
 
     /// <summary>
@@ -364,12 +372,9 @@ public partial class MainWindow: Gtk.Window
     /// </summary>
     private void InitializeStandTemplates()
     {
-        store = new NodeStore(typeof(Stand));
-        store.AddNode(new Stand(0, "Toys", new Cairo.Color(.49584,.78561,.94151,1),  40, 70));
-        store.AddNode(new Stand(1, "Movies", new Cairo.Color(.67854,.78561,.94151,1), 100, 90));
-        store.AddNode(new Stand(2, "Books and CDs", new Cairo.Color(.228,.15611,.7561,1), 75, 90));
-        store.AddNode(new Stand(3, "Vintage Action Figures", new Cairo.Color(.9843,.78561,.94151,1), 60, 40));
-        view = new NodeView(store);
+
+
+        view = new NodeView(LoadStandTemplates());
 
         Gtk.Drag.SourceSet(view, Gdk.ModifierType.Button1Mask, target_table, Gdk.DragAction.Copy);
         view.DragDataGet += new Gtk.DragDataGetHandler(StandTemplateSourceDragDataGet);
@@ -377,14 +382,42 @@ public partial class MainWindow: Gtk.Window
         view.DragEnd += new Gtk.DragEndHandler(StandTemplateSourceDragDataEnd);
         view.NodeSelection.Changed += new System.EventHandler(StandTemplateNodeSelectionChanged);
 
+        Gtk.CellRendererText editableCell = new Gtk.CellRendererText();
+        editableCell.Editable = true;
+        editableCell.Edited += new EditedHandler(CellEditedHandler);
+
         view.AppendColumn("ID", new Gtk.CellRendererText(), "text", 0);
         view.AppendColumn("Icon", new Gtk.CellRendererPixbuf(), "pixbuf", 1);
-        view.AppendColumn("Name", new Gtk.CellRendererText(), "text", 2);
+        view.AppendColumn("Name", editableCell, "text", 2);
         view.ShowAll();
+       
+    }
 
-        StandFrame.Add(view);
+    private NodeStore LoadStandTemplates()
+    {
+        //TODO - get stand templates from API
+        if(store != null)
+        {
+            store.Clear();
+        }
+        else
+        {
+            store = new NodeStore(typeof(Stand));
+        }
+        store.AddNode(new Stand(0, "Toys", new Cairo.Color(.49584,.78561,.94151,1),  40, 70));
+        store.AddNode(new Stand(1, "Movies", new Cairo.Color(.67854,.78561,.94151,1), 100, 90));
+        store.AddNode(new Stand(2, "Books and CDs", new Cairo.Color(.228,.15611,.7561,1), 75, 90));
+        store.AddNode(new Stand(3, "Vintage Action Figures", new Cairo.Color(.9843,.78561,.94151,1), 60, 40));
+        return store;
     }
    
+    private void RefreshUI()
+    {
+        this.Title = STR_WINDOWTITLE + "<name>";
+        InitializeGrid();
+        InitializeStandTemplates();
+    }
+
     #endregion
 
 	#region Control Events
@@ -411,6 +444,7 @@ public partial class MainWindow: Gtk.Window
         //               md.Run();
         //               md.Destroy();
         //           }
+        //          EngineAPI.removeGrabbedStand();
         //        }
 
         CairoStand.Height = stand.Height;
@@ -430,6 +464,12 @@ public partial class MainWindow: Gtk.Window
     protected void GridDragMotion(object o, DragMotionArgs args)
     {
         Console.WriteLine("Grid Drag Motion: " + args.X + ", " + args.Y);
+    }
+
+    protected void GridDragDropHandler(object o, DragDropArgs args)
+    {
+        Console.WriteLine("Grid Drag Dropped");
+        Console.WriteLine("Stand dropped at (" + args.X + ", " + args.Y + ")");
     }
 
     protected void GridMotionNotifyEvent(object o, MotionNotifyEventArgs args)
@@ -479,8 +519,6 @@ public partial class MainWindow: Gtk.Window
     #region Grid Drawing
     protected void GridExposeEvent(object o, ExposeEventArgs args)
     {
-        Console.WriteLine("Grid expose fired.");
-
         switch (DrawType)
         {
             case (int)Enumerations.DrawType.StandDraw:
@@ -504,7 +542,16 @@ public partial class MainWindow: Gtk.Window
                 {
                     using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
                     {
-                        CairoGrid.BackdropPath = "testbackdrop.png";
+                        CairoGrid.BackdropPath = string.Empty;
+                        CairoGrid.DrawGrid(context);
+                    }
+                    break;
+                }
+            case (int)Enumerations.DrawType.BackdropChangeDraw:
+                {
+                    using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
+                    {
+                        CairoGrid.DrawBackdrop(context);
                         CairoGrid.DrawGrid(context);
                     }
                     break;
@@ -533,6 +580,65 @@ public partial class MainWindow: Gtk.Window
         //        {
         //            gridDrawingArea.DrawLines = true;
         //        }
+    }
+
+    protected void backdropButton_OnClicked(object sender, EventArgs e)
+    {
+        FileChooserDialog backDropDialog = null;
+        const string STR_DIALOG_SAVE_BUTTON_TEXT = "Open";
+        const string STR_DIALOG_CANCEL_BUTTON_TEXT = "Cancel";
+        string fileName = string.Empty; //holds user entered file name
+        ResponseType response = ResponseType.None;
+
+        try
+        {
+            backDropDialog = new FileChooserDialog(STR_NEWMAP_DIALOG_TITLE, this, FileChooserAction.Save);
+            backDropDialog.AddButton(STR_DIALOG_SAVE_BUTTON_TEXT, ResponseType.Ok);
+            backDropDialog.AddButton(STR_DIALOG_CANCEL_BUTTON_TEXT, ResponseType.Cancel);
+            FileFilter mmgsFilter = new FileFilter();
+            mmgsFilter.Name = "PNG";
+            mmgsFilter.AddPattern("*.png");
+            backDropDialog.AddFilter(mmgsFilter);
+            backDropDialog.Run();
+            response = (ResponseType)backDropDialog.Run();
+            fileName = backDropDialog.Filename;
+        }
+        finally
+        {
+            if (backDropDialog != null)
+            {
+                backDropDialog.Destroy(); //cleanup
+            }
+        }
+
+        switch (response)
+        {
+            case ResponseType.Ok:
+                {
+                    if (System.IO.File.Exists(fileName))
+                    {
+                        CairoGrid.BackdropPath = fileName;
+                        DrawType = (int)Enumerations.DrawType.BackdropChangeDraw;
+                        Grid.QueueDraw();
+                    }
+                    else
+                    {
+                        using(MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
+                            string.Format("Backdrop file not found.")))
+                        {
+                            md.Run();
+                            md.Destroy();
+                        }
+                    }
+                    break;
+                }
+            default:
+                {
+                    Console.WriteLine("Cancel clicked on back drop button dialog.");
+                    break;
+                }
+        }
+       
     }
     #endregion
 
@@ -587,7 +693,6 @@ public partial class MainWindow: Gtk.Window
             mmgsFilter.Name = "Map";
             mmgsFilter.AddPattern("*.mmgs");
             newMapSaveDialog.AddFilter(mmgsFilter);
-            newMapSaveDialog.Run();
             response = (ResponseType)newMapSaveDialog.Run();
             fileName = newMapSaveDialog.Filename;
         }
@@ -605,6 +710,7 @@ public partial class MainWindow: Gtk.Window
                 {
                     //TODO - Save map data.  Need an api call to complete this
                     Console.WriteLine("Done saving new Map - " + fileName + ".  Working to implement Saving of object.");
+                    RefreshUI();
                     break;
                 }
             default:
@@ -627,7 +733,7 @@ public partial class MainWindow: Gtk.Window
         {
             string fileName = btn.Filename;
             EngineAPI.loadUserFile(fileName);
-            //TODO - refresh UI
+            RefreshUI();
         }
     }
 
@@ -636,36 +742,8 @@ public partial class MainWindow: Gtk.Window
     #region Stand Button Events
     protected void newStandButton_Clicked(object sender, EventArgs e)
     {
-        NewStandTemplateDialog newStandDialog = null;
-        ResponseType response = ResponseType.None;
-
-        try
-        {
-            newStandDialog = new NewStandTemplateDialog(store);
-            response = (ResponseType)newStandDialog.Run();
-        }
-        finally
-        {
-            if(newStandDialog != null)
-            {
-                newStandDialog.Destroy(); //cleanup
-            }
-        }
-
-        switch (response)
-        {
-            case ResponseType.Ok: //set on the button's properties in the dialog
-                {
-                    Console.WriteLine("Done creating Stand.  Working to implement backend creation of new Stand object.");
-                    //TODO - create stand in engine
-                    break;
-                }
-            default:
-                {
-                    Console.WriteLine("Cancel clicked on New Stand dialog.");
-                    break;
-                }
-        }
+        NewStandTemplateWindow newStandWindow = new NewStandTemplateWindow(store);
+        newStandWindow.Show();
     }
 
     /// <summary>
@@ -675,12 +753,16 @@ public partial class MainWindow: Gtk.Window
     /// <param name="e">E.</param>
     protected void rotateButton_Clicked(object sender, EventArgs args)
     {
+        //TODO - get selected stand coordinates before and after
         //EngineAPI.rotateSelectedStand(true);
+        //Grid.QueueDrawArea([use selected stand info]);
     }
 
     protected void removeStandButton_Clicked(object sender, EventArgs args)
     {
+        //TODO - get selectes stand coordinates before and after
         //EngineAPI.removeSelectedStand();
+        //Grid.QueueDrawArea([use selected stand info]);
     }
 
     protected void deleteStandButton_Clicked(object sender, EventArgs args)
@@ -694,7 +776,7 @@ public partial class MainWindow: Gtk.Window
         if (selectedNode != null)
         {
             Stand stand = (Stand)view.NodeSelection.SelectedNode;
-            //TODO - need an api call to do this - waiting on implementation
+            //TODO - need an api call to do this
         }
     }       
 
@@ -704,8 +786,9 @@ public partial class MainWindow: Gtk.Window
     protected void StandTemplateNodeSelectionChanged(object sender, EventArgs args)
     {
         NodeSelection selectedNode = (NodeSelection)sender;
-        Stand node = (Stand)selectedNode.SelectedNode;
-        metadataLabel.Text = "Stand ID: " + node.StandID + " | Name: " + node.Name + " | Width: " + node.Width + "px | Height: " + node.Height + "px";
+        Stand node = (Stand)selectedNode.SelectedNode; 
+        metadataStatusBar.Push(0, "ID: " + node.StandID + " | " + node.Name + " | W: " + node.Width + "px | H: " + node.Height + "px");
+        metadataStatusBar.TooltipText = "ID: " + node.StandID + " | " + node.Name + " | W: " + node.Width + "px | H: " + node.Height + "px";
     }
 
     protected void StandTemplateSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
@@ -725,7 +808,6 @@ public partial class MainWindow: Gtk.Window
         {
             Stand stand = (Stand)view.NodeSelection.SelectedNode;
             args.SelectionData.Text = stand.getPropertyString();
-            Console.WriteLine(args.SelectionData.Text);
         }
 
     }
@@ -735,10 +817,10 @@ public partial class MainWindow: Gtk.Window
         Console.WriteLine("Stand no longer being dragged.");
     }
 
-    void GridDragDropHandler(object o, DragDropArgs args)
+    protected void CellEditedHandler(object sender, Gtk.EditedArgs args)
     {
-        Console.WriteLine("Grid Drag Dropped");
-        Console.WriteLine("Stand dropped at (" + args.X + ", " + args.Y + ")");
+        Stand node = (Stand)store.GetNode(new Gtk.TreePath(args.Path));
+        node.Name = args.NewText;
     }
 
     #endregion
