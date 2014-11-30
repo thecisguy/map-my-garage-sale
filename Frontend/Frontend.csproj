@@ -85,12 +85,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OperationWidget.cs" />
     <Compile Include="AppState.cs" />
-    <Compile Include="NewStandTemplateDialog.cs" />
-    <Compile Include="gtk-gui\Frontend.NewStandTemplateDialog.cs" />
     <Compile Include="Map\CairoGrid.cs" />
     <Compile Include="Map\CairoStand.cs" />
     <Compile Include="Model\Stand.cs" />
     <Compile Include="Enumerations.cs" />
+    <Compile Include="NewStandTemplateWindow.cs" />
+    <Compile Include="gtk-gui\Frontend.NewStandTemplateWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
