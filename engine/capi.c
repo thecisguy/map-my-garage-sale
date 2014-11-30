@@ -62,6 +62,8 @@ static void grab_selected_stand(void);
 static uint32_t get_main_grid_height(void);
 static uint32_t get_main_grid_width(void);
 static void load_user_file(MonoString *ufile);
+static uint32_t get_selected_stand_height(void);
+static uint32_t get_selected_stand_width(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -151,6 +153,10 @@ static void register_api_functions(void) {
 	                       get_main_grid_width);
 	mono_add_internal_call("csapi.EngineAPI::loadUserFileRaw",
 	                       load_user_file);
+	mono_add_internal_call("csapi.EngineAPI::getSelectedStandHeightRaw",
+	                       get_selected_stand_height);
+	mono_add_internal_call("csapi.EngineAPI::getSelectedStandWidthRaw",
+	                       get_selected_stand_width);
 }
 
 void initialize_mono(const char *filename) {
@@ -278,4 +284,16 @@ static void load_user_file(MonoString *ufile) {
 	load_file(userfile);
 	fclose(userfile);
 	mono_free(filename);
+}
+
+/* Returns the height of the Selected Stand's source grid */
+static uint32_t get_selected_stand_height(void) {
+	assert(selected_stand);
+	return selected_stand->source->height;
+}
+
+/* Returns the width of the Selected Stand's source grid */
+static uint32_t get_selected_stand_width(void) {
+	assert(selected_stand);
+	return selected_stand->source->width;
 }
