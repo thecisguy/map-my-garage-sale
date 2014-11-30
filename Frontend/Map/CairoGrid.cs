@@ -48,61 +48,45 @@ namespace Frontend.Map
         /// <param name="height">Height.</param>
         public static void DrawGrid(Context context)
         {
-            if (BackdropPath.Length > 0)
-            {
-                //conversion to signed integer needed for scaling
-                using (Gdk.Pixbuf pb = new Gdk.Pixbuf(BackdropPath).ScaleSimple(Convert.ToInt32(Width), Convert.ToInt32(Height), Gdk.InterpType.Bilinear))
-                {
-                    try
-                    {
-                        pb.Save("temp", "png");
-
-                        //paint the image and then the tiles
-                        using (ImageSurface surface = new ImageSurface("temp"))
-                        {
-                            context.SetSource(surface);
-                            context.Paint();
-                            Draw(context);
-
-                            if (DrawLines)
-                            {
-                                DrawGridLines(context);
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        using (MessageDialog md = new MessageDialog(null, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
-                                                     string.Format("Unable to save a scaled copy of the backdrop image")))
-                        {
-                            md.Run();
-                            md.Destroy();
-                        }
-                        Console.WriteLine("Unable to save a scaled copy of the backdrop image");
-                    }
-                }
-            }
-            else
-            {
-                Draw(context); 
-                if (DrawLines)
-                {
-                    DrawGridLines(context);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Used when user wants a backdrop.  Saves creating a new context for no reason.
-        /// </summary>
-        /// <param name="context">Context.</param>
-        public static void Draw(Context context)
-        {
             for (int countHeight = 0; countHeight < Height; countHeight++)
             {
                 for (int countWidth = 0; countWidth < Width; countWidth++)
                 {
-                    DrawTile(context, new PointD(countWidth, countHeight));
+                    //DrawTile(context, new PointD(countWidth, countHeight));
+                }
+            }
+
+            if (DrawLines)
+            {
+                DrawGridLines(context);
+            }
+        }
+
+        public static void DrawBackdrop(Context context)
+        {
+            //conversion to signed integer needed for scaling
+            using (Gdk.Pixbuf pb = new Gdk.Pixbuf(BackdropPath).ScaleSimple(Convert.ToInt32(Width), Convert.ToInt32(Height), Gdk.InterpType.Bilinear))
+            {
+                try
+                {
+                    pb.Save("temp", "png");
+
+                    //paint the image and then the tiles
+                    using (ImageSurface surface = new ImageSurface("temp"))
+                    {
+                        context.SetSource(surface);
+                        context.Paint();
+                    }
+                }
+                catch (Exception)
+                {
+                    using (MessageDialog md = new MessageDialog(null, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
+                                                  string.Format("Unable to save a scaled copy of the backdrop image")))
+                    {
+                        md.Run();
+                        md.Destroy();
+                    }
+                    Console.WriteLine("Unable to save a scaled copy of the backdrop image");
                 }
             }
         }
@@ -169,9 +153,9 @@ namespace Frontend.Map
         /// <param name="point">Point.</param>
         public static void DrawTile(Context context, PointD point)
         {
-            // Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
+            Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
 
-            Cairo.Color color = EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); //spoofing color no engine call yet
+            Cairo.Color color = color1; //EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); //spoofing color no engine call yet
             //Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
 
             context.Antialias = Antialias.None;
