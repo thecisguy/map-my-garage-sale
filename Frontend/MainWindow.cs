@@ -66,12 +66,14 @@ public partial class MainWindow: Gtk.Window
 
     //UI members
     private HBox hboxToggle;
-    private Label metadataLabel;
     private Frame StandFrame;
     private DrawingArea Grid;
     private NodeView view;
     private NodeStore store;
     private bool isMousePressed = false;
+    private PointD previouslySelectedStandOrigin;
+    private int previouslySelectedStandHeight, previouslySelectedStandWidth;
+    private bool isStandSelected = false;
     private int DrawType;
 
     /// <summary>
@@ -305,7 +307,7 @@ public partial class MainWindow: Gtk.Window
         menuChild.BottomAttach = ((uint)(1));
         menuChild.RightAttach = ((uint)(3));
         #endregion
-
+       
     }
 
     /// <summary>
@@ -331,16 +333,16 @@ public partial class MainWindow: Gtk.Window
         Grid.ButtonPressEvent += new ButtonPressEventHandler(GridButtonPress);
         Grid.ButtonReleaseEvent += new ButtonReleaseEventHandler(GridButtonRelease);
 
-        //TODO
-        uint height = 400u;
-        uint width = 750u;
-
-        CairoGrid.Height = height;
-        CairoGrid.Width = width;
+        //defaults
+        CairoGrid.Height = 400u;
+        CairoGrid.Width = 600u;
 
         try{
-            height = EngineAPI.getMainGridHeight();
-            width = EngineAPI.getMainGridWidth();
+            uint height = EngineAPI.getMainGridHeight();
+            uint width = EngineAPI.getMainGridWidth();
+            Console.WriteLine("height: " + height + " | " + "width: " + width);
+            CairoGrid.Height = height;
+            CairoGrid.Width = width;
         }catch(MissingMethodException me)
         {
             //TODO-
@@ -372,7 +374,6 @@ public partial class MainWindow: Gtk.Window
     /// </summary>
     private void InitializeStandTemplates()
     {
-
 
         view = new NodeView(LoadStandTemplates());
 
@@ -487,18 +488,41 @@ public partial class MainWindow: Gtk.Window
 
     protected void GridButtonPress(object o, ButtonPressEventArgs args)
     {
-        //TODO - did user click on a stand?
-        //if yes, draw a highlighting line around the coords received by engine
-        //EngineAPI.selectStand((uint)args.Event.X, (uint)args.Event.Y);
-
-        Console.WriteLine("Button press: " + args.Event.Button.ToString());
+        //did user click on a stand
+        if (EngineAPI.selectStand((uint)args.Event.Y, (uint)args.Event.X))
+        {
+            Console.WriteLine("stand selected at: " + args.Event.X + ", " + args.Event.Y);
+            DrawType = (int)Enumerations.DrawType.StandSelected;
+            CairoStand.Width = (int)EngineAPI.getSelectedStandWidth();
+            CairoStand.Height = (int)EngineAPI.getSelectedStandHeight();
+            int upLeftX = (int)args.Event.X - (CairoStand.Width / 2);
+            int upLeftY = (int)args.Event.Y - (CairoStand.Height / 2);
+            isStandSelected = true;
+            previouslySelectedStandOrigin = new PointD(upLeftX, upLeftY);
+            previouslySelectedStandWidth = CairoStand.Width;
+            previouslySelectedStandHeight = CairoStand.Height;
+            metadataStatusBar.Push(0, "Height: " + CairoStand.Height + " | Width: " + CairoStand.Width);
+            Grid.QueueDrawArea(upLeftX, upLeftY, CairoStand.Width, CairoStand.Height);
+        }
+        else
+        {
+            Console.WriteLine("stand NOT selected at: " + args.Event.X + ", " + args.Event.Y);
+            if (isStandSelected)
+            {
+                if (previouslySelectedStandHeight > 0 && previouslySelectedStandWidth > 0)
+                {
+                    isStandSelected = false;
+                    DrawType = (int)Enumerations.DrawType.StandUnselected;
+                    Grid.QueueDrawArea((int)previouslySelectedStandOrigin.X, (int)previouslySelectedStandOrigin.Y, previouslySelectedStandWidth, previouslySelectedStandHeight);
+                }
+            }
+        }
         isMousePressed = true;
-
     }
 
     protected void GridButtonRelease(object o, ButtonReleaseEventArgs args)
     {
-        //TODO - did user click outside of a stand?  deselect currently selected stand.  
+
         //TODO - Need a CairoSelector class to keep track of selected stand rectangle coords for redraws
         Console.WriteLine("Button release: " + args.Event.Button.ToString());
         isMousePressed = false;
@@ -519,13 +543,13 @@ public partial class MainWindow: Gtk.Window
     #region Grid Drawing
     protected void GridExposeEvent(object o, ExposeEventArgs args)
     {
-        switch (DrawType)
+        using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
         {
-            case (int)Enumerations.DrawType.StandDraw:
-                {
-                    using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
+            switch (DrawType)
+            {
+                case (int)Enumerations.DrawType.StandDraw:
                     {
-                        //EngineAPI.doApplyGrabbedStand();
+                        EngineAPI.doApplyGrabbedStand();
 
                         //starting from upper left corner, increment the upLeft value width * height times and redraw grid
                         for (int i = 0; i < args.Event.Region.Clipbox.Height; i++)
@@ -535,33 +559,64 @@ public partial class MainWindow: Gtk.Window
                                 CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
                             }
                         }
+                        break;
                     }
-                    break;
-                }
-            case (int)Enumerations.DrawType.InitialGridDraw:
-                {
-                    using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
+                case (int)Enumerations.DrawType.StandSelected:
+                    {
+                        //redraw the tiles and to maintain visibility of the Stand and grid lines
+                        CairoStand.DrawHighlight(context, args.Event.Region.Clipbox.X + 2, args.Event.Region.Clipbox.Y + 2);
+                        for (int i = 0; i < args.Event.Region.Clipbox.Height; i++)
+                        {
+                            for (int k = 0; k < args.Event.Region.Clipbox.Width; k+=5)
+                            {
+                                CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
+                            }
+                        }
+                        CairoGrid.DrawGrid(context);
+                        break;
+                    }
+                case (int)Enumerations.DrawType.StandUnselected:
+                    {
+                        for (int i = 0; i < previouslySelectedStandHeight; i++)
+                        {
+                            for (int k = 0; k < previouslySelectedStandWidth; k+=5)
+                            {
+                                CairoGrid.DrawTile(context, new PointD(k + previouslySelectedStandOrigin.X, i + previouslySelectedStandOrigin.Y));
+                            }
+                        }
+                        CairoGrid.DrawGrid(context);
+                        break;
+                    }
+                case (int)Enumerations.DrawType.InitialGridDraw:
                     {
                         CairoGrid.BackdropPath = string.Empty;
                         CairoGrid.DrawGrid(context);
+                        break;
                     }
-                    break;
-                }
-            case (int)Enumerations.DrawType.BackdropChangeDraw:
-                {
-                    using (Context context = Gdk.CairoHelper.Create(args.Event.Window))
+                case (int)Enumerations.DrawType.GridLinesDraw:
+                    {
+                        CairoGrid.DrawGrid(context);
+                        break;
+                    }
+                case (int)Enumerations.DrawType.GridLinesNoDraw:
+                    {
+                        CairoGrid.DrawGrid(context);
+                        break;
+                    }
+                case (int)Enumerations.DrawType.BackdropChangeDraw:
                     {
                         CairoGrid.DrawBackdrop(context);
                         CairoGrid.DrawGrid(context);
+                        break;
                     }
-                    break;
-                }
-            default:
-                {
-                    Console.WriteLine("Default option on expose");
-                    break;
-                }
+                default:
+                    {
+                        Console.WriteLine("Default option on expose");
+                        break;
+                    }
+            }
         }
+
     }
     #endregion
 
@@ -572,14 +627,18 @@ public partial class MainWindow: Gtk.Window
     /// <param name="e">E.</param>
     protected void gridToggleButton_OnClicked(object sender, EventArgs e)
     {
-        //        if (gridDrawingArea.DrawLines)
-        //        {
-        //            gridDrawingArea.DrawLines = false;
-        //        }
-        //        else
-        //        {
-        //            gridDrawingArea.DrawLines = true;
-        //        }
+        if (CairoGrid.DrawLines)
+        {
+            CairoGrid.DrawLines = false;
+            DrawType = (int)Enumerations.DrawType.GridLinesNoDraw;
+            Grid.QueueDraw();
+        }
+        else
+        {
+            CairoGrid.DrawLines = true;
+            DrawType = (int)Enumerations.DrawType.GridLinesDraw;
+            Grid.QueueDraw();
+        }
     }
 
     protected void backdropButton_OnClicked(object sender, EventArgs e)
@@ -659,6 +718,7 @@ public partial class MainWindow: Gtk.Window
     {
         if(args.Event.Key.Equals("Escape"))
         {
+            Console.WriteLine("Esc hit");
             EngineAPI.deselectStand();
         }
     }
@@ -794,10 +854,10 @@ public partial class MainWindow: Gtk.Window
     protected void StandTemplateSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
     {
         Console.WriteLine("Stand now being dragged.");
-        NodeSelection selectedNode = (NodeSelection)sender;
+        NodeSelection selectedNode = (NodeSelection)((NodeView)sender).NodeSelection;
         Stand node = (Stand)selectedNode.SelectedNode;
 
-        //EngineAPI.grabNewStand(node.StandID); //TODO - is engine ready for id?
+        EngineAPI.grabNewStand(1); //TODO - is engine ready for id?
     }
 
     protected void StandTemplateSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)
