@@ -53,6 +53,21 @@ namespace Frontend.Map
             context.Fill();
             context.Stroke();
         }
+
+        public static void DrawHighlight(Context context, int X, int Y)
+        {
+            context.MoveTo(X, Y);
+            context.SetSourceRGBA(0, 0, 0, 1); //black
+            context.LineWidth = 2;
+            context.LineTo(X + Width, Y);
+            context.MoveTo(X + Width, Y);
+            context.LineTo(X + Width, Y + Height);
+            context.MoveTo(X, Y);
+            context.LineTo(X, Y + Height);
+            context.MoveTo(X, Y + Height);
+            context.LineTo(X + Width, Y + Height);
+            context.Stroke();
+        }
         #endregion
     }
 }
