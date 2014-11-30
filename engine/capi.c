@@ -63,7 +63,7 @@ static uint32_t get_main_grid_height(void);
 static uint32_t get_main_grid_width(void);
 static void load_user_file(MonoString *ufile);
 static void set_selected_stand_name(MonoString *newname);
-static MonoString *get_selected_stand_name(void)
+static MonoString *get_selected_stand_name(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -278,6 +278,7 @@ static void load_user_file(MonoString *ufile) {
 
 /* Sets the Selected Stand's name to the given string */
 static void set_selected_stand_name(MonoString *newname) {
+	assert(selected_stand);
 	char *mononame = mono_string_to_utf8(ufile);
 	// we duplicate this because the string from mono
 	// requires mono_free, which doesn't jive with our other code
@@ -296,5 +297,6 @@ static void set_selected_stand_name(MonoString *newname) {
 
 /* Return the Selected Stand's name as a MonoString */
 static MonoString *get_selected_stand_name(void) {
+	assert(selected_stand);
 	return mono_string_new(main_domain, selected_stand->name);
 }
