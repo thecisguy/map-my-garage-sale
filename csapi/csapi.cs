@@ -34,7 +34,7 @@ namespace csapi {
 		extern static double[] getColorOfTileRaw(uint row, uint column);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
-		extern static void selectStandRaw(uint row, uint column);
+		extern static bool selectStandRaw(uint row, uint column);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void deselectStandRaw();
@@ -73,6 +73,12 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void loadUserFileRaw(string filename);
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static uint getSelectedStandHeightRaw();
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static uint getSelectedStandWidthRaw();
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
@@ -81,8 +87,8 @@ namespace csapi {
 			return test;
 		}
 
-		public static void selectStand(uint row, uint column) {
-			selectStandRaw(row, column);
+		public static bool selectStand(uint row, uint column) {
+			return selectStandRaw(row, column);
 		}
 
 		public static void deselectStand() {
@@ -131,6 +137,14 @@ namespace csapi {
 
 		public static void loadUserFile(string filename) {
 			loadUserFileRaw(filename);
+		}
+
+		public static uint getSelectedStandHeight() {
+			return getSelectedStandHeightRaw();
+		}
+
+		public static uint getSelectedStandWidth() {
+			return getSelectedStandWidthRaw();
 		}
 	}
 }

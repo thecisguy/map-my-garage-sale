@@ -49,7 +49,7 @@ int num_main_templates = 0;
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj);
 static void register_api_functions(void);
-static void select_stand(uint32_t row, uint32_t column);
+static mono_bool select_stand(uint32_t row, uint32_t column);
 static void deselect_stand(void);
 static void rotate_selected_stand(mono_bool clockwise);
 static void remove_selected_stand(void);
@@ -62,6 +62,8 @@ static void grab_selected_stand(void);
 static uint32_t get_main_grid_height(void);
 static uint32_t get_main_grid_width(void);
 static void load_user_file(MonoString *ufile);
+static uint32_t get_selected_stand_height(void);
+static uint32_t get_selected_stand_width(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -151,6 +153,10 @@ static void register_api_functions(void) {
 	                       get_main_grid_width);
 	mono_add_internal_call("csapi.EngineAPI::loadUserFileRaw",
 	                       load_user_file);
+	mono_add_internal_call("csapi.EngineAPI::getSelectedStandHeightRaw",
+	                       get_selected_stand_height);
+	mono_add_internal_call("csapi.EngineAPI::getSelectedStandWidthRaw",
+	                       get_selected_stand_width);
 }
 
 void initialize_mono(const char *filename) {
@@ -180,10 +186,14 @@ int execute_frontend(int argc, char* argv[]) {
  * If the coordinates of a blank tile are passed in, selected_stand
  * will be set to NULL. (This is desirable, as the user will probably
  * click on a blank tile when attempting to "deselect" a Stand.)
+ *
+ * Returns true if selected_stand was set to a stand, false if
+ * it was set to NULL (Tile was empty).
  */
-static void select_stand(uint32_t row, uint32_t column) {
+static mono_bool select_stand(uint32_t row, uint32_t column) {
 	selected_stand = grid_lookup(main_grid, row, column)->
 		stand.stand_stand.s;
+	return selected_stand ? true : false;
 }
 
 /* Manually deselects the selected_stand.
@@ -234,6 +244,8 @@ static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column) {
  */
 static void do_apply_grabbed_stand(void) {
 	do_apply(grabbed_stand);
+	selected_stand = grabbed_stand;
+	grabbed_stand = NULL;
 }
 
 /* Deletes the grabbed stand.
@@ -272,4 +284,16 @@ static void load_user_file(MonoString *ufile) {
 	load_file(userfile);
 	fclose(userfile);
 	mono_free(filename);
+}
+
+/* Returns the height of the Selected Stand's source grid */
+static uint32_t get_selected_stand_height(void) {
+	assert(selected_stand);
+	return selected_stand->source->height;
+}
+
+/* Returns the width of the Selected Stand's source grid */
+static uint32_t get_selected_stand_width(void) {
+	assert(selected_stand);
+	return selected_stand->source->width;
 }
