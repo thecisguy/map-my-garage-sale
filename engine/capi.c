@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #include "global.h"
 #include "grid.h"
@@ -279,7 +280,7 @@ static void load_user_file(MonoString *ufile) {
 /* Sets the Selected Stand's name to the given string */
 static void set_selected_stand_name(MonoString *newname) {
 	assert(selected_stand);
-	char *mononame = mono_string_to_utf8(ufile);
+	char *mononame = mono_string_to_utf8(newname);
 	// we duplicate this because the string from mono
 	// requires mono_free, which doesn't jive with our other code
 	char *cname = (char *) malloc(sizeof(char) * (strlen(mononame) + 1));
