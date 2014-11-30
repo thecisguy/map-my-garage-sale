@@ -63,6 +63,7 @@ static uint32_t get_main_grid_height(void);
 static uint32_t get_main_grid_width(void);
 static void load_user_file(MonoString *ufile);
 static void set_selected_stand_name(MonoString *newname);
+static MonoString *get_selected_stand_name(void)
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -150,6 +151,8 @@ static void register_api_functions(void) {
 	                       load_user_file);
 	mono_add_internal_call("csapi.EngineAPI::setSelectedStandNameRaw",
 	                       set_selected_stand_name);
+	mono_add_internal_call("csapi.EngineAPI::getSelectedStandNameRaw",
+	                       get_selected_stand_name);
 }
 
 void initialize_mono(const char *filename) {
@@ -288,4 +291,10 @@ static void set_selected_stand_name(MonoString *newname) {
 
 	out_mononame:
 		mono_free(mononame);
+}
+
+
+/* Return the Selected Stand's name as a MonoString */
+static MonoString *get_selected_stand_name(void) {
+	return mono_string_new(main_domain, selected_stand->name);
 }
