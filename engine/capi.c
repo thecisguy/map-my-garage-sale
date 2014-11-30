@@ -49,7 +49,7 @@ int num_main_templates = 0;
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj);
 static void register_api_functions(void);
-static void select_stand(uint32_t row, uint32_t column);
+static mono_bool select_stand(uint32_t row, uint32_t column);
 static void deselect_stand(void);
 static void rotate_selected_stand(mono_bool clockwise);
 static void remove_selected_stand(void);
@@ -180,10 +180,14 @@ int execute_frontend(int argc, char* argv[]) {
  * If the coordinates of a blank tile are passed in, selected_stand
  * will be set to NULL. (This is desirable, as the user will probably
  * click on a blank tile when attempting to "deselect" a Stand.)
+ *
+ * Returns true if selected_stand was set to a stand, false if
+ * it was set to NULL (Tile was empty).
  */
-static void select_stand(uint32_t row, uint32_t column) {
+static mono_bool select_stand(uint32_t row, uint32_t column) {
 	selected_stand = grid_lookup(main_grid, row, column)->
 		stand.stand_stand.s;
+	return selected_stand ? true : false;
 }
 
 /* Manually deselects the selected_stand.
