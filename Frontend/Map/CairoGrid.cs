@@ -159,7 +159,7 @@ namespace Frontend.Map
             //Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
 
             context.Antialias = Antialias.None;
-            context.SetSourceRGBA(color.R, color.G, color.B, 0.4);
+            context.SetSourceRGBA(color.R, color.G, color.B, 1);
             context.LineCap = LineCap.Round;
             context.MoveTo(point.X, point.Y);
             context.LineTo(point.X + 5, point.Y);
