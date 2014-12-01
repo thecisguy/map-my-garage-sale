@@ -207,7 +207,7 @@ static void deselect_stand(void) {
 
 /* Rotates the selected Stand in the specified direction */
 static void rotate_selected_stand(mono_bool clockwise) {
-	assert(select_stand);
+	assert(selected_stand);
 	rotate_stand(selected_stand, (bool) clockwise);
 }
 
