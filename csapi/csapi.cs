@@ -34,7 +34,7 @@ namespace csapi {
 		extern static double[] getColorOfTileRaw(uint row, uint column);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
-		extern static bool selectStandRaw(uint row, uint column);
+		extern static long[] selectStandRaw(uint row, uint column);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void deselectStandRaw();
@@ -88,7 +88,16 @@ namespace csapi {
 		}
 
 		public static bool selectStand(uint row, uint column) {
-			return selectStandRaw(row, column);
+			long[] data = selectStandRaw(row, column);
+			return data[0] == 1;
+		}
+
+		public static bool selectStand(uint row, uint column,
+				out long originrow, out long origincolumn) {
+			long[] data = selectStandRaw(row, column);
+			originrow = data[1];
+			origincolumn = data[2];
+			return data[0] == 1;
 		}
 
 		public static void deselectStand() {
