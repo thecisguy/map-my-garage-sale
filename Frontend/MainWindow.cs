@@ -255,7 +255,7 @@ public partial class MainWindow: Gtk.Window
         backdropButton.Show();
         hboxToggle.PackStart(backdropButton, false, false,3);
 
-        InitializeGrid();
+        InitializeGrid(true);
 
         #endregion
 
@@ -270,7 +270,7 @@ public partial class MainWindow: Gtk.Window
        
         MainTable.Attach(StandFrame, 3,4,2,5);
 
-        InitializeStandTemplates();
+        InitializeStandTemplates(true);
         StandFrame.Add(view);
 
         #endregion
@@ -313,25 +313,40 @@ public partial class MainWindow: Gtk.Window
     /// <summary>
     /// Draws the grid.
     /// </summary>
-    private void InitializeGrid()
+    private void InitializeGrid(bool isFirstTime = false)
     {
-        Grid = new DrawingArea();
 
-        Grid.ExposeEvent += new ExposeEventHandler(GridExposeEvent);
-        Grid.DragMotion += new DragMotionHandler(GridDragMotion);
-        Grid.DragDataReceived += new DragDataReceivedHandler(GridDragDataReceived);
-        Grid.DragDrop += new DragDropHandler(GridDragDrop);
-        Grid.MotionNotifyEvent += new MotionNotifyEventHandler(GridMotionNotifyEvent);
+        if (isFirstTime)
+        {
+            Grid = new DrawingArea();
 
-        Gtk.Drag.DestSet(Grid, DestDefaults.Drop | DestDefaults.Motion, target_table, Gdk.DragAction.Copy);
-        Grid.AddEvents((int)
-            (Gdk.EventMask.ButtonPressMask
-                | Gdk.EventMask.ButtonReleaseMask
-                | Gdk.EventMask.KeyPressMask
-                | Gdk.EventMask.PointerMotionMask));
-        Grid.KeyPressEvent += new KeyPressEventHandler(GridKeyPress);
-        Grid.ButtonPressEvent += new ButtonPressEventHandler(GridButtonPress);
-        Grid.ButtonReleaseEvent += new ButtonReleaseEventHandler(GridButtonRelease);
+            Grid.ExposeEvent += new ExposeEventHandler(GridExposeEvent);
+            Grid.DragMotion += new DragMotionHandler(GridDragMotion);
+            Grid.DragDataReceived += new DragDataReceivedHandler(GridDragDataReceived);
+            Grid.DragDrop += new DragDropHandler(GridDragDrop);
+            Grid.MotionNotifyEvent += new MotionNotifyEventHandler(GridMotionNotifyEvent);
+
+            Gtk.Drag.DestSet(Grid, DestDefaults.Drop | DestDefaults.Motion, target_table, Gdk.DragAction.Copy);
+            Grid.AddEvents((int)
+                (Gdk.EventMask.ButtonPressMask
+                    | Gdk.EventMask.ButtonReleaseMask
+                    | Gdk.EventMask.KeyPressMask
+                    | Gdk.EventMask.PointerMotionMask));
+            Grid.KeyPressEvent += new KeyPressEventHandler(GridKeyPress);
+            Grid.ButtonPressEvent += new ButtonPressEventHandler(GridButtonPress);
+            Grid.ButtonReleaseEvent += new ButtonReleaseEventHandler(GridButtonRelease);
+
+
+            MainTable.Add(Grid);
+
+            Gtk.Table.TableChild gridChild = ((Gtk.Table.TableChild)(this.MainTable[this.Grid]));
+            gridChild.TopAttach = ((uint)(2));
+            gridChild.BottomAttach = ((uint)(5));
+            gridChild.LeftAttach = ((uint)(0));
+            gridChild.RightAttach = ((uint)(3));
+            gridChild.XOptions = ((Gtk.AttachOptions)(4));
+            gridChild.YOptions = ((Gtk.AttachOptions)(4));
+        }
 
         //defaults
         CairoGrid.Height = 400u;
@@ -358,40 +373,34 @@ public partial class MainWindow: Gtk.Window
         }
 
         DrawType = (int)Enumerations.DrawType.InitialGridDraw;
-        MainTable.Add(Grid);
-
-        Gtk.Table.TableChild gridChild = ((Gtk.Table.TableChild)(this.MainTable [this.Grid]));
-        gridChild.TopAttach = ((uint)(2));
-        gridChild.BottomAttach = ((uint)(5));
-        gridChild.LeftAttach = ((uint)(0));
-        gridChild.RightAttach = ((uint)(3));
-        gridChild.XOptions = ((Gtk.AttachOptions)(4));
-        gridChild.YOptions = ((Gtk.AttachOptions)(4));
     }
 
     /// <summary>
     /// Initializes the stand templates.
     /// </summary>
-    private void InitializeStandTemplates()
+    private void InitializeStandTemplates(bool isFirstTime = false)
     {
+        if (isFirstTime)
+        {
+            view = new NodeView();
 
-        view = new NodeView(LoadStandTemplates());
+            Gtk.Drag.SourceSet(view, Gdk.ModifierType.Button1Mask, target_table, Gdk.DragAction.Copy);
+            view.DragDataGet += new Gtk.DragDataGetHandler(StandTemplateSourceDragDataGet);
+            view.DragBegin += new Gtk.DragBeginHandler(StandTemplateSourceDragDataBegin);
+            view.DragEnd += new Gtk.DragEndHandler(StandTemplateSourceDragDataEnd);
+            view.NodeSelection.Changed += new System.EventHandler(StandTemplateNodeSelectionChanged);
 
-        Gtk.Drag.SourceSet(view, Gdk.ModifierType.Button1Mask, target_table, Gdk.DragAction.Copy);
-        view.DragDataGet += new Gtk.DragDataGetHandler(StandTemplateSourceDragDataGet);
-        view.DragBegin += new Gtk.DragBeginHandler(StandTemplateSourceDragDataBegin);
-        view.DragEnd += new Gtk.DragEndHandler(StandTemplateSourceDragDataEnd);
-        view.NodeSelection.Changed += new System.EventHandler(StandTemplateNodeSelectionChanged);
+            Gtk.CellRendererText editableCell = new Gtk.CellRendererText();
+            editableCell.Editable = true;
+            editableCell.Edited += new EditedHandler(CellEditedHandler);
 
-        Gtk.CellRendererText editableCell = new Gtk.CellRendererText();
-        editableCell.Editable = true;
-        editableCell.Edited += new EditedHandler(CellEditedHandler);
+            view.AppendColumn("ID", new Gtk.CellRendererText(), "text", 0);
+            view.AppendColumn("Icon", new Gtk.CellRendererPixbuf(), "pixbuf", 1);
+            view.AppendColumn("Name", editableCell, "text", 2);
+            view.ShowAll();
+        }
+        view.NodeStore = LoadStandTemplates();
 
-        view.AppendColumn("ID", new Gtk.CellRendererText(), "text", 0);
-        view.AppendColumn("Icon", new Gtk.CellRendererPixbuf(), "pixbuf", 1);
-        view.AppendColumn("Name", editableCell, "text", 2);
-        view.ShowAll();
-       
     }
 
     private NodeStore LoadStandTemplates()
@@ -415,8 +424,8 @@ public partial class MainWindow: Gtk.Window
     private void RefreshUI()
     {
         this.Title = STR_WINDOWTITLE + "<name>";
-        InitializeGrid();
-        InitializeStandTemplates();
+        InitializeGrid(false);
+        InitializeStandTemplates(false);
     }
 
     #endregion
@@ -495,6 +504,7 @@ public partial class MainWindow: Gtk.Window
             DrawType = (int)Enumerations.DrawType.StandSelected;
             CairoStand.Width = (int)EngineAPI.getSelectedStandWidth();
             CairoStand.Height = (int)EngineAPI.getSelectedStandHeight();
+            Console.WriteLine("Selected stand height: " + CairoStand.Height + " | width: " + CairoStand.Width);
             int upLeftX = (int)args.Event.X - (CairoStand.Width / 2);
             int upLeftY = (int)args.Event.Y - (CairoStand.Height / 2);
             isStandSelected = true;
@@ -513,6 +523,8 @@ public partial class MainWindow: Gtk.Window
                 {
                     isStandSelected = false;
                     DrawType = (int)Enumerations.DrawType.StandUnselected;
+                    EngineAPI.deselectStand();
+                    metadataStatusBar.Pop(0);
                     Grid.QueueDrawArea((int)previouslySelectedStandOrigin.X, (int)previouslySelectedStandOrigin.Y, previouslySelectedStandWidth, previouslySelectedStandHeight);
                 }
             }
@@ -559,6 +571,11 @@ public partial class MainWindow: Gtk.Window
                                 CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
                             }
                         }
+                        break;
+                    }
+                case (int)Enumerations.DrawType.ExistingStandRedraw:
+                    {
+                        CairoGrid.DrawGrid(context);
                         break;
                     }
                 case (int)Enumerations.DrawType.StandSelected:
@@ -813,16 +830,50 @@ public partial class MainWindow: Gtk.Window
     /// <param name="e">E.</param>
     protected void rotateButton_Clicked(object sender, EventArgs args)
     {
-        //TODO - get selected stand coordinates before and after
-        //EngineAPI.rotateSelectedStand(true);
-        //Grid.QueueDrawArea([use selected stand info]);
+        if (isStandSelected)
+        {
+            EngineAPI.rotateSelectedStand(false);
+            Console.WriteLine("Height: " + EngineAPI.getSelectedStandHeight() + " | width: " + EngineAPI.getSelectedStandWidth());
+            CairoStand.Height = CairoStand.Width; //flip for rotation
+            CairoStand.Width = CairoStand.Height;
+            DrawType = (int)Enumerations.DrawType.ExistingStandRedraw;
+            Grid.QueueDraw();
+            //TODO - why does this not seem to be rotating the way I would expect?
+            //Grid.QueueDrawArea((int)previouslySelectedStandOrigin.X, (int)previouslySelectedStandOrigin.Y, previouslySelectedStandHeight, previouslySelectedStandWidth);
+        }
+        else
+        {
+            using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
+                                         string.Format("Please select a Stand in the mapping area first.")))
+            {
+                md.Run();
+                md.Destroy();
+            }
+        }
     }
 
     protected void removeStandButton_Clicked(object sender, EventArgs args)
     {
-        //TODO - get selectes stand coordinates before and after
-        //EngineAPI.removeSelectedStand();
-        //Grid.QueueDrawArea([use selected stand info]);
+        if (isStandSelected)
+        {
+            int height = (int)EngineAPI.getSelectedStandHeight();
+            int width = (int)EngineAPI.getSelectedStandWidth();
+
+            EngineAPI.removeSelectedStand();
+            DrawType = (int)Enumerations.DrawType.ExistingStandRedraw;
+            //TODO - need origin or center of selected stand in order to prevent artifacting
+            Grid.QueueDrawArea((int)previouslySelectedStandOrigin.X, (int)previouslySelectedStandOrigin.Y, width, height);
+            isStandSelected = false;
+        }
+        else
+        {
+            using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
+                string.Format("Please select a Stand in the mapping area first.")))
+            {
+                md.Run();
+                md.Destroy();
+            }
+        }
     }
 
     protected void deleteStandButton_Clicked(object sender, EventArgs args)
@@ -836,7 +887,7 @@ public partial class MainWindow: Gtk.Window
         if (selectedNode != null)
         {
             Stand stand = (Stand)view.NodeSelection.SelectedNode;
-            //TODO - need an api call to do this
+            //TODO - need an api call to do this - need to merge into master and get new api call
         }
     }       
 
@@ -847,8 +898,11 @@ public partial class MainWindow: Gtk.Window
     {
         NodeSelection selectedNode = (NodeSelection)sender;
         Stand node = (Stand)selectedNode.SelectedNode; 
-        metadataStatusBar.Push(0, "ID: " + node.StandID + " | " + node.Name + " | W: " + node.Width + "px | H: " + node.Height + "px");
-        metadataStatusBar.TooltipText = "ID: " + node.StandID + " | " + node.Name + " | W: " + node.Width + "px | H: " + node.Height + "px";
+        if (node != null)
+        {
+            metadataStatusBar.Push(0, "ID: " + node.StandID + " | " + node.Name + " | W: " + node.Width + "px | H: " + node.Height + "px");
+            metadataStatusBar.TooltipText = "ID: " + node.StandID + " | " + node.Name + " | W: " + node.Width + "px | H: " + node.Height + "px";
+        }
     }
 
     protected void StandTemplateSourceDragDataBegin(object sender, Gtk.DragBeginArgs args)
