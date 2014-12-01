@@ -49,9 +49,9 @@ namespace Frontend.Map
         public static void DrawGrid(Context context)
         {
 
-            for (int countHeight = 0; countHeight < Height; countHeight++)
+            for (int countHeight = 0; countHeight < Height; countHeight+=3)
             {
-                for (int countWidth = 0; countWidth < Width; countWidth+=5)
+                for (int countWidth = 0; countWidth < Width; countWidth+=3)
                 {
                     DrawTile(context, new PointD(countWidth, countHeight));
                 }
@@ -162,7 +162,7 @@ namespace Frontend.Map
             context.SetSourceRGBA(color.R, color.G, color.B, 1);
             context.LineCap = LineCap.Round;
             context.MoveTo(point.X, point.Y);
-            context.LineTo(point.X + 5, point.Y);
+            context.LineTo(point.X + 3, point.Y + 3);
             context.ClosePath();
             context.Stroke();
         }
