@@ -49,7 +49,7 @@ int num_main_templates = 0;
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj);
 static void register_api_functions(void);
-static mono_bool select_stand(uint32_t row, uint32_t column);
+static MonoArray *select_stand(uint32_t row, uint32_t column);
 static void deselect_stand(void);
 static void rotate_selected_stand(mono_bool clockwise);
 static void remove_selected_stand(void);
@@ -190,10 +190,16 @@ int execute_frontend(int argc, char* argv[]) {
  * Returns true if selected_stand was set to a stand, false if
  * it was set to NULL (Tile was empty).
  */
-static mono_bool select_stand(uint32_t row, uint32_t column) {
+static MonoArray *select_stand(uint32_t row, uint32_t column) {
 	selected_stand = grid_lookup(main_grid, row, column)->
 		stand.stand_stand.s;
-	return selected_stand ? true : false;
+	MonoArray *data = mono_array_new(main_domain,
+			mono_get_int64_class(), 3);
+	mono_array_set(data, int64_t, 0,
+			(int64_t) (selected_stand ? true : false));
+	mono_array_set(data, int64_t, 1, selected_stand->row);
+	mono_array_set(data, int64_t, 2, selected_stand->column);
+	return data;
 }
 
 /* Manually deselects the selected_stand.
