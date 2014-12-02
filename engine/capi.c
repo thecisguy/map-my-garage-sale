@@ -258,7 +258,7 @@ static void grab_new_stand(int32_t st_num) {
  * at the specified coordinates.
  */
 static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column) {
-	assert(grabbed_stand);
+	if (!grabbed_stand) return (mono_bool) false;
 	return (mono_bool) can_apply(grabbed_stand, main_grid, row, column);
 }
 
@@ -274,6 +274,7 @@ static void do_apply_grabbed_stand(void) {
 /* Deletes the grabbed stand.
  */
 static void remove_grabbed_stand(void) {
+	if (!grabbed_stand) return;
 	del_stand(grabbed_stand);
 	grabbed_stand = NULL;
 }
@@ -281,7 +282,7 @@ static void remove_grabbed_stand(void) {
 /* Grabs the selected stand, by first lifting it from the Main Grid.
  */
 static void grab_selected_stand(void) {
-	assert(selected_stand);
+	if (!selected_stand) return;
 	remove_stand(selected_stand);
 	selected_stand->g = NULL;
 	if (grabbed_stand)
