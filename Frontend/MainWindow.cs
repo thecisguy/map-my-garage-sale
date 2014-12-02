@@ -508,7 +508,7 @@ public partial class MainWindow: Gtk.Window
                     DrawType = (int)Enumerations.DrawType.BackdropChangeDraw;
                     Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], CairoStand.Width, CairoStand.Height);
                 }
-                EngineAPI.grabSelectedStand();
+                //EngineAPI.grabSelectedStand();
             }
             else
             {
@@ -528,6 +528,7 @@ public partial class MainWindow: Gtk.Window
                         }
                     }
                 }
+                metadataStatusBar.Push(0, "No Stand Selected");
             }
         }
     }
@@ -538,7 +539,7 @@ public partial class MainWindow: Gtk.Window
         if (args.Event.Button == 1)
         {
             Console.WriteLine("pre");
-            EngineAPI.grabSelectedStand();
+            //EngineAPI.grabSelectedStand();
             Console.WriteLine("mid");
             bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.Event.X, (uint)args.Event.Y);
             Console.WriteLine("post");
@@ -557,6 +558,7 @@ public partial class MainWindow: Gtk.Window
                 {
                     if (EngineAPI.selectStand(checked((uint)args.Event.Y), checked((uint)args.Event.X), out y, out x))
                     {
+                        Console.WriteLine("IN");
                         //we now have stand at new coords as well as the origin points
                         selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X] = (int)x;
                         selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y] = (int)y;
@@ -571,16 +573,17 @@ public partial class MainWindow: Gtk.Window
                 catch (OverflowException)
                 {
                     //assume the user dragged the stand outside of the grid and remove it
-                    EngineAPI.removeGrabbedStand();
+                    //EngineAPI.removeGrabbedStand();
                 }
             }
             else
             {
-                using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Unable to apply Stand here."))
-                {
-                    md.Run();
-                    md.Destroy();
-                }
+//                using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Unable to apply Stand here."))
+//                {
+//                    md.Run();
+//                    md.Destroy();
+//                }
+                EngineAPI.removeGrabbedStand();
             }
             isMousePressed = false;
         }
@@ -616,7 +619,7 @@ public partial class MainWindow: Gtk.Window
                     }
                 case (int)Enumerations.DrawType.StandSelected:
                     {
-                        //redraw the tiles and to maintain visibility of the Stand and grid lines
+//                        redraw the tiles and to maintain visibility of the Stand and grid lines
 //                        CairoStand.DrawHighlight(context, args.Event.Region.Clipbox.X + 3, args.Event.Region.Clipbox.Y + 3);
 //                        for (int i = 0; i < args.Event.Region.Clipbox.Height; i+=3)
 //                        {
