@@ -258,7 +258,7 @@ static void grab_new_stand(int32_t st_num) {
  * at the specified coordinates.
  */
 static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column) {
-	assert(grabbed_stand);
+	if (!grabbed_stand) return (mono_bool) false;
 	return (mono_bool) can_apply(grabbed_stand, main_grid, row, column);
 }
 
