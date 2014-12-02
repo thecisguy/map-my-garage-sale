@@ -33,7 +33,7 @@
 #include "capi.h"
 
 static void scan_whitespace(FILE *f);
-static bool read_stand_templates(FILE *f, struct stand_template **st);
+static int32_t read_stand_templates(FILE *f, struct stand_template **st);
 static grid read_grid(FILE *f, uint32_t height,
                       uint32_t width, stand_like stand);
 static bool read_stands(FILE *f, stand **s);
@@ -180,7 +180,7 @@ static void scan_whitespace(FILE *f) {
  * Returns the number of templates read, or 0 if the read failed,
  * in which case st will be set to NULL.
  */
-static bool read_stand_templates(FILE *f, struct stand_template **st) {
+static int32_t read_stand_templates(FILE *f, struct stand_template **st) {
 	int32_t num_templates;
 	int scan_val = fscanf(f, "[%i](", &num_templates);
 	if (scan_val == EOF || scan_val < 1)
