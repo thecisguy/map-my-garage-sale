@@ -127,6 +127,7 @@ bool load_file(FILE *f) {
 	// copy other data
 	if (new_st_arr)
 		main_templates = new_st_arr;
+		num_main_templates = new_num_templates;
 	if (main_grid) {
 		tile *t = main_grid->lookup;
 		uint64_t len = main_grid->height * main_grid->width;
