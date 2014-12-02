@@ -422,7 +422,6 @@ public partial class MainWindow: Gtk.Window
         }
 
         int numStandTemplates = EngineAPI.getNumTemplates();
-        Console.WriteLine(numStandTemplates);
         for (int i = 0; i < numStandTemplates; i++)
         {
             store.AddNode(new Stand(i, EngineAPI.getSTName(i), EngineAPI.getColorOfST(i))); //create stand in ui
@@ -457,7 +456,24 @@ public partial class MainWindow: Gtk.Window
         Console.WriteLine("Drag Data Received at: " + args.X + ", " + args.Y);
         Stand stand = new Stand(args.SelectionData.Text);
        
+        if (EngineAPI.canApplyGrabbedStand((uint)args.Y, (uint)args.X) && isStandSelected)
+        {
+            EngineAPI.doApplyGrabbedStand();
 
+            DrawType = (int)Enumerations.DrawType.StandDraw;
+            Grid.QueueDraw();
+        }
+        else
+        {
+            using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Unable to apply Stand here."))
+            {
+                md.Run();
+                md.Destroy();
+            }
+            Grid.QueueDraw();
+        }
+
+        isStandSelected = false;
     }
 
     protected void GridDragDrop(object o, DragDropArgs args)
@@ -1033,6 +1049,7 @@ public partial class MainWindow: Gtk.Window
         Stand node = (Stand)selectedNode.SelectedNode;
 
         EngineAPI.grabNewStand(node.StandID);
+        isStandSelected = true;
     }
 
     protected void StandTemplateSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)
