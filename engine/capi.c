@@ -197,8 +197,10 @@ static MonoArray *select_stand(uint32_t row, uint32_t column) {
 			mono_get_int64_class(), 3);
 	mono_array_set(data, int64_t, 0,
 			(int64_t) (selected_stand ? true : false));
-	mono_array_set(data, int64_t, 1, selected_stand->row);
-	mono_array_set(data, int64_t, 2, selected_stand->column);
+	mono_array_set(data, int64_t, 1,
+		selected_stand ? selected_stand->row : 0);
+	mono_array_set(data, int64_t, 2,
+		selected_stand ? selected_stand->column : 0);
 	return data;
 }
 
