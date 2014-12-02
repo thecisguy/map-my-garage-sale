@@ -92,7 +92,7 @@ namespace csapi {
 		extern static double[] getColorOfSTRaw(int st_id);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
-		extern static void setSTNameRaw(string newname);
+		extern static void setSTNameRaw(int st_id, string newname);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static string getSTNameRaw(int st_id);
@@ -192,8 +192,8 @@ namespace csapi {
 			return test;
 		}
 
-		public static void setSTName(string newname) {
-			setSTNameRaw(newname);
+		public static void setSTName(int st_id, string newname) {
+			setSTNameRaw(st_id, newname);
 		}
 
 		public static string getSTName(int st_id) {
