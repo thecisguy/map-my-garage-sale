@@ -43,7 +43,7 @@ public partial class MainWindow: Gtk.Window
     private const string STR_ROTATESTAND_TOOLTIP = "Rotate the selected stand 90 degrees clockwise.";
     private const string STR_ROTATESTAND_BUTTON = "Rotate Stand 90°";
     private const string STR_DELETESTAND_TOOLTIP = "Delete the selected Stand permanently";
-    private const string STR_DELETESTAND_BUTTON = "Delete selected Stand Template";
+    private const string STR_DELETESTAND_BUTTON = "Delete Stand Template";
     private const string STR_REMOVESTAND_TOOLTIP = "Remove the selected Stand from the Map";
     private const string STR_REMOVESTAND_BUTTON = "Remove selected Stand";
     private const string STR_RENAMESTAND_BUTTON = "Rename selected Stand";
@@ -395,6 +395,7 @@ public partial class MainWindow: Gtk.Window
             view.DragBegin += new Gtk.DragBeginHandler(StandTemplateSourceDragDataBegin);
             view.DragEnd += new Gtk.DragEndHandler(StandTemplateSourceDragDataEnd);
             view.NodeSelection.Changed += new System.EventHandler(StandTemplateNodeSelectionChanged);
+            view.KeyReleaseEvent += new KeyReleaseEventHandler(StandTemplateNodeSelectionNodeChanged);
 
             Gtk.CellRendererText editableCell = new Gtk.CellRendererText();
             editableCell.Editable = true;
@@ -1033,6 +1034,19 @@ public partial class MainWindow: Gtk.Window
         {
             metadataStatusBar.Push(0, "ID: " + node.StandID + " | " + node.Name + " | Color: (" + node.Color.R + ", " + node.Color.G + ", " + node.Color.B + ")");
             metadataStatusBar.TooltipText = "ID: " + node.StandID + " | " + node.Name + " | Color: (" + node.Color.R + ", " + node.Color.G + ", " + node.Color.B + ")";
+        }
+    }
+
+    protected void StandTemplateNodeSelectionNodeChanged(object sender, KeyReleaseEventArgs args)
+    {
+        if (args.Event.KeyValue == 65293)
+        {
+            ITreeNode selectedNode = view.NodeSelection.SelectedNode;
+            if (selectedNode != null)
+            {
+                Stand stand = (Stand)view.NodeSelection.SelectedNode;
+                EngineAPI.setSTName(stand.Name);
+            }
         }
     }
 
