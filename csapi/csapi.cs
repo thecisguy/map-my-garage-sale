@@ -79,6 +79,18 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static uint getSelectedStandWidthRaw();
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static int getNumTemplatesRaw();
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static double[] getColorOfSTRaw(int st_id);
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void setSTNameRaw(string newname);
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static string getSTNameRaw();
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
@@ -154,6 +166,24 @@ namespace csapi {
 
 		public static uint getSelectedStandWidth() {
 			return getSelectedStandWidthRaw();
+		}
+
+		public static int getNumTemplates() {
+			return getNumTemplatesRaw();
+		}
+
+		public static Cairo.Color getColorOfST(int st_id) {
+			double[] data = getColorOfSTRaw(st_id);
+			Color test = new Color(data[0], data[1], data[2], data[3]);
+			return test;
+		}
+
+		public static void setSTName(string newname) {
+			setSTNameRaw(newname);
+		}
+
+		public static string getSTName() {
+			return getSTNameRaw();
 		}
 	}
 }

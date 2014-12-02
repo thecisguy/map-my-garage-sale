@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #include "global.h"
 #include "grid.h"
@@ -64,6 +65,10 @@ static uint32_t get_main_grid_width(void);
 static void load_user_file(MonoString *ufile);
 static uint32_t get_selected_stand_height(void);
 static uint32_t get_selected_stand_width(void);
+static int32_t get_num_templates(void);
+static MonoArray *get_color_of_st(int32_t st_id);
+static void set_st_name(int32_t st_id, MonoString *newname);
+static MonoString *get_st_name(int32_t st_id);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -157,6 +162,14 @@ static void register_api_functions(void) {
 	                       get_selected_stand_height);
 	mono_add_internal_call("csapi.EngineAPI::getSelectedStandWidthRaw",
 	                       get_selected_stand_width);
+	mono_add_internal_call("csapi.EngineAPI::getNumTemplatesRaw",
+	                       get_num_templates);
+	mono_add_internal_call("csapi.EngineAPI::getColorOfSTRaw",
+	                       get_color_of_st);
+	mono_add_internal_call("csapi.EngineAPI::getSTNameRaw",
+	                       get_st_name);
+	mono_add_internal_call("csapi.EngineAPI::setSTNameRaw",
+	                       set_st_name);
 }
 
 void initialize_mono(const char *filename) {
@@ -197,8 +210,10 @@ static MonoArray *select_stand(uint32_t row, uint32_t column) {
 			mono_get_int64_class(), 3);
 	mono_array_set(data, int64_t, 0,
 			(int64_t) (selected_stand ? true : false));
-	mono_array_set(data, int64_t, 1, selected_stand->row);
-	mono_array_set(data, int64_t, 2, selected_stand->column);
+	mono_array_set(data, int64_t, 1,
+		selected_stand ? selected_stand->row : 0);
+	mono_array_set(data, int64_t, 2,
+		selected_stand ? selected_stand->column : 0);
 	return data;
 }
 
@@ -302,4 +317,57 @@ static uint32_t get_selected_stand_height(void) {
 static uint32_t get_selected_stand_width(void) {
 	assert(selected_stand);
 	return selected_stand->source->width;
+}
+
+/* Returns the number of known Stand Templates */
+static int32_t get_num_templates(void) {
+	return num_main_templates;
+}
+
+/* Returns the color of the given stand template */
+static MonoArray *get_color_of_st(int32_t st_id) {
+	assert(st_id < num_main_templates);
+	
+	double red, blue, green, alpha;
+	stand_template s = main_templates + st_id;
+	red = s->red;
+	blue = s->blue;
+	green = s->green;
+	alpha = s->alpha;
+
+	MonoArray *data = mono_array_new(main_domain, mono_get_double_class(), 4);
+	mono_array_set(data, double, 0, red);
+	mono_array_set(data, double, 1, green);
+	mono_array_set(data, double, 2, blue);
+	mono_array_set(data, double, 3, alpha);
+	
+	return data;
+}
+
+/* Sets the given stand template's name to the given string */
+static void set_st_name(int32_t st_id, MonoString *newname) {
+	assert(st_id < num_main_templates);
+	char *mononame = mono_string_to_utf8(newname);
+	// we duplicate this because the string from mono
+	// requires mono_free, which doesn't jive with our other code
+	char *cname = (char *) malloc(sizeof(char) * (strlen(mononame) + 1));
+	if (!cname)
+		goto out_mononame;
+	strcpy(cname, mononame);
+
+	stand_template st = main_templates + st_id;
+	
+	if (st->name)
+		free(st->name);
+	st->name = cname;
+
+	out_mononame:
+		mono_free(mononame);
+}
+
+
+/* Return the given stand template's name as a MonoString */
+static MonoString *get_st_name(int32_t st_id) {
+	assert(st_id < num_main_templates);
+	return mono_string_new(main_domain, (main_templates + st_id)->name);
 }
