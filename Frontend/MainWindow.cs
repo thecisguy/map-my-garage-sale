@@ -490,7 +490,7 @@ public partial class MainWindow: Gtk.Window
             //did user click on a stand
             long currentSelectedStandOriginX = 0;
             long currentSelectedStandOriginY = 0;
-            Console.WriteLine("press");
+            Console.WriteLine("press"); 
             if (EngineAPI.selectStand((uint)args.Event.Y, (uint)args.Event.X, out currentSelectedStandOriginY, out currentSelectedStandOriginX))
             {
                
