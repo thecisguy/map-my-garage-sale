@@ -155,11 +155,10 @@ namespace Frontend.Map
         {
             Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
 
-            Cairo.Color color = EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); //spoofing color no engine call yet
-            //Console.WriteLine(point.Y + ":" + point.X + ":" + color.R + ":" + color.G + ":" + color.B + ":" + color.A); 
+            Cairo.Color color = EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); 
 
             context.Antialias = Antialias.None;
-            context.SetSourceRGBA(color.R, color.G, color.B, 1);
+            context.SetSourceRGBA(color.R, color.G, color.B, 0.4);
             context.LineCap = LineCap.Round;
             context.MoveTo(point.X, point.Y);
             context.LineTo(point.X + 3, point.Y + 3);
