@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <inttypes.h>
 #include <string.h>
 
 #include "global.h"
@@ -259,6 +260,8 @@ static void grab_new_stand(int32_t st_num) {
  */
 static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column) {
 	if (!grabbed_stand) return (mono_bool) false;
+	printf("engine got row: %" PRIi64 "\n", row);
+	printf("engine got column: %" PRIi64 "\n", column);
 	return (mono_bool) can_apply(grabbed_stand, main_grid, row, column);
 }
 
