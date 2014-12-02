@@ -499,7 +499,7 @@ public partial class MainWindow: Gtk.Window
 
                 selectedStandInformation[KEY_CURRENT_STAND_WIDTH] = CairoStand.Width;
                 selectedStandInformation[KEY_CURRENT_STAND_HEIGHT] = CairoStand.Height;
-                metadataStatusBar.Push(0, "Name: " + EngineAPI.getSTName() + " Height: " + CairoStand.Height + " | Width: " + CairoStand.Width);
+                metadataStatusBar.Push(0, "Name: " + EngineAPI.getSelectedStandName() + " Height: " + CairoStand.Height + " | Width: " + CairoStand.Width);
 
                 DrawType = (int)Enumerations.DrawType.StandSelected;
                 Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], CairoStand.Width, CairoStand.Height);

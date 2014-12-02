@@ -95,7 +95,7 @@ namespace csapi {
 		extern static void setSTNameRaw(string newname);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
-		extern static string getSTNameRaw();
+		extern static string getSTNameRaw(int st_id);
 
 /***************** API Methods ***************************************/
 
@@ -196,8 +196,8 @@ namespace csapi {
 			setSTNameRaw(newname);
 		}
 
-		public static string getSTName() {
-			return getSTNameRaw();
+		public static string getSTName(int st_id) {
+			return getSTNameRaw(st_id);
 		}
 	}
 }
