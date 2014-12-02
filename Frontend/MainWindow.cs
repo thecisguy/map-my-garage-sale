@@ -420,10 +420,21 @@ public partial class MainWindow: Gtk.Window
         {
             store = new NodeStore(typeof(Stand));
         }
-        store.AddNode(new Stand(0, "Toys", new Cairo.Color(.49584,.78561,.94151,1),  40, 70));
+
+        int numStandTemplates = EngineAPI.getNumTemplates();
+        Console.WriteLine(numStandTemplates);
+        for (int i = 0; i < numStandTemplates; i++)
+        {
+            Console.WriteLine(EngineAPI.getSTName(i));
+
+        }
+
+        //static
+        store.AddNode(new Stand(0, "Toys", new Gdk.Color(.49584,.78561,.94151,1),  40, 70));
         store.AddNode(new Stand(1, "Movies", new Cairo.Color(.67854,.78561,.94151,1), 100, 90));
         store.AddNode(new Stand(2, "Books and CDs", new Cairo.Color(.228,.15611,.7561,1), 75, 90));
         store.AddNode(new Stand(3, "Vintage Action Figures", new Cairo.Color(.9843,.78561,.94151,1), 60, 40));
+        //end static testing
         return store;
     }
    
@@ -458,13 +469,6 @@ public partial class MainWindow: Gtk.Window
     protected void GridDragMotion(object o, DragMotionArgs args)
     {
         Console.WriteLine("Grid Drag Motion: " + args.X + ", " + args.Y);
-    }
-
-    protected void GridDragDropHandler(object o, DragDropArgs args)
-    {
-        Console.WriteLine("Grid Drag Dropped");
-        Console.WriteLine("Stand dropped at (" + args.X + ", " + args.Y + ")");
-
     }
 
     protected void GridMotionNotifyEvent(object o, MotionNotifyEventArgs args)

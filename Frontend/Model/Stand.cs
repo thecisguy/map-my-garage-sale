@@ -22,7 +22,6 @@
 
 using System;
 using Gdk;
-using Cairo;
 
 namespace Frontend
 {
@@ -41,11 +40,11 @@ namespace Frontend
 
         public int Height {get; set;}
         public int Width { get; set;}
-        public Cairo.Color Color{get; set;}
+        public Color Color{get; set;}
         #endregion
 
         #region Constructors
-        public Stand (int id, string name, Cairo.Color color, int width, int height)
+        public Stand (int id, string name, Color color, int width, int height)
         {
             this.StandID = id;
             this.Name = name;
@@ -60,7 +59,7 @@ namespace Frontend
             string[] properties = propertyString.Split(new string[]{";"}, StringSplitOptions.None);
             this.StandID = Convert.ToInt32(properties [0]);
             this.Name = properties[1];
-            this.Color = new Cairo.Color(Convert.ToDouble(properties[2]), Convert.ToDouble(properties[3]), Convert.ToDouble(properties[4]), Convert.ToDouble(properties[5]));
+            this.Color = new Color(Convert.ToDouble(properties[2]), Convert.ToDouble(properties[3]), Convert.ToDouble(properties[4]), Convert.ToDouble(properties[5]));
             this.Width = Convert.ToInt32(properties [6]);
             this.Height = Convert.ToInt32(properties[7]);
         }
