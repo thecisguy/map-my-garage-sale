@@ -456,7 +456,7 @@ public partial class MainWindow: Gtk.Window
         Console.WriteLine("Drag Data Received at: " + args.X + ", " + args.Y);
         Stand stand = new Stand(args.SelectionData.Text);
         Console.WriteLine(isStandSelected);
-        if (EngineAPI.canApplyGrabbedStand((uint)args.Y, (uint)args.X) && isStandSelected)
+        if (EngineAPI.canApplyGrabbedStand((long)args.Y, (long)args.X) && isStandSelected)
         {
             EngineAPI.doApplyGrabbedStand();
 
@@ -576,7 +576,7 @@ public partial class MainWindow: Gtk.Window
             if (checkMoveX && checkMoveY)
             {
                 EngineAPI.grabSelectedStand();
-                bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.Event.Y, (uint)args.Event.X);
+                bool canApplyStand = EngineAPI.canApplyGrabbedStand((long)args.Event.Y, (long)args.Event.X);
                 Console.WriteLine("after apply is:" + canApplyStand);
                 if (canApplyStand)
                 {

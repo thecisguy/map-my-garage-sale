@@ -53,7 +53,7 @@ namespace csapi {
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static bool canApplyGrabbedStandRaw(
-					uint row, uint column);
+					long row, long column);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void doApplyGrabbedStandRaw();
@@ -138,7 +138,7 @@ namespace csapi {
 			grabNewStandRaw(st_id);
 		}
 
-		public static bool canApplyGrabbedStand(uint row, uint column) {
+		public static bool canApplyGrabbedStand(long row, long column) {
 			return canApplyGrabbedStandRaw(row, column);
 		}
 
