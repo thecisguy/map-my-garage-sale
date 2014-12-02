@@ -73,6 +73,8 @@ public partial class MainWindow: Gtk.Window
     private const string KEY_CURRENT_STAND_ORIGIN_Y = "key_current_stand_origin_y";
     private const string KEY_CURRENT_STAND_HEIGHT = "key_current_stand_height";
     private const string KEY_CURRENT_STAND_WIDTH = "key_current_stand_width";
+    private const string KEY_CURRENT_STAND_START_DRAG_X = "key_current_stand_start_drag_x";
+    private const string KEY_CURRENT_STAND_START_DRAG_Y = "key_current_stand_start_drag_y";
 
     //UI members
     private HBox hboxToggle;
@@ -132,6 +134,8 @@ public partial class MainWindow: Gtk.Window
         selectedStandInformation.Add(KEY_CURRENT_STAND_ORIGIN_Y, 0);
         selectedStandInformation.Add(KEY_CURRENT_STAND_HEIGHT, 0);
         selectedStandInformation.Add(KEY_CURRENT_STAND_WIDTH, 0);
+        selectedStandInformation.Add(KEY_CURRENT_STAND_START_DRAG_X, 0);
+        selectedStandInformation.Add(KEY_CURRENT_STAND_START_DRAG_Y, 0);
 
         /**
          * Below is setup that I am unable to configure via the Designer and as such it is much easier to initialize and set
@@ -453,7 +457,6 @@ public partial class MainWindow: Gtk.Window
 
     protected void GridDragMotion(object o, DragMotionArgs args)
     {
-        EngineAPI.grabSelectedStand();
         Console.WriteLine("Grid Drag Motion: " + args.X + ", " + args.Y);
     }
 
@@ -487,12 +490,17 @@ public partial class MainWindow: Gtk.Window
             //did user click on a stand
             long currentSelectedStandOriginX = 0;
             long currentSelectedStandOriginY = 0;
-
+            Console.WriteLine("press");
             if (EngineAPI.selectStand((uint)args.Event.Y, (uint)args.Event.X, out currentSelectedStandOriginY, out currentSelectedStandOriginX))
             {
+               
                 isStandSelected = true;
                 selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y] = (int)currentSelectedStandOriginY;
                 selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X] = (int)currentSelectedStandOriginX;
+
+                //store drag points
+                selectedStandInformation[KEY_CURRENT_STAND_START_DRAG_X] = (int)args.Event.X;
+                selectedStandInformation[KEY_CURRENT_STAND_START_DRAG_Y] = (int)args.Event.Y;
 
                 CairoStand.Width = (int)EngineAPI.getSelectedStandWidth();
                 CairoStand.Height = (int)EngineAPI.getSelectedStandHeight();
@@ -508,10 +516,10 @@ public partial class MainWindow: Gtk.Window
                     DrawType = (int)Enumerations.DrawType.BackdropChangeDraw;
                     Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], CairoStand.Width, CairoStand.Height);
                 }
-                EngineAPI.grabSelectedStand();
             }
             else
             {
+                Console.WriteLine("stand not selected");
                 if (isStandSelected)
                 {
                     if (selectedStandInformation[KEY_CURRENT_STAND_HEIGHT] > 0 && selectedStandInformation[KEY_CURRENT_STAND_WIDTH] > 0)
@@ -535,55 +543,71 @@ public partial class MainWindow: Gtk.Window
     protected void GridButtonRelease(object o, ButtonReleaseEventArgs args)
     {
         //left mouse button
-        if (args.Event.Button == 1)
+
+        //check to see that the stand has been moved a significant amount
+
+        if (args.Event.Button == 1 && isStandSelected)
         {
-            Console.WriteLine("pre");
-            EngineAPI.grabSelectedStand();
-            Console.WriteLine("mid");
-            bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.Event.X, (uint)args.Event.Y);
-            Console.WriteLine("post");
-            if (canApplyStand)
+            bool checkMoveX = args.Event.X > selectedStandInformation[KEY_CURRENT_STAND_START_DRAG_X] + 10 || args.Event.X < selectedStandInformation[KEY_CURRENT_STAND_START_DRAG_X] - 10;
+            bool checkMoveY = args.Event.Y > selectedStandInformation[KEY_CURRENT_STAND_START_DRAG_Y] + 10 || args.Event.Y < selectedStandInformation[KEY_CURRENT_STAND_START_DRAG_Y] - 10;
+
+            Console.WriteLine("checkmovex: " + checkMoveX);
+            Console.WriteLine("checkmovey: " + checkMoveY);
+            Console.WriteLine("selected stand height (test):" + EngineAPI.getSelectedStandHeight());
+            if (checkMoveX && checkMoveY)
             {
-                EngineAPI.doApplyGrabbedStand();
-
-                //update keys
-                selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_X] = selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X];
-                selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_Y] = selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y];
-                selectedStandInformation[KEY_PREVIOUS_STAND_WIDTH] = selectedStandInformation[KEY_CURRENT_STAND_WIDTH];
-                selectedStandInformation[KEY_PREVIOUS_STAND_HEIGHT] = selectedStandInformation[KEY_CURRENT_STAND_HEIGHT];
-
-                long x, y;
-                try
+                EngineAPI.grabSelectedStand();
+                bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.Event.X, (uint)args.Event.Y);
+                Console.WriteLine("after apply is:" + canApplyStand);
+                if (canApplyStand)
                 {
-                    if (EngineAPI.selectStand(checked((uint)args.Event.Y), checked((uint)args.Event.X), out y, out x))
+                    EngineAPI.doApplyGrabbedStand();
+
+                    //update keys
+                    selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_X] = selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X];
+                    selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_Y] = selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y];
+                    selectedStandInformation[KEY_PREVIOUS_STAND_WIDTH] = selectedStandInformation[KEY_CURRENT_STAND_WIDTH];
+                    selectedStandInformation[KEY_PREVIOUS_STAND_HEIGHT] = selectedStandInformation[KEY_CURRENT_STAND_HEIGHT];
+
+                    long x, y;
+                    try
                     {
-                        //we now have stand at new coords as well as the origin points
-                        selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X] = (int)x;
-                        selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y] = (int)y;
-                        selectedStandInformation[KEY_CURRENT_STAND_WIDTH] = (int)EngineAPI.getSelectedStandWidth();
-                        selectedStandInformation[KEY_CURRENT_STAND_HEIGHT] = (int)EngineAPI.getSelectedStandHeight();
+                        if (EngineAPI.selectStand(checked((uint)args.Event.Y), checked((uint)args.Event.X), out y, out x))
+                        {
+                            //we now have stand at new coords as well as the origin points
+                            selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X] = (int)x;
+                            selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y] = (int)y;
+                            selectedStandInformation[KEY_CURRENT_STAND_WIDTH] = (int)EngineAPI.getSelectedStandWidth();
+                            selectedStandInformation[KEY_CURRENT_STAND_HEIGHT] = (int)EngineAPI.getSelectedStandHeight();
 
-                        DrawType = (int)Enumerations.DrawType.ExistingStandRedraw;
-                        Grid.QueueDrawArea(selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_X], selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_Y], selectedStandInformation[KEY_PREVIOUS_STAND_WIDTH], selectedStandInformation[KEY_PREVIOUS_STAND_HEIGHT]);
-                        Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_WIDTH], selectedStandInformation[KEY_CURRENT_STAND_HEIGHT]);
+                            DrawType = (int)Enumerations.DrawType.ExistingStandRedraw;
+                            Grid.QueueDrawArea(selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_X], selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_Y], selectedStandInformation[KEY_PREVIOUS_STAND_WIDTH], selectedStandInformation[KEY_PREVIOUS_STAND_HEIGHT]);
+                            Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_WIDTH], selectedStandInformation[KEY_CURRENT_STAND_HEIGHT]);
+                        }
                     }
+                    catch (OverflowException)
+                    {
+                        //assume the user dragged the stand outside of the grid and remove it
+                        Console.WriteLine("overflow exception caught");
+                        EngineAPI.removeGrabbedStand();
+                    }
+                    isStandSelected = false;
                 }
-                catch (OverflowException)
+                else
                 {
-                    //assume the user dragged the stand outside of the grid and remove it
-                    EngineAPI.removeGrabbedStand();
+                    using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Unable to apply Stand here."))
+                    {
+                        md.Run();
+                        md.Destroy();
+                    }
+                    Grid.QueueDraw();
+
+                   // EngineAPI.deselectStand();
+                   // isStandSelected = false;
                 }
             }
-            else
-            {
-                using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Unable to apply Stand here."))
-                {
-                    md.Run();
-                    md.Destroy();
-                }
-            }
-            isMousePressed = false;
         }
+        isMousePressed = false;
     }
 
     #endregion
@@ -597,8 +621,6 @@ public partial class MainWindow: Gtk.Window
             {
                 case (int)Enumerations.DrawType.StandDraw:
                     {
-                        EngineAPI.doApplyGrabbedStand();
-
                         //starting from upper left corner, increment the upLeft value width * height times and redraw grid
                         for (int i = 0; i < args.Event.Region.Clipbox.Height; i++)
                         {
@@ -629,6 +651,7 @@ public partial class MainWindow: Gtk.Window
                         CairoGrid.DrawGrid(context);
 
                         //just going to update statusbar for now
+                        //metadataStatusBar.Push(0, "Height: " + EngineAPI.getSelectedStandHeight() + " | Width: " + EngineAPI.getSelectedStandWidth());
                         break;
                     }
                 case (int)Enumerations.DrawType.StandUnselected:
@@ -786,7 +809,6 @@ public partial class MainWindow: Gtk.Window
         if(args.Event.Key.Equals("Escape"))
         {
             Console.WriteLine("Esc hit");
-            EngineAPI.deselectStand();
         }
     }
 
