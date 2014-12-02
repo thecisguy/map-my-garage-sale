@@ -67,7 +67,6 @@ public partial class MainWindow
 		w3.RightAttach = ((uint)(3));
 		w3.XPadding = ((uint)(5));
 		w3.YPadding = ((uint)(5));
-		w3.XOptions = ((global::Gtk.AttachOptions)(4));
 		w3.YOptions = ((global::Gtk.AttachOptions)(4));
 		// Container child MainTable.Gtk.Table+TableChild
 		this.UIManager.AddUiFromString ("<ui><menubar name=\'menubar\'/></ui>");

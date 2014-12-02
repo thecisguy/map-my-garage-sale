@@ -43,6 +43,7 @@ namespace Frontend
 			this.MainTable.Name = "MainTable";
 			this.MainTable.RowSpacing = ((uint)(6));
 			this.MainTable.ColumnSpacing = ((uint)(6));
+			this.MainTable.BorderWidth = ((uint)(8));
 			// Container child MainTable.Gtk.Table+TableChild
 			this.cancelBtn = new global::Gtk.Button ();
 			this.cancelBtn.CanFocus = true;
