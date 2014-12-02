@@ -577,6 +577,7 @@ public partial class MainWindow: Gtk.Window
             {
                 EngineAPI.grabSelectedStand();
                 bool canApplyStand = EngineAPI.canApplyGrabbedStand((long)args.Event.Y, (long)args.Event.X);
+                Console.WriteLine(args.Event.X + ", " + args.Event.Y);
                 Console.WriteLine("after apply is:" + canApplyStand);
                 if (canApplyStand)
                 {
@@ -651,7 +652,10 @@ public partial class MainWindow: Gtk.Window
                     }
                 case (int)Enumerations.DrawType.ExistingStandRedraw:
                     {
-                        CairoGrid.DrawBackdrop(context);
+                        if (CairoGrid.BackdropPath.Length > 0)
+                        {
+                            CairoGrid.DrawBackdrop(context);
+                        }
                         CairoGrid.DrawGrid(context);
                         break;
                     }
