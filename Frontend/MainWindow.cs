@@ -410,7 +410,7 @@ public partial class MainWindow: Gtk.Window
 
     private NodeStore LoadStandTemplates()
     {
-        //TODO - get stand templates from API
+        //get stand templates from API
         if(store != null && view.NodeStore != null)
         {
             view.NodeStore.Clear();
@@ -425,7 +425,6 @@ public partial class MainWindow: Gtk.Window
         Console.WriteLine(numStandTemplates);
         for (int i = 0; i < numStandTemplates; i++)
         {
-            Console.WriteLine(EngineAPI.getSTName(i));
             store.AddNode(new Stand(i, EngineAPI.getSTName(i), EngineAPI.getColorOfST(i))); //create stand in ui
         }
 
@@ -457,7 +456,7 @@ public partial class MainWindow: Gtk.Window
     {
         Console.WriteLine("Drag Data Received at: " + args.X + ", " + args.Y);
         Stand stand = new Stand(args.SelectionData.Text);
-
+       
 
     }
 
@@ -1033,7 +1032,7 @@ public partial class MainWindow: Gtk.Window
         NodeSelection selectedNode = (NodeSelection)((NodeView)sender).NodeSelection;
         Stand node = (Stand)selectedNode.SelectedNode;
 
-        //EngineAPI.grabNewStand(1); //TODO - is engine ready for id?
+        EngineAPI.grabNewStand(node.StandID);
     }
 
     protected void StandTemplateSourceDragDataGet(object sender, Gtk.DragDataGetArgs args)

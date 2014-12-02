@@ -81,7 +81,7 @@ namespace Frontend
             {
                 using(Context context = new Context(surface))
                 {
-                    context.SetSourceRGBA(this.Color.R, this.Color.G, this.Color.B, this.Color.A);
+                    context.SetSourceRGBA(this.Color.R, this.Color.G, this.Color.B, 1);
                     context.Rectangle(new Cairo.Rectangle(0, 0, 20, 20));
                     context.LineWidth = 3;
                     context.Paint();
