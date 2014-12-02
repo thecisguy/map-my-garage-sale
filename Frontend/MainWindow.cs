@@ -426,7 +426,7 @@ public partial class MainWindow: Gtk.Window
         for (int i = 0; i < numStandTemplates; i++)
         {
             Console.WriteLine(EngineAPI.getSTName(i));
-            store.AddNode(new Stand(i, EngineAPI.getSTName(i), EngineAPI.getColorOfST(i)));
+            store.AddNode(new Stand(i, EngineAPI.getSTName(i), EngineAPI.getColorOfST(i))); //create stand in ui
         }
 
         //static
