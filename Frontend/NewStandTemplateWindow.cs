@@ -32,13 +32,21 @@ namespace Frontend
             int width = 0;
             int height = 0;
 
-            width = Convert.ToInt32(widthEntry.Text.Trim());
-            height = Convert.ToInt32(heightEntry.Text.Trim());
-
-            if (name.Length > 0 && !color.Equals(default(Gdk.Color)) && width > 0 && height > 0)
+            if (widthEntry.Text.Trim().Length > 0 && heightEntry.Text.Trim().Length > 0)
             {
-                retVal = true;
+                width = Convert.ToInt32(widthEntry.Text.Trim());
+                height = Convert.ToInt32(heightEntry.Text.Trim());
+                if (name.Length > 0 && width > 0 && height > 0)
+                {
+                    retVal = true;
+                }
             }
+            else
+            {
+                return retVal;
+            }
+
+
             return retVal;
         }
 
