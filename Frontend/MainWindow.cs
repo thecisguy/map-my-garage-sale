@@ -508,7 +508,7 @@ public partial class MainWindow: Gtk.Window
                     DrawType = (int)Enumerations.DrawType.BackdropChangeDraw;
                     Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], CairoStand.Width, CairoStand.Height);
                 }
-                //EngineAPI.grabSelectedStand();
+                EngineAPI.grabSelectedStand();
             }
             else
             {
@@ -539,7 +539,7 @@ public partial class MainWindow: Gtk.Window
         if (args.Event.Button == 1)
         {
             Console.WriteLine("pre");
-            //EngineAPI.grabSelectedStand();
+            EngineAPI.grabSelectedStand();
             Console.WriteLine("mid");
             bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.Event.X, (uint)args.Event.Y);
             Console.WriteLine("post");
