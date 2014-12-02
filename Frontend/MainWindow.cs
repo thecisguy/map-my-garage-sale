@@ -112,7 +112,6 @@ public partial class MainWindow: Gtk.Window
 		Build ();
         SetupUI();
         AppState = new AppState();
-
 	}
     #endregion
 
@@ -643,11 +642,13 @@ public partial class MainWindow: Gtk.Window
                 case (int)Enumerations.DrawType.StandDraw:
                     {
                         //CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
+                        CairoGrid.DrawBackdrop(context);
                         CairoGrid.DrawGrid(context);
                         break;
                     }
                 case (int)Enumerations.DrawType.ExistingStandRedraw:
                     {
+                        CairoGrid.DrawBackdrop(context);
                         CairoGrid.DrawGrid(context);
                         break;
                     }
@@ -662,7 +663,7 @@ public partial class MainWindow: Gtk.Window
 //                                CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
 //                            }
 //                        }
-
+                        CairoGrid.DrawBackdrop(context);
                         CairoGrid.DrawGrid(context);
 
                         //just going to update statusbar for now
