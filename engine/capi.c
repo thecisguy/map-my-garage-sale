@@ -65,6 +65,7 @@ static void load_user_file(MonoString *ufile);
 static uint32_t get_selected_stand_height(void);
 static uint32_t get_selected_stand_width(void);
 static int32_t get_num_templates(void);
+static MonoArray *get_color_of_st(int32_t st_id);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -160,6 +161,8 @@ static void register_api_functions(void) {
 	                       get_selected_stand_width);
 	mono_add_internal_call("csapi.EngineAPI::getNumTemplatesRaw",
 	                       get_num_templates);
+	mono_add_internal_call("csapi.EngineAPI::getColorOfSTRaw",
+	                       get_color_of_st);
 }
 
 void initialize_mono(const char *filename) {
@@ -312,4 +315,24 @@ static uint32_t get_selected_stand_width(void) {
 /* Returns the number of known Stand Templates */
 static int32_t get_num_templates(void) {
 	return num_main_templates;
+}
+
+/* Returns the color of the given stand template */
+static MonoArray *get_color_of_st(int32_t st_id) {
+	assert(st_id < num_main_templates);
+	
+	double red, blue, green, alpha;
+	stand_template s = main_templates + st_id;
+	red = s->red;
+	blue = s->blue;
+	green = s->green;
+	alpha = s->alpha;
+
+	MonoArray *data = mono_array_new(main_domain, mono_get_double_class(), 4);
+	mono_array_set(data, double, 0, red);
+	mono_array_set(data, double, 1, green);
+	mono_array_set(data, double, 2, blue);
+	mono_array_set(data, double, 3, alpha);
+	
+	return data;
 }
