@@ -69,7 +69,7 @@ public partial class MainWindow
 		w3.YPadding = ((uint)(5));
 		w3.YOptions = ((global::Gtk.AttachOptions)(4));
 		// Container child MainTable.Gtk.Table+TableChild
-		this.UIManager.AddUiFromString ("<ui><menubar name='menubar'/></ui>");
+		this.UIManager.AddUiFromString ("<ui><menubar name=\'menubar\'/></ui>");
 		this.menubar = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubar")));
 		this.menubar.Name = "menubar";
 		this.MainTable.Add (this.menubar);
