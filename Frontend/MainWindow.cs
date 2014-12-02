@@ -43,7 +43,7 @@ public partial class MainWindow: Gtk.Window
     private const string STR_ROTATESTAND_TOOLTIP = "Rotate the selected stand 90 degrees clockwise.";
     private const string STR_ROTATESTAND_BUTTON = "Rotate Stand 90°";
     private const string STR_DELETESTAND_TOOLTIP = "Delete the selected Stand permanently";
-    private const string STR_DELETESTAND_BUTTON = "Delete selected Stand";
+    private const string STR_DELETESTAND_BUTTON = "Delete selected Stand Template";
     private const string STR_REMOVESTAND_TOOLTIP = "Remove the selected Stand from the Map";
     private const string STR_REMOVESTAND_BUTTON = "Remove selected Stand";
     private const string STR_RENAMESTAND_BUTTON = "Rename selected Stand";
@@ -455,7 +455,7 @@ public partial class MainWindow: Gtk.Window
     {
         Console.WriteLine("Drag Data Received at: " + args.X + ", " + args.Y);
         Stand stand = new Stand(args.SelectionData.Text);
-       
+        Console.WriteLine(isStandSelected);
         if (EngineAPI.canApplyGrabbedStand((uint)args.Y, (uint)args.X) && isStandSelected)
         {
             EngineAPI.doApplyGrabbedStand();
@@ -641,14 +641,10 @@ public partial class MainWindow: Gtk.Window
             {
                 case (int)Enumerations.DrawType.StandDraw:
                     {
-                        //starting from upper left corner, increment the upLeft value width * height times and redraw grid
-                        for (int i = 0; i < args.Event.Region.Clipbox.Height; i++)
-                        {
-                            for (int k = 0; k < args.Event.Region.Clipbox.Width; k++)
-                            {
-                                CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
-                            }
-                        }
+
+                        //CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
+                        CairoGrid.DrawGrid(context);
+
                         break;
                     }
                 case (int)Enumerations.DrawType.ExistingStandRedraw:
