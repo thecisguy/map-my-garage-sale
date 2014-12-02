@@ -50,7 +50,7 @@ int num_main_templates = 0;
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column);
 static void debug_print_mono_info(MonoObject *obj);
 static void register_api_functions(void);
-static void select_stand(uint32_t row, uint32_t column);
+static MonoArray *select_stand(uint32_t row, uint32_t column);
 static void deselect_stand(void);
 static void rotate_selected_stand(mono_bool clockwise);
 static void remove_selected_stand(void);
@@ -65,6 +65,12 @@ static uint32_t get_main_grid_width(void);
 static void load_user_file(MonoString *ufile);
 static void set_selected_stand_name(MonoString *newname);
 static MonoString *get_selected_stand_name(void);
+static uint32_t get_selected_stand_height(void);
+static uint32_t get_selected_stand_width(void);
+static int32_t get_num_templates(void);
+static MonoArray *get_color_of_st(int32_t st_id);
+static void set_st_name(int32_t st_id, MonoString *newname);
+static MonoString *get_st_name(int32_t st_id);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -76,10 +82,14 @@ static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 		green = s->green;
 		alpha = s->alpha;
 	} else {
-		red = TILE_EMPTY_RED;
+		/*red = TILE_EMPTY_RED;
 		green = TILE_EMPTY_GREEN;
 		blue = TILE_EMPTY_BLUE;
-		alpha = TILE_EMPTY_ALPHA;
+		alpha = TILE_EMPTY_ALPHA;*/
+		red = rand() / (double) RAND_MAX;
+		green = rand() / (double) RAND_MAX;
+		blue = rand() / (double) RAND_MAX;
+		alpha = 1.0;
 	}
 
 	MonoArray *data = mono_array_new(main_domain, mono_get_double_class(), 4);
@@ -154,6 +164,18 @@ static void register_api_functions(void) {
 	                       set_selected_stand_name);
 	mono_add_internal_call("csapi.EngineAPI::getSelectedStandNameRaw",
 	                       get_selected_stand_name);
+	mono_add_internal_call("csapi.EngineAPI::getSelectedStandHeightRaw",
+	                       get_selected_stand_height);
+	mono_add_internal_call("csapi.EngineAPI::getSelectedStandWidthRaw",
+	                       get_selected_stand_width);
+	mono_add_internal_call("csapi.EngineAPI::getNumTemplatesRaw",
+	                       get_num_templates);
+	mono_add_internal_call("csapi.EngineAPI::getColorOfSTRaw",
+	                       get_color_of_st);
+	mono_add_internal_call("csapi.EngineAPI::getSTNameRaw",
+	                       get_st_name);
+	mono_add_internal_call("csapi.EngineAPI::setSTNameRaw",
+	                       set_st_name);
 }
 
 void initialize_mono(const char *filename) {
@@ -183,10 +205,22 @@ int execute_frontend(int argc, char* argv[]) {
  * If the coordinates of a blank tile are passed in, selected_stand
  * will be set to NULL. (This is desirable, as the user will probably
  * click on a blank tile when attempting to "deselect" a Stand.)
+ *
+ * Returns true if selected_stand was set to a stand, false if
+ * it was set to NULL (Tile was empty).
  */
-static void select_stand(uint32_t row, uint32_t column) {
+static MonoArray *select_stand(uint32_t row, uint32_t column) {
 	selected_stand = grid_lookup(main_grid, row, column)->
 		stand.stand_stand.s;
+	MonoArray *data = mono_array_new(main_domain,
+			mono_get_int64_class(), 3);
+	mono_array_set(data, int64_t, 0,
+			(int64_t) (selected_stand ? true : false));
+	mono_array_set(data, int64_t, 1,
+		selected_stand ? selected_stand->row : 0);
+	mono_array_set(data, int64_t, 2,
+		selected_stand ? selected_stand->column : 0);
+	return data;
 }
 
 /* Manually deselects the selected_stand.
@@ -200,7 +234,7 @@ static void deselect_stand(void) {
 
 /* Rotates the selected Stand in the specified direction */
 static void rotate_selected_stand(mono_bool clockwise) {
-	assert(select_stand);
+	assert(selected_stand);
 	rotate_stand(selected_stand, (bool) clockwise);
 }
 
@@ -237,6 +271,8 @@ static mono_bool can_apply_grabbed_stand(int64_t row, int64_t column) {
  */
 static void do_apply_grabbed_stand(void) {
 	do_apply(grabbed_stand);
+	selected_stand = grabbed_stand;
+	grabbed_stand = NULL;
 }
 
 /* Deletes the grabbed stand.
@@ -287,17 +323,80 @@ static void set_selected_stand_name(MonoString *newname) {
 	if (!cname)
 		goto out_mononame;
 	strcpy(cname, mononame);
+
 	if (selected_stand->name)
 		free(selected_stand->name);
 	selected_stand->name = cname;
+	
+	out_mononame:
+		mono_free(mononame);
+}
+
+/* Returns the height of the Selected Stand's source grid */
+static uint32_t get_selected_stand_height(void) {
+	assert(selected_stand);
+	return selected_stand->source->height;
+}
+
+/* Returns the width of the Selected Stand's source grid */
+static uint32_t get_selected_stand_width(void) {
+	assert(selected_stand);
+	return selected_stand->source->width;
+}
+
+/* Returns the number of known Stand Templates */
+static int32_t get_num_templates(void) {
+	return num_main_templates;
+}
+
+/* Returns the color of the given stand template */
+static MonoArray *get_color_of_st(int32_t st_id) {
+	assert(st_id < num_main_templates);
+	
+	double red, blue, green, alpha;
+	stand_template s = main_templates + st_id;
+	red = s->red;
+	blue = s->blue;
+	green = s->green;
+	alpha = s->alpha;
+
+	MonoArray *data = mono_array_new(main_domain, mono_get_double_class(), 4);
+	mono_array_set(data, double, 0, red);
+	mono_array_set(data, double, 1, green);
+	mono_array_set(data, double, 2, blue);
+	mono_array_set(data, double, 3, alpha);
+	
+	return data;
+}
+
+/* Sets the given stand template's name to the given string */
+static void set_st_name(int32_t st_id, MonoString *newname) {
+	assert(st_id < num_main_templates);
+	char *mononame = mono_string_to_utf8(newname);
+	// we duplicate this because the string from mono
+	// requires mono_free, which doesn't jive with our other code
+	char *cname = (char *) malloc(sizeof(char) * (strlen(mononame) + 1));
+	if (!cname)
+		goto out_mononame;
+	strcpy(cname, mononame);
+
+	stand_template st = main_templates + st_id;
+	
+	if (st->name)
+		free(st->name);
+	st->name = cname;
 
 	out_mononame:
 		mono_free(mononame);
 }
 
-
 /* Return the Selected Stand's name as a MonoString */
 static MonoString *get_selected_stand_name(void) {
 	assert(selected_stand);
 	return mono_string_new(main_domain, selected_stand->name);
+}
+/* Return the given stand template's name as a MonoString */
+static MonoString *get_st_name(int32_t st_id) {
+	assert(st_id < num_main_templates);
+	return mono_string_new(main_domain, (main_templates + st_id)->name);
 }

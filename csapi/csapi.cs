@@ -34,7 +34,7 @@ namespace csapi {
 		extern static double[] getColorOfTileRaw(uint row, uint column);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
-		extern static void selectStandRaw(uint row, uint column);
+		extern static long[] selectStandRaw(uint row, uint column);
 
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static void deselectStandRaw();
@@ -79,15 +79,43 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static string getSelectedStandNameRaw();
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static uint getSelectedStandHeightRaw();
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static uint getSelectedStandWidthRaw();
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static int getNumTemplatesRaw();
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static double[] getColorOfSTRaw(int st_id);
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void setSTNameRaw(string newname);
+
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static string getSTNameRaw();
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
 			double[] data = getColorOfTileRaw(row, column);
-			return new Color(data[0], data[1], data[2], data[3]);
+			Color test = new Color(data[0], data[1], data[2], data[3]);
+			return test;
 		}
 
-		public static void selectStand(uint row, uint column) {
-			selectStandRaw(row, column);
+		public static bool selectStand(uint row, uint column) {
+			long[] data = selectStandRaw(row, column);
+			return data[0] == 1;
+		}
+
+		public static bool selectStand(uint row, uint column,
+				out long originrow, out long origincolumn) {
+			long[] data = selectStandRaw(row, column);
+			originrow = data[1];
+			origincolumn = data[2];
+			return data[0] == 1;
 		}
 
 		public static void deselectStand() {
@@ -144,6 +172,32 @@ namespace csapi {
 
 		public static string getSelectedStandName() {
 			return getSelectedStandNameRaw();
+		}
+
+		public static uint getSelectedStandHeight() {
+			return getSelectedStandHeightRaw();
+		}
+
+		public static uint getSelectedStandWidth() {
+			return getSelectedStandWidthRaw();
+		}
+
+		public static int getNumTemplates() {
+			return getNumTemplatesRaw();
+		}
+
+		public static Cairo.Color getColorOfST(int st_id) {
+			double[] data = getColorOfSTRaw(st_id);
+			Color test = new Color(data[0], data[1], data[2], data[3]);
+			return test;
+		}
+
+		public static void setSTName(string newname) {
+			setSTNameRaw(newname);
+		}
+
+		public static string getSTName() {
+			return getSTNameRaw();
 		}
 	}
 }

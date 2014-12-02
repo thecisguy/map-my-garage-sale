@@ -29,12 +29,8 @@ namespace Frontend
 {
     public class OperationWidget
     {
-        #region Constructor
-        public OperationWidget()
-        {
-        }
-        #endregion
         #region Private Methods
+
         /// <summary>
         /// Creates a VBox.
         /// </summary>

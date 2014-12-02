@@ -27,11 +27,6 @@ namespace Frontend
     public class AppState
     {
         public bool IsUIDirty = false;
-
-        public AppState()
-        {
-           
-        }
     }
 }
 

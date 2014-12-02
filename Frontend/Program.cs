@@ -32,18 +32,25 @@ namespace Frontend
 
 			Application.Init ();
             MainWindow win = new MainWindow (); 
-           
 
             GLib.ExceptionManager.UnhandledException += (GLib.UnhandledExceptionArgs e) => {
                 Exception exc = (Exception)e.ExceptionObject;
                 win.Destroy();
 
                 using(MessageDialog md = new MessageDialog(win, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, false,
-                    string.Format("Error.  Send a screenshot of this to the devs so they can fix it: \n{0} \n\n{1}", exc.Message, exc.StackTrace)))
+                    string.Format("Error.  Send a screenshot of this to the devs so they can fix it: \n{0} \n{1} \n\n{2}", exc.Message, exc.InnerException, exc.TargetSite)))
                 {
                     md.Run();
                     md.Destroy();
                     win.Destroy();
+                    System.Diagnostics.Process[] proc = System.Diagnostics.Process.GetProcessesByName("main");
+                    if(proc.Length > 0)
+                    {
+                        foreach(System.Diagnostics.Process p in proc)
+                        {
+                            p.Kill(); //will kill main.exe
+                        }
+                    }
                 }
             };
             win.ShowAll ();

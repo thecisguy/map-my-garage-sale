@@ -9,11 +9,13 @@ public partial class MainWindow
 	
 	private global::Gtk.HBox hboxNSO;
 	
-	private global::Gtk.HBox hboxRename;
-	
 	private global::Gtk.HBox hboxStand;
 	
 	private global::Gtk.MenuBar menubar;
+	
+	private global::Gtk.Statusbar metadataStatusBar;
+	
+	private global::Gtk.ProgressBar progressbar1;
 	
 	private global::Gtk.VBox vboxGrid;
 
@@ -25,14 +27,17 @@ public partial class MainWindow
 		global::Gtk.ActionGroup w1 = new global::Gtk.ActionGroup ("Default");
 		this.UIManager.InsertActionGroup (w1, 0);
 		this.AddAccelGroup (this.UIManager.AccelGroup);
+		this.WidthRequest = 1024;
+		this.HeightRequest = 576;
 		this.Name = "MainWindow";
 		this.Title = global::Mono.Unix.Catalog.GetString ("Map Designer");
 		this.Icon = global::Stetic.IconLoader.LoadIcon (this, "stock_fullscreen", global::Gtk.IconSize.Menu);
 		this.WindowPosition = ((global::Gtk.WindowPosition)(3));
+		this.Resizable = false;
 		this.DefaultWidth = 1024;
 		this.DefaultHeight = 576;
 		// Container child MainWindow.Gtk.Container+ContainerChild
-		this.MainTable = new global::Gtk.Table (((uint)(8)), ((uint)(3)), false);
+		this.MainTable = new global::Gtk.Table (((uint)(8)), ((uint)(4)), false);
 		this.MainTable.Name = "MainTable";
 		this.MainTable.RowSpacing = ((uint)(6));
 		this.MainTable.ColumnSpacing = ((uint)(6));
@@ -40,67 +45,75 @@ public partial class MainWindow
 		this.hboxNSO = new global::Gtk.HBox ();
 		this.hboxNSO.Name = "hboxNSO";
 		this.hboxNSO.Homogeneous = true;
-		this.hboxNSO.Spacing = 6;
-		this.hboxNSO.BorderWidth = ((uint)(1));
+		this.hboxNSO.Spacing = 3;
 		this.MainTable.Add (this.hboxNSO);
 		global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.MainTable [this.hboxNSO]));
 		w2.TopAttach = ((uint)(1));
 		w2.BottomAttach = ((uint)(2));
-		w2.XPadding = ((uint)(10));
-		w2.YPadding = ((uint)(10));
+		w2.RightAttach = ((uint)(2));
+		w2.XPadding = ((uint)(5));
+		w2.YPadding = ((uint)(5));
 		w2.XOptions = ((global::Gtk.AttachOptions)(4));
-		w2.YOptions = ((global::Gtk.AttachOptions)(4));
+		w2.YOptions = ((global::Gtk.AttachOptions)(0));
 		// Container child MainTable.Gtk.Table+TableChild
-		this.hboxRename = new global::Gtk.HBox ();
-		this.hboxRename.Name = "hboxRename";
-		this.hboxRename.Spacing = 6;
-		this.MainTable.Add (this.hboxRename);
-		global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.MainTable [this.hboxRename]));
+		this.hboxStand = new global::Gtk.HBox ();
+		this.hboxStand.Name = "hboxStand";
+		this.hboxStand.Spacing = 3;
+		this.MainTable.Add (this.hboxStand);
+		global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.MainTable [this.hboxStand]));
 		w3.TopAttach = ((uint)(1));
 		w3.BottomAttach = ((uint)(2));
 		w3.LeftAttach = ((uint)(2));
 		w3.RightAttach = ((uint)(3));
-		w3.XPadding = ((uint)(10));
-		w3.YPadding = ((uint)(10));
+		w3.XPadding = ((uint)(5));
+		w3.YPadding = ((uint)(5));
 		w3.YOptions = ((global::Gtk.AttachOptions)(4));
-		// Container child MainTable.Gtk.Table+TableChild
-		this.hboxStand = new global::Gtk.HBox ();
-		this.hboxStand.Name = "hboxStand";
-		this.hboxStand.Spacing = 6;
-		this.MainTable.Add (this.hboxStand);
-		global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.MainTable [this.hboxStand]));
-		w4.TopAttach = ((uint)(1));
-		w4.BottomAttach = ((uint)(2));
-		w4.LeftAttach = ((uint)(1));
-		w4.RightAttach = ((uint)(2));
-		w4.XPadding = ((uint)(10));
-		w4.YPadding = ((uint)(10));
-		w4.XOptions = ((global::Gtk.AttachOptions)(4));
-		w4.YOptions = ((global::Gtk.AttachOptions)(4));
 		// Container child MainTable.Gtk.Table+TableChild
 		this.UIManager.AddUiFromString ("<ui><menubar name=\'menubar\'/></ui>");
 		this.menubar = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubar")));
 		this.menubar.Name = "menubar";
 		this.MainTable.Add (this.menubar);
-		global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.MainTable [this.menubar]));
-		w5.XOptions = ((global::Gtk.AttachOptions)(4));
+		global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.MainTable [this.menubar]));
+		w4.XOptions = ((global::Gtk.AttachOptions)(4));
+		w4.YOptions = ((global::Gtk.AttachOptions)(4));
+		// Container child MainTable.Gtk.Table+TableChild
+		this.metadataStatusBar = new global::Gtk.Statusbar ();
+		this.metadataStatusBar.Name = "metadataStatusBar";
+		this.metadataStatusBar.Spacing = 6;
+		this.MainTable.Add (this.metadataStatusBar);
+		global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.MainTable [this.metadataStatusBar]));
+		w5.TopAttach = ((uint)(7));
+		w5.BottomAttach = ((uint)(8));
+		w5.LeftAttach = ((uint)(3));
+		w5.RightAttach = ((uint)(4));
 		w5.YOptions = ((global::Gtk.AttachOptions)(4));
+		// Container child MainTable.Gtk.Table+TableChild
+		this.progressbar1 = new global::Gtk.ProgressBar ();
+		this.progressbar1.Name = "progressbar1";
+		this.MainTable.Add (this.progressbar1);
+		global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.MainTable [this.progressbar1]));
+		w6.TopAttach = ((uint)(7));
+		w6.BottomAttach = ((uint)(8));
+		w6.XOptions = ((global::Gtk.AttachOptions)(4));
+		w6.YOptions = ((global::Gtk.AttachOptions)(4));
 		// Container child MainTable.Gtk.Table+TableChild
 		this.vboxGrid = new global::Gtk.VBox ();
 		this.vboxGrid.Name = "vboxGrid";
 		this.vboxGrid.Spacing = 6;
 		this.MainTable.Add (this.vboxGrid);
-		global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
-		w6.TopAttach = ((uint)(2));
-		w6.BottomAttach = ((uint)(4));
-		w6.RightAttach = ((uint)(2));
-		w6.XOptions = ((global::Gtk.AttachOptions)(4));
+		global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
+		w7.TopAttach = ((uint)(2));
+		w7.BottomAttach = ((uint)(5));
+		w7.RightAttach = ((uint)(3));
+		w7.XPadding = ((uint)(5));
+		w7.XOptions = ((global::Gtk.AttachOptions)(0));
+		w7.YOptions = ((global::Gtk.AttachOptions)(0));
 		this.Add (this.MainTable);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
 		}
+		this.progressbar1.Hide ();
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
-		this.KeyPressEvent += new global::Gtk.KeyPressEventHandler (this.MainWindow_OnKeyPress);
 	}
 }
