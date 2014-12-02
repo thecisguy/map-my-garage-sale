@@ -641,10 +641,8 @@ public partial class MainWindow: Gtk.Window
             {
                 case (int)Enumerations.DrawType.StandDraw:
                     {
-
                         //CairoGrid.DrawTile(context, new PointD(k + args.Event.Region.Clipbox.Left, i + args.Event.Region.Clipbox.Top));
                         CairoGrid.DrawGrid(context);
-
                         break;
                     }
                 case (int)Enumerations.DrawType.ExistingStandRedraw:
@@ -1020,7 +1018,7 @@ public partial class MainWindow: Gtk.Window
         if (selectedNode != null)
         {
             Stand stand = (Stand)view.NodeSelection.SelectedNode;
-            //TODO - need an api call to do this - need to merge into master and get new api call
+            EngineAPI.setSTName(stand.Name);
         }
     }       
 
@@ -1033,8 +1031,8 @@ public partial class MainWindow: Gtk.Window
         Stand node = (Stand)selectedNode.SelectedNode; 
         if (node != null)
         {
-            metadataStatusBar.Push(0, "ID: " + node.StandID + " | " + node.Name + " | W: " + node.Width + "px | H: " + node.Height + "px");
-            metadataStatusBar.TooltipText = "ID: " + node.StandID + " | " + node.Name + " | W: " + node.Width + "px | H: " + node.Height + "px";
+            metadataStatusBar.Push(0, "ID: " + node.StandID + " | " + node.Name + " | Color: (" + node.Color.R + ", " + node.Color.G + ", " + node.Color.B + ")");
+            metadataStatusBar.TooltipText = "ID: " + node.StandID + " | " + node.Name + " | Color: (" + node.Color.R + ", " + node.Color.G + ", " + node.Color.B + ")";
         }
     }
 
