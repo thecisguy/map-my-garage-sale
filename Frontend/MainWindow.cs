@@ -1019,7 +1019,7 @@ public partial class MainWindow: Gtk.Window
         if (selectedNode != null)
         {
             Stand stand = (Stand)view.NodeSelection.SelectedNode;
-            EngineAPI.setSTName(stand.Name);
+            EngineAPI.setSTName(stand.StandID, stand.Name);
         }
     }       
 
@@ -1045,7 +1045,7 @@ public partial class MainWindow: Gtk.Window
             if (selectedNode != null)
             {
                 Stand stand = (Stand)view.NodeSelection.SelectedNode;
-                EngineAPI.setSTName(stand.Name);
+                EngineAPI.setSTName(stand.StandID, stand.Name);
             }
         }
     }
