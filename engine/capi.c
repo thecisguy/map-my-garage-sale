@@ -274,6 +274,7 @@ static void do_apply_grabbed_stand(void) {
 /* Deletes the grabbed stand.
  */
 static void remove_grabbed_stand(void) {
+	if (!grabbed_stand) return;
 	del_stand(grabbed_stand);
 	grabbed_stand = NULL;
 }
