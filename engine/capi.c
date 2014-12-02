@@ -281,6 +281,7 @@ static void remove_grabbed_stand(void) {
 /* Grabs the selected stand, by first lifting it from the Main Grid.
  */
 static void grab_selected_stand(void) {
+	assert(selected_stand);
 	remove_stand(selected_stand);
 	selected_stand->g = NULL;
 	if (grabbed_stand)
