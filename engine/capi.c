@@ -64,6 +64,7 @@ static uint32_t get_main_grid_width(void);
 static void load_user_file(MonoString *ufile);
 static uint32_t get_selected_stand_height(void);
 static uint32_t get_selected_stand_width(void);
+static int32_t get_num_templates(void);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -157,6 +158,8 @@ static void register_api_functions(void) {
 	                       get_selected_stand_height);
 	mono_add_internal_call("csapi.EngineAPI::getSelectedStandWidthRaw",
 	                       get_selected_stand_width);
+	mono_add_internal_call("csapi.EngineAPI::getNumTemplatesRaw",
+	                       get_num_templates);
 }
 
 void initialize_mono(const char *filename) {
@@ -304,4 +307,9 @@ static uint32_t get_selected_stand_height(void) {
 static uint32_t get_selected_stand_width(void) {
 	assert(selected_stand);
 	return selected_stand->source->width;
+}
+
+/* Returns the number of known Stand Templates */
+static int32_t get_num_templates(void) {
+	return num_main_templates;
 }
