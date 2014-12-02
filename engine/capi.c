@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #include "global.h"
 #include "grid.h"
@@ -66,6 +67,8 @@ static uint32_t get_selected_stand_height(void);
 static uint32_t get_selected_stand_width(void);
 static int32_t get_num_templates(void);
 static MonoArray *get_color_of_st(int32_t st_id);
+static void set_st_name(int32_t st_id, MonoString *newname);
+static MonoString *get_st_name(int32_t st_id);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -163,6 +166,10 @@ static void register_api_functions(void) {
 	                       get_num_templates);
 	mono_add_internal_call("csapi.EngineAPI::getColorOfSTRaw",
 	                       get_color_of_st);
+	mono_add_internal_call("csapi.EngineAPI::getSTNameRaw",
+	                       get_st_name);
+	mono_add_internal_call("csapi.EngineAPI::setSTNameRaw",
+	                       set_st_name);
 }
 
 void initialize_mono(const char *filename) {
@@ -335,4 +342,32 @@ static MonoArray *get_color_of_st(int32_t st_id) {
 	mono_array_set(data, double, 3, alpha);
 	
 	return data;
+}
+
+/* Sets the given stand template's name to the given string */
+static void set_st_name(int32_t st_id, MonoString *newname) {
+	assert(st_id < num_main_templates);
+	char *mononame = mono_string_to_utf8(newname);
+	// we duplicate this because the string from mono
+	// requires mono_free, which doesn't jive with our other code
+	char *cname = (char *) malloc(sizeof(char) * (strlen(mononame) + 1));
+	if (!cname)
+		goto out_mononame;
+	strcpy(cname, mononame);
+
+	stand_template st = main_templates + st_id;
+	
+	if (st->name)
+		free(st->name);
+	st->name = cname;
+
+	out_mononame:
+		mono_free(mononame);
+}
+
+
+/* Return the given stand template's name as a MonoString */
+static MonoString *get_st_name(int32_t st_id) {
+	assert(st_id < num_main_templates);
+	return mono_string_new(main_domain, (main_templates + st_id)->name);
 }
