@@ -82,14 +82,10 @@ static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 		green = s->green;
 		alpha = s->alpha;
 	} else {
-		/*red = TILE_EMPTY_RED;
+		red = TILE_EMPTY_RED;
 		green = TILE_EMPTY_GREEN;
 		blue = TILE_EMPTY_BLUE;
-		alpha = TILE_EMPTY_ALPHA;*/
-		red = rand() / (double) RAND_MAX;
-		green = rand() / (double) RAND_MAX;
-		blue = rand() / (double) RAND_MAX;
-		alpha = 1.0;
+		alpha = TILE_EMPTY_ALPHA;
 	}
 
 	MonoArray *data = mono_array_new(main_domain, mono_get_double_class(), 4);
