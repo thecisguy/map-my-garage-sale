@@ -77,8 +77,8 @@ namespace Frontend
                 //TODO - Create new Stand object - need an api call to do this
                 //using static id for now
                 Cairo.Color color = ToCairoColor(standColorButton.Color);
-                Stand newStand = new Stand(0, nameEntry.Text.Trim(), color, Convert.ToInt32(widthEntry.Text.Trim()), Convert.ToInt32(heightEntry.Text.Trim()));
-                templateStore.AddNode(newStand);
+                //Stand newStand = new Stand(0, nameEntry.Text.Trim(), color, Convert.ToInt32(widthEntry.Text.Trim()), Convert.ToInt32(heightEntry.Text.Trim()));
+                //templateStore.AddNode(newStand);
                 clearValues();
                 //this.Destroy();
             }

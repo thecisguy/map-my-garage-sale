@@ -22,6 +22,7 @@
 
 using System;
 using Gdk;
+using Cairo;
 
 namespace Frontend
 {
@@ -40,17 +41,15 @@ namespace Frontend
 
         public int Height {get; set;}
         public int Width { get; set;}
-        public Color Color{get; set;}
+        public Cairo.Color Color{get; set;}
         #endregion
 
         #region Constructors
-        public Stand (int id, string name, Color color, int width, int height)
+        public Stand (int id, string name, Cairo.Color color)
         {
             this.StandID = id;
             this.Name = name;
             this.Color = color;
-            this.Width = width;
-            this.Height = height;
             this.Icon = createIcon();
         }
 
@@ -59,9 +58,7 @@ namespace Frontend
             string[] properties = propertyString.Split(new string[]{";"}, StringSplitOptions.None);
             this.StandID = Convert.ToInt32(properties [0]);
             this.Name = properties[1];
-            this.Color = new Color(Convert.ToDouble(properties[2]), Convert.ToDouble(properties[3]), Convert.ToDouble(properties[4]), Convert.ToDouble(properties[5]));
-            this.Width = Convert.ToInt32(properties [6]);
-            this.Height = Convert.ToInt32(properties[7]);
+            this.Color = new Cairo.Color(Convert.ToDouble(properties[2]), Convert.ToDouble(properties[3]), Convert.ToDouble(properties[4]), Convert.ToDouble(properties[5]));
         }
         #endregion
 
@@ -72,8 +69,6 @@ namespace Frontend
             builder.Append (this.StandID.ToString () + ";");
             builder.Append (this.Name + ";");
             builder.Append (this.Color.R + ";" + this.Color.G + ";" + this.Color.B  + ";" + this.Color.A  + ";");
-            builder.Append (this.Width.ToString () +";");
-            builder.Append (this.Height.ToString ());
             return builder.ToString ();
         }
         #endregion

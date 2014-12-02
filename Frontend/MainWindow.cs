@@ -426,14 +426,14 @@ public partial class MainWindow: Gtk.Window
         for (int i = 0; i < numStandTemplates; i++)
         {
             Console.WriteLine(EngineAPI.getSTName(i));
-
+            store.AddNode(new Stand(i, EngineAPI.getSTName(i), EngineAPI.getColorOfST(i)));
         }
 
         //static
-        store.AddNode(new Stand(0, "Toys", new Gdk.Color(.49584,.78561,.94151,1),  40, 70));
-        store.AddNode(new Stand(1, "Movies", new Cairo.Color(.67854,.78561,.94151,1), 100, 90));
-        store.AddNode(new Stand(2, "Books and CDs", new Cairo.Color(.228,.15611,.7561,1), 75, 90));
-        store.AddNode(new Stand(3, "Vintage Action Figures", new Cairo.Color(.9843,.78561,.94151,1), 60, 40));
+//        store.AddNode(new Stand(0, "Toys", new,  40, 70));
+//        store.AddNode(new Stand(1, "Movies", new Cairo.Color(.67854,.78561,.94151,1), 100, 90));
+//        store.AddNode(new Stand(2, "Books and CDs", new Cairo.Color(.228,.15611,.7561,1), 75, 90));
+//        store.AddNode(new Stand(3, "Vintage Action Figures", new Cairo.Color(.9843,.78561,.94151,1), 60, 40));
         //end static testing
         return store;
     }
@@ -531,7 +531,7 @@ public partial class MainWindow: Gtk.Window
                         isStandSelected = false;
                         DrawType = (int)Enumerations.DrawType.StandUnselected;
                         EngineAPI.deselectStand();
-                        metadataStatusBar.Pop(0);
+                        metadataStatusBar.Push(0, "No Stand selected.");
                         Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], selectedStandInformation[KEY_CURRENT_STAND_WIDTH], selectedStandInformation[KEY_CURRENT_STAND_HEIGHT]);
                         if (CairoGrid.BackdropPath.Length > 0)
                         {
@@ -561,7 +561,7 @@ public partial class MainWindow: Gtk.Window
             if (checkMoveX && checkMoveY)
             {
                 EngineAPI.grabSelectedStand();
-                bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.Event.X, (uint)args.Event.Y);
+                bool canApplyStand = EngineAPI.canApplyGrabbedStand((uint)args.Event.Y, (uint)args.Event.X);
                 Console.WriteLine("after apply is:" + canApplyStand);
                 if (canApplyStand)
                 {
