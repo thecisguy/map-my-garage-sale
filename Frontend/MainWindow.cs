@@ -585,8 +585,9 @@ public partial class MainWindow: Gtk.Window
                             selectedStandInformation[KEY_CURRENT_STAND_HEIGHT] = (int)EngineAPI.getSelectedStandHeight();
 
                             DrawType = (int)Enumerations.DrawType.ExistingStandRedraw;
-                            Grid.QueueDrawArea(selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_X], selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_Y], selectedStandInformation[KEY_PREVIOUS_STAND_WIDTH], selectedStandInformation[KEY_PREVIOUS_STAND_HEIGHT]);
-                            Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_WIDTH], selectedStandInformation[KEY_CURRENT_STAND_HEIGHT]);
+//                            Grid.QueueDrawArea(selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_X], selectedStandInformation[KEY_PREVIOUS_STAND_ORIGIN_Y], selectedStandInformation[KEY_PREVIOUS_STAND_WIDTH], selectedStandInformation[KEY_PREVIOUS_STAND_HEIGHT]);
+//                            Grid.QueueDrawArea(selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_X], selectedStandInformation[KEY_CURRENT_STAND_ORIGIN_Y], selectedStandInformation[KEY_CURRENT_STAND_WIDTH], selectedStandInformation[KEY_CURRENT_STAND_HEIGHT]);
+                            Grid.QueueDraw();
                         }
                     }
                     catch (OverflowException)
