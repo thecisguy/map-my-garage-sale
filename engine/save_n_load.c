@@ -439,6 +439,10 @@ static void print_grid(FILE *f, grid g) {
 				fprintf(f, "0");
 			}
 		}
+		if ((*t)->column == g->width - 1)
+			fprintf(f, "\n");
+		else
+			fprintf(f, " ");
 		t++;
 	}
 }
