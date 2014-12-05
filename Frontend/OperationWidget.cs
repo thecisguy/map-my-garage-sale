@@ -1,6 +1,6 @@
 /* OperationWidget.cs
  *
- * Contains functions for initializing Widget objects.
+ * Contains functions for initializing custom Widget objects.
  *
  * Copyright (C) 2014 - Blake Lowe, Jordan Polaniec
  *
@@ -19,11 +19,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
-
+using Gtk;
 using System;
 using System.Reflection;
 using System.IO;
-using Gtk;
 
 namespace Frontend
 {
@@ -32,7 +31,7 @@ namespace Frontend
         #region Private Methods
 
         /// <summary>
-        /// Creates a VBox.
+        /// Creates a Widget using the passed in resources.
         /// </summary>
         /// <returns>The operation widget.</returns>
         /// <param name="iconFilePath">Icon file path.</param>
@@ -41,6 +40,7 @@ namespace Frontend
         {
             VBox box = new VBox(false, 0);
 
+            //get the resource into memory
             Stream imageStream = getSpecifiedResourceStream(iconResourceName);
             using (Gtk.Image image = new Gtk.Image (imageStream))
             {

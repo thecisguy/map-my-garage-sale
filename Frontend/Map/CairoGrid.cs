@@ -41,7 +41,7 @@ namespace Frontend.Map
         #region Drawing Methods
 
         /// <summary>
-        /// Takes in width, height and calls draw method
+        /// Takes in width, height and calls draw method.  The Height and Width are incremented by 3 instead of a 1:1 ratio due to performance issues when drawing to the grid.
         /// </summary>
         /// <param name="window">Window.</param>
         /// <param name="width">Width.</param>
@@ -62,6 +62,10 @@ namespace Frontend.Map
             }
         }
 
+        /// <summary>
+        /// Scales the created pixbuf to match the grid's dimensions and then draws it behind the mapping area via Cairo.ImageSurface.  
+        /// </summary>
+        /// <param name="context">Context.</param>
         public static void DrawBackdrop(Context context)
         {
             //conversion to signed integer needed for scaling
@@ -86,7 +90,6 @@ namespace Frontend.Map
                         md.Run();
                         md.Destroy();
                     }
-                    Console.WriteLine("Unable to save a scaled copy of the backdrop image");
                 }
             }
         }
@@ -94,7 +97,7 @@ namespace Frontend.Map
         #region Grid Lines
 
         /// <summary>
-        /// Draws actual grid lines on the mapping area
+        /// Draws actual grid lines on the mapping area.
         /// </summary>
         public static void DrawGridLines(Context context)
         {
@@ -121,6 +124,11 @@ namespace Frontend.Map
             }
         }
 
+        /// <summary>
+        /// Draws a line from the current point to 5 pixels past that point
+        /// </summary>
+        /// <param name="context">Context.</param>
+        /// <param name="point">Point.</param>
         public static void DrawVerticalLine(Context context, PointD point)
         {
             context.Antialias = Antialias.Default;
@@ -131,6 +139,11 @@ namespace Frontend.Map
             context.LineTo(point.X + 5, point.Y);
         }
 
+        /// <summary>
+        /// Draws a line from the current point to 5 pixels beneath that point.
+        /// </summary>
+        /// <param name="context">Context.</param>
+        /// <param name="point">Point.</param>
         public static void DrawHorizontalLine(Context context, PointD point)
         {
             context.Antialias = Antialias.Default;
@@ -146,15 +159,13 @@ namespace Frontend.Map
         #region Draw Tiles
 
         /// <summary>
-        /// Takes in color and starting point and draws a line.  This line is a
-        /// Tile that the engine has loaded.  
+        /// Takes in color and starting point and draws a line.  This line is a Tile that the engine has loaded.
+        /// The current point + 3 pixels is used to ensure adequate performance of drawing.  
         /// </summary>
         /// <param name="color">Color.</param>
         /// <param name="point">Point.</param>
         public static void DrawTile(Context context, PointD point)
         {
-            Cairo.Color color1 = new Cairo.Color(0, 0, 0, 0.4);
-
             Cairo.Color color = EngineAPI.getColorOfTile((uint)point.Y, (uint)point.X); 
 
             context.Antialias = Antialias.None;

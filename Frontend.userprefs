@@ -1,6 +1,14 @@
 ﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Frontend\MainWindow.cs">
+    <Files>
+      <File FileName="csapi\csapi.cs" Line="68" Column="68" />
+      <File FileName="Frontend\Map\CairoGrid.cs" Line="44" Column="44" />
+      <File FileName="Frontend\Map\CairoStand.cs" Line="55" Column="55" />
+      <File FileName="Frontend\NewStandTemplateWindow.cs" Line="19" Column="19" />
+      <File FileName="Frontend\MainWindow.cs" Line="13" Column="13" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/home/jordan/map-my-garage-sale/Frontend/MainWindow.cs" line="171" column="1" />

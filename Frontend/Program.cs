@@ -19,9 +19,8 @@
  * You should have received a copy of the GNU General Public License
  * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
  */
-
-using System;
 using Gtk;
+using System;
 
 namespace Frontend
 {
@@ -29,7 +28,6 @@ namespace Frontend
 	{
 		public static void Main (string[] args)
 		{
-
 			Application.Init ();
             MainWindow win = new MainWindow (); 
 
@@ -48,14 +46,14 @@ namespace Frontend
                     {
                         foreach(System.Diagnostics.Process p in proc)
                         {
-                            p.Kill(); //will kill main.exe
+                            p.Kill(); //kill core
                         }
                     }
                 }
             };
+
             win.ShowAll ();
             Application.Run ();
 		}
-       
 	}
 }

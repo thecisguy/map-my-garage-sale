@@ -15,8 +15,6 @@ public partial class MainWindow
 	
 	private global::Gtk.Statusbar metadataStatusBar;
 	
-	private global::Gtk.ProgressBar progressbar1;
-	
 	private global::Gtk.VBox vboxGrid;
 
 	protected virtual void Build ()
@@ -88,31 +86,21 @@ public partial class MainWindow
 		w5.RightAttach = ((uint)(4));
 		w5.YOptions = ((global::Gtk.AttachOptions)(4));
 		// Container child MainTable.Gtk.Table+TableChild
-		this.progressbar1 = new global::Gtk.ProgressBar ();
-		this.progressbar1.Name = "progressbar1";
-		this.MainTable.Add (this.progressbar1);
-		global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.MainTable [this.progressbar1]));
-		w6.TopAttach = ((uint)(7));
-		w6.BottomAttach = ((uint)(8));
-		w6.XOptions = ((global::Gtk.AttachOptions)(4));
-		w6.YOptions = ((global::Gtk.AttachOptions)(4));
-		// Container child MainTable.Gtk.Table+TableChild
 		this.vboxGrid = new global::Gtk.VBox ();
 		this.vboxGrid.Name = "vboxGrid";
 		this.vboxGrid.Spacing = 6;
 		this.MainTable.Add (this.vboxGrid);
-		global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
-		w7.TopAttach = ((uint)(2));
-		w7.BottomAttach = ((uint)(5));
-		w7.RightAttach = ((uint)(3));
-		w7.XPadding = ((uint)(5));
-		w7.XOptions = ((global::Gtk.AttachOptions)(0));
-		w7.YOptions = ((global::Gtk.AttachOptions)(0));
+		global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.MainTable [this.vboxGrid]));
+		w6.TopAttach = ((uint)(2));
+		w6.BottomAttach = ((uint)(5));
+		w6.RightAttach = ((uint)(3));
+		w6.XPadding = ((uint)(5));
+		w6.XOptions = ((global::Gtk.AttachOptions)(0));
+		w6.YOptions = ((global::Gtk.AttachOptions)(0));
 		this.Add (this.MainTable);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
 		}
-		this.progressbar1.Hide ();
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 	}

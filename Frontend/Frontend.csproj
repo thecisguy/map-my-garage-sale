@@ -84,7 +84,6 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OperationWidget.cs" />
-    <Compile Include="AppState.cs" />
     <Compile Include="Map\CairoGrid.cs" />
     <Compile Include="Map\CairoStand.cs" />
     <Compile Include="Model\Stand.cs" />

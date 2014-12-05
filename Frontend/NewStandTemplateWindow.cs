@@ -1,5 +1,26 @@
-﻿using System;
+﻿/* NewStandTemplateWindow.cs
+ *
+ * User Interface for creating a new Stand to drag onto the Grid.
+ *
+ * Copyright (C) 2014 - Blake Lowe, Jordan Polaniec
+ *
+ * This file is part of Map My Garage Sale.
+ * 
+ * Map My Garage Sale is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Map My Garage Sale is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Map My Garage Sale. If not, see <http://www.gnu.org/licenses/>.
+ */
 using Gtk;
+using System;
 
 namespace Frontend
 {
@@ -14,7 +35,6 @@ namespace Frontend
         {
             this.Build();
             this.templateStore = store;
-
             cancelBtn.Hide();  //for now they can just click 'X'
         }
         #endregion
@@ -45,11 +65,14 @@ namespace Frontend
             {
                 return retVal;
             }
-
-
             return retVal;
         }
 
+        /// <summary>
+        /// Converts a passed in Gdk.Color object to Cairo color.
+        /// </summary>
+        /// <returns>The cairo color.</returns>
+        /// <param name="gColor">G color.</param>
         private Cairo.Color ToCairoColor(Gdk.Color gColor)
         {
             Cairo.Color color = new Cairo.Color(
@@ -59,6 +82,9 @@ namespace Frontend
             return color;
         }
 
+        /// <summary>
+        /// Clear out the current values in the stand.
+        /// </summary>
         private void clearValues()
         {
             nameEntry.Text = string.Empty;
@@ -80,7 +106,6 @@ namespace Frontend
                 //Stand newStand = new Stand(0, nameEntry.Text.Trim(), color, Convert.ToInt32(widthEntry.Text.Trim()), Convert.ToInt32(heightEntry.Text.Trim()));
                 //templateStore.AddNode(newStand);
                 clearValues();
-                //this.Destroy();
             }
             else
             {
@@ -93,13 +118,24 @@ namespace Frontend
             }
         }
 
+        /// <summary>
+        /// Destroys the dialog
+        /// </summary>
+        /// <param name="sender">Sender.</param>
+        /// <param name="e">E.</param>
         protected void cancelButton_OnClick (object sender, EventArgs e)
         {
             this.Destroy();
         }
 
+        /// <summary>
+        /// Opens a new dialog for tracking mouse coordinates and forming a new stand.
+        /// </summary>
+        /// <param name="sender">Sender.</param>
+        /// <param name="e">E.</param>
         protected void drawStandShapeBtn_OnClick (object sender, EventArgs e)
         {
+            //open new window with smaller grid for drawing
             throw new NotImplementedException ();
         }
         #endregion

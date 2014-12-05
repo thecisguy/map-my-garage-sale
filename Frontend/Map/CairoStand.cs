@@ -54,6 +54,13 @@ namespace Frontend.Map
             context.Stroke();
         }
 
+        [Obsolete]
+        /// <summary>
+        /// Not currently used since a 3 pixel / Tile ratio makes it very difficult to draw a highlight region around Stands.  This is due to the fact that Stands do not have to be rectangular in shape.
+        /// </summary>
+        /// <param name="context">Context.</param>
+        /// <param name="X">X.</param>
+        /// <param name="Y">Y.</param>
         public static void DrawHighlight(Context context, int X, int Y)
         {
             context.MoveTo(X, Y);
