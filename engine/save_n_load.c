@@ -37,6 +37,9 @@ static int32_t read_stand_templates(FILE *f, struct stand_template **st);
 static grid read_grid(FILE *f, uint32_t height,
                       uint32_t width, stand_like stand);
 static bool read_stands(FILE *f, stand **s);
+static void print_stand_templates(FILE *f);
+static void print_stands(FILE *f);
+static void print_grid(FILE *f, grid g);
 
 bool load_file(FILE *f) {
 	int c;
@@ -208,12 +211,18 @@ static int32_t read_stand_templates(FILE *f, struct stand_template **st) {
 			name[i] = fgetc(f);
 		}
 		name[name_len] = '\0';
-
+		
+		uint8_t red;
+		uint8_t green;
+		uint8_t blue;
+		uint8_t alpha;
 		uint32_t height;
 		uint32_t width;
 		scan_val = 
-			fscanf(f, ":%" SCNu32 ":%" SCNu32 ":", &height, &width);
-		if (scan_val == EOF || scan_val < 2)
+			fscanf(f, ":%" SCNu8 ":%" SCNu8 ":%" SCNu8 ":%" SCNu8
+				":%" SCNu32 ":%" SCNu32 ":",
+				&red, &green, &blue, &alpha, &height, &width);
+		if (scan_val == EOF || scan_val < 6)
 			goto out_new_source;
 
 		stand_template t = &new_stand_templates[templates_i++];
@@ -227,6 +236,10 @@ static int32_t read_stand_templates(FILE *f, struct stand_template **st) {
 
 		t->name = name;
 		t->t = new_source;
+		t->red = red / 255.0;
+		t->green = green / 255.0;
+		t->blue = blue / 255.0;
+		t->alpha = alpha / 255.0;
 		
 	}
 	*st = new_stand_templates;
@@ -368,4 +381,135 @@ out_fail:;
 	del_grid(ng);
 out_ng:;
 	return NULL;
+}
+
+#define FILE_VERSION 1
+
+bool save_file(FILE *f) {
+	fprintf(f, "MMGS:%i;\n\n", FILE_VERSION);
+
+	print_stand_templates(f);
+	print_stands(f);
+
+	fprintf(f, "maingrid(\n%" PRIu32 ":%" PRIu32 "\n)\n\n",
+			main_grid->width, main_grid->height);
+
+	return true;
+}
+
+static void print_stand_templates(FILE *f) {
+	if (num_main_templates < 1)
+		return;
+
+	fprintf(f, "standtemplates[%" PRIi32 "](\n", num_main_templates);
+
+	for (int32_t i = 0; i < num_main_templates; i++) {
+		stand_template tt = main_templates + i;
+		grid tgrid = tt->t;
+		fprintf(f, "%zu:%s:%" PRIu8 ":%" PRIu8 ":%" PRIu8 ":%" PRIu8
+			":%" PRIu32 ":%" PRIu32 ":\n",
+				strlen(tt->name), tt->name,
+				(uint8_t) (tt->red * 255.0),
+				(uint8_t) (tt->green * 255.0),
+				(uint8_t) (tt->blue * 255.0),
+				(uint8_t) (tt->alpha * 255.0),
+				tgrid->width, tgrid->height);
+		print_grid(f, tgrid);
+		fprintf(f, ";\n\n");
+	}
+
+	fprintf(f, ")\n\n");
+}
+
+static void print_grid(FILE *f, grid g) {
+	// exploits the row-major order of the lookup table
+	tile *t = g->lookup;
+	uint64_t len = g->height * g->width;
+	for (uint64_t i = 0; i < len; i++) {
+		if ((*t)->stand.stand_proto.type == STAND) {
+			if ((*t)->stand.stand_stand.s) {
+				fprintf(f, "S");
+			} else {
+				fprintf(f, "0");
+			}
+		} else {
+			if ((*t)->stand.stand_st.st) {
+				fprintf(f, "S");
+			} else {
+				fprintf(f, "0");
+			}
+		}
+		t++;
+	}
+}
+
+// for keeping track of stands
+typedef struct stand_node {
+	stand s;
+	struct stand_node *next;
+} *stand_node;
+static void print_stands(FILE *f) {
+	// get a list of all stands in main_grid
+	tile *t = main_grid->lookup;
+	uint64_t len = main_grid->height * main_grid->width;
+	stand_node head = NULL;
+	stand_node tail = NULL;
+	for (uint64_t i = 0; i < len; i++, t++) {
+		stand current;
+		if ((current = (*t)->stand.stand_stand.s)) {
+			// check if encountered stand is already in our queue
+			stand_node check = head;
+			while (check && check->s != current)
+				check = check->next;
+			if (check && check->s == current)
+				continue;
+			
+			if (!head) {
+				head = (stand_node)
+					malloc(sizeof(struct stand_node));
+				if (!head) // out of mem
+					goto out_fail;
+				tail = head;
+				head->s = current;
+				head->next = NULL;
+			} else {
+				tail->next = (stand_node)
+					malloc(sizeof(struct stand_node));
+				if (!tail->next) // out of mem
+					goto out_fail;
+				tail = tail->next;
+				tail->s = current;
+				tail->next = NULL;
+			}
+		}
+	}
+
+	// print stands in list
+	stand_node sn = head;
+	while (sn) {
+		stand ss = sn->s;
+		grid sgrid = ss->source;
+		fprintf(f, "%zu:%s:%" PRIu8 ":%" PRIu8 ":%" PRIu8 ":%" PRIu8
+			":%" PRIu32 ":%" PRIu32 ":\n",
+				strlen(ss->name), ss->name,
+				(uint8_t) (ss->red * 255.0),
+				(uint8_t) (ss->green * 255.0),
+				(uint8_t) (ss->blue * 255.0),
+				(uint8_t) (ss->alpha * 255.0),
+				sgrid->width, sgrid->height);
+		print_grid(f, sgrid);
+		fprintf(f, ":%" PRIu64 ":%" PRIu64 ";\n\n",
+			ss->row, ss->column);
+		sn = sn->next;
+	}
+
+	fprintf(f, ")\n\n");
+
+	out_fail:;
+		stand_node del = head;
+		while (del) {
+			stand_node temp = del->next;
+			free(del);
+			del = temp;
+		}
 }
