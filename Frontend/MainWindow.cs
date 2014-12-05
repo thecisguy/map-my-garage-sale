@@ -53,11 +53,13 @@ public partial class MainWindow: Gtk.Window
     private const string STR_BACKDROP_TOOLTIP = "Change the backdrop shown behind the map design area.";
     private const string STR_STANDFRAME_TOOLTIP = "Contains all user created Stands for placement";
     private const string STR_STANDFRAME_LABEL = "Stands";
-    private const string STR_WINDOWTITLE = "Map my Garage Sale - New*";
+    private const string STR_WINDOWTITLE = "Map my Garage Sale - ";
     private const string STR_NEWMAP_DIALOG_TITLE = "Create new Map";
     private const string STR_OPENMAP_DIALOG_TITLE = "Open Existing Map";
     private const string STR_MENU_BAR_NAME = "File";
     private const string STR_MENU_BAR_CHANGEBACKDROP_ITEM = "Change Backdrop";
+    private const string STR_DEFAULT_SAVE_FILE_NAME="";
+    private const string STR_DIRTY_MARKER = "*";
 
     //UI resource paths
     private const string RES_ADDSTAND_ICON = "Frontend.Assets.addstandicon.png";
@@ -85,8 +87,10 @@ public partial class MainWindow: Gtk.Window
     private NodeStore store;
     private Dictionary<string, int> selectedStandInformation;
     private bool isStandSelected = false;
+    private bool isNewMap = true;
+    private string curFileName = string.Empty;
     private int DrawType;
-    private string curFileName = "untitled.mmgs";
+
 
     //Drag and Drop target values
     private enum TargetType
@@ -123,8 +127,9 @@ public partial class MainWindow: Gtk.Window
     /// </summary>
     private void SetupUI()
     {
-        this.Title = STR_WINDOWTITLE;
+        this.Title = STR_WINDOWTITLE + STR_DEFAULT_SAVE_FILE_NAME + STR_DIRTY_MARKER;
         this.Icon = new Gdk.Pixbuf(RES_APPLICATION_ICON);
+        this.curFileName = STR_DEFAULT_SAVE_FILE_NAME;
         selectedStandInformation = new Dictionary<string, int>();
         selectedStandInformation.Add(KEY_PREVIOUS_STAND_ORIGIN_X, 0);
         selectedStandInformation.Add(KEY_PREVIOUS_STAND_ORIGIN_Y, 0);
@@ -468,8 +473,6 @@ public partial class MainWindow: Gtk.Window
         {
             case ResponseType.Ok:
                 {
-                    //Need an api call to complete this
-                    System.IO.File.Create(fileName); //always overwrites.  empty dummy file 
                     if (System.IO.File.Exists(fileName))
                     {
                         string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
@@ -518,15 +521,46 @@ public partial class MainWindow: Gtk.Window
         {
             case ResponseType.Ok:
                 {
-                    //Need an api call to complete this
-                    System.IO.File.Create(fileName); //always overwrites.  empty dummy file 
-                    if (System.IO.File.Exists(fileName))
+                    string nameNoPath = string.Empty;
+                    const string EXTENSION = ".mmgs"; //post-fix all saved files with this automatically so the user doesn't have to
+                    if (!System.IO.File.Exists(fileName))
                     {
                         string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
-                        EngineAPI.saveUserFile(fileName);
-                        RefreshUI(splits[splits.Length - 1]); //get just the name not the path
+                        EngineAPI.saveUserFile(fileName + EXTENSION);
+                        this.curFileName = fileName;
+                        nameNoPath = splits[splits.Length - 1];
+                        RefreshUI(nameNoPath); //get just the name not the path
                     }
-                    this.curFileName = fileName;
+                    else
+                    {
+                        using (MessageDialog md = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, ButtonsType.YesNo, false,
+                            string.Format("Are you sure you want to overwrite " + nameNoPath + "?")))
+                        {
+                            int responseOverwrite = md.Run();
+                            switch (responseOverwrite)
+                            {
+                                case (int)ResponseType.Yes:
+                                    {
+                                        //delete old file and save new one
+                                        System.IO.File.Delete(fileName);
+                                        string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
+                                        EngineAPI.saveUserFile(fileName + EXTENSION);
+                                        this.curFileName = fileName;
+                                        nameNoPath = splits[splits.Length - 1];
+                                        RefreshUI(nameNoPath); //get just the name not the path
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        //don't delete the old file
+                                        //will kill dialog
+                                        break;
+                                    }
+                            }
+                            md.Destroy();
+                        }
+                    }
+
                     break;
                 }
             default:
@@ -538,7 +572,16 @@ public partial class MainWindow: Gtk.Window
 
     private void SaveMap()
     {
-        EngineAPI.saveUserFile(this.curFileName);
+        if (this.isNewMap)
+        {
+            //new map
+            NewMap();
+            isNewMap = false;
+        }
+        else
+        {
+            EngineAPI.saveUserFile(this.curFileName);
+        }
     }
 
     /// <summary>
