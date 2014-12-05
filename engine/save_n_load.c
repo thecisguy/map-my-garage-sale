@@ -207,12 +207,18 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 			name[i] = fgetc(f);
 		}
 		name[name_len] = '\0';
-
+		
+		uint8_t red;
+		uint8_t green;
+		uint8_t blue;
+		uint8_t alpha;
 		uint32_t height;
 		uint32_t width;
 		scan_val = 
-			fscanf(f, ":%" SCNu32 ":%" SCNu32 ":", &height, &width);
-		if (scan_val == EOF || scan_val < 2)
+			fscanf(f, ":%" SCNu8 ":%" SCNu8 ":%" SCNu8 ":%" SCNu8
+				":%" SCNu32 ":%" SCNu32 ":",
+				&red, &green, &blue, &alpha, &height, &width);
+		if (scan_val == EOF || scan_val < 6)
 			goto out_new_source;
 
 		stand_template t = &new_stand_templates[templates_i++];
@@ -226,6 +232,10 @@ static bool read_stand_templates(FILE *f, struct stand_template **st) {
 
 		t->name = name;
 		t->t = new_source;
+		t->red = red / 255.0;
+		t->green = green / 255.0;
+		t->blue = blue / 255.0;
+		t->alpha = alpha / 255.0;
 		
 	}
 	*st = new_stand_templates;

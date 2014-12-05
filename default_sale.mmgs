@@ -1,13 +1,13 @@
 MMGS:1;
 
 standtemplates[2](
-7:L Block:4:4:
+7:L Block:0:255:0:255:4:4:
 0 S 0 0
 0 S 0 0
 0 S S 0
 0 0 0 0;
 
-6:Square:2:2:
+6:Square:255:0:0:255:2:2:
 S S
 S S;
 )
