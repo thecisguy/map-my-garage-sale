@@ -36,7 +36,7 @@ static void scan_whitespace(FILE *f);
 static int32_t read_stand_templates(FILE *f, struct stand_template **st);
 static grid read_grid(FILE *f, uint32_t height,
                       uint32_t width, stand_like stand);
-static bool read_stands(FILE *f, stand **s);
+static int32_t read_stands(FILE *f, stand **s);
 static void print_stand_templates(FILE *f);
 static void print_stands(FILE *f);
 static void print_grid(FILE *f, grid g);
@@ -119,7 +119,7 @@ bool load_file(FILE *f) {
 	// apply new stands
 	if (!new_main_grid)
 		goto out_fail;
-	for (int i = 0; i < new_num_stands; i++) {
+	for (int32_t i = 0; i < new_num_stands; i++) {
 		stand cur = new_stand_arr[i];
 		bool ok = can_apply(cur, new_main_grid, cur->row, cur->column);
 		if (!ok)
@@ -262,14 +262,13 @@ static int32_t read_stand_templates(FILE *f, struct stand_template **st) {
  * Returns the number of stands read, or 0 if the read failed,
  * in which case st will be set to NULL.
  */
-static bool read_stands(FILE *f, stand **stand_arr) {
+static int32_t read_stands(FILE *f, stand **stand_arr) {
 	int32_t num_stands;
 	int scan_val = fscanf(f, "[%i](", &num_stands);
 	if (scan_val == EOF || scan_val < 1)
 		return false;
 	stand *new_stands =
-		(stand *) malloc(
-		sizeof(stand) * num_stands);
+		(stand *) calloc(num_stands, sizeof(stand));
 	if (!new_stands)
 		goto out_stands;
 
@@ -305,7 +304,7 @@ static bool read_stands(FILE *f, stand **stand_arr) {
 		if (scan_val == EOF || scan_val < 6)
 			goto out_new_source;
 
-		s = (stand) malloc(sizeof(struct stand));
+		s = (stand) calloc(1, sizeof(struct stand));
 		if (!s)
 			goto out_new_stand;
 		stand_like sl;
