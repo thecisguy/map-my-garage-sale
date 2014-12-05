@@ -1,5 +1,6 @@
 \documentclass{report}
 \usepackage[utf8]{inputenc}
+\usepackage{underscore}
 
 \title{Map My Garage Sale: Programmer's Guide}
 \author{Blake Lowe}
@@ -17,6 +18,68 @@
 \chapter{Engine}
 
 \section{Tiles \& Grids}
+Tiles and Grids are the fundamental data types upon which the rest of the
+program is based. Grids are used to represent the Main Grid shown to the user,
+and they are also used to represent the shape of a Stand.
+
+Each Grid is made up of many Tiles. Each Tile represents a ``square'' on a
+Grid. Tiles contain pointers to their immediately adjacent Tiles on that Grid.
+The Grid, therefore, can be seen as a graph consisting of nodes which form
+a rectangular matrix.
+
+Grids keep a record of their length and width in Tiles so that their
+sizes can be easily queried later.
+
+The Grid structure keeps a pointer to its origin Tile, located in the
+top-left corner of the Grid. From this Tile, you can traverse the Grid
+using the links between Tiles. If the top-left Tile becomes a different Tile
+(for example, due to a rotation), you should call \texttt{reset_origin}, which will
+reset the origin pointer to the new location of the top-left Tile.
+
+When referring to a specific Tile in a grid, the column of the Tile
+is the number of columns to the right of the origin Tile it is, and
+its row is the number of rows below the origin Tile it is.
+The coordinates should be expressed as [row, column].
+For example, in the following Grid:
+\begin{verbatim}
+A B C
+D E F
+G H I
+\end{verbatim}
+\begin{itemize}
+	\item A is the origin Tile, it is at [0, 0].
+	\item C is at [0, 2].
+	\item H is at [2, 1].
+\end{itemize}
+
+Tiles and Grids keep all of their data on the heap. Constructors\footnote{
+	\texttt{new_grid} and \texttt{clone_grid} for constructing Grids
+	and \texttt{new_tile} for constructing Tiles}
+and destructors\footnote{\texttt{del_grid}; Tiles can be free'd} are provided
+to create and destroy these types.
+
+To aid in access to a Grid, and to provide an easy way of iterating over all
+of a Grid's Tiles, a lookup table is provided. The lookup pointer in a Grid is
+an array of pointers to Tiles, which contains a pointers to each Tile in the
+Grid in row-major order. To use this feature, the function \texttt{grid_lookup}
+is provided, which performs the calculation necessary to find a specific Tile
+given its row and column coordinates. If you perform a mutation upon the Grid
+that changes the structure of its Tiles (again, rotation being a good example),
+you should call \texttt{rebuild_lookup} (after ensuring the origin pointer
+is correctly set), which will traverse the Grid, starting from its origin, and
+recreate the lookup table.
+
+Reverse lookups are straightforward: each Tile contains the row and column
+coordinates at which it resides on its Grid. These coordinates are also
+updated during a call to \texttt{rebuild_lookup}.
+
+The currently provided mutation routines are \texttt{rotate_grid}, which
+flips it 90 degrees, and \texttt{mirror_grid}, which flips the Grid structure
+by moving columns of Tiles to their symmetrical opposite position.
+While \texttt{mirror_grid} only mirrors a Grid along the Y axis, an X-axis
+mirror can of course be synthesized easily by following a call to
+\texttt{mirror_grid} with two calls to \texttt{rotate_grid}
+in the same direction.
 
 \section{Stands}
 
