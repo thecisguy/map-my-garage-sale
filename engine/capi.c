@@ -72,6 +72,7 @@ static int32_t get_num_templates(void);
 static MonoArray *get_color_of_st(int32_t st_id);
 static void set_st_name(int32_t st_id, MonoString *newname);
 static MonoString *get_st_name(int32_t st_id);
+static void save_user_file(MonoString *ufile);
 
 static MonoArray *get_color_of_tile(uint32_t row, uint32_t column) {
 	
@@ -123,6 +124,7 @@ void initialize_engine(void) {
 	FILE *def = fopen("default_sale.mmgs", "r");
 	bool load_success = load_file(def);
 	assert(load_success);
+	//save_file(stdout);
 	fclose(def);
 }
 
@@ -173,6 +175,8 @@ static void register_api_functions(void) {
 	                       get_st_name);
 	mono_add_internal_call("csapi.EngineAPI::setSTNameRaw",
 	                       set_st_name);
+	mono_add_internal_call("csapi.EngineAPI::saveUserFileRaw",
+	                       save_user_file);
 }
 
 void initialize_mono(const char *filename) {
@@ -400,4 +404,15 @@ static MonoString *get_selected_stand_name(void) {
 static MonoString *get_st_name(int32_t st_id) {
 	assert(st_id < num_main_templates);
 	return mono_string_new(main_domain, (main_templates + st_id)->name);
+}
+
+/* Saves a file from user input in the frontend */
+static void save_user_file(MonoString *ufile) {
+	char *filename = mono_string_to_utf8(ufile);
+	FILE *userfile = fopen(filename, "w");
+	assert(userfile);
+	printf("saving to %s\n", filename);
+	save_file(userfile);
+	fclose(userfile);
+	mono_free(filename);
 }

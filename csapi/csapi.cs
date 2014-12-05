@@ -97,6 +97,9 @@ namespace csapi {
 		[MethodImplAttribute(MethodImplOptions.InternalCall)]
 		extern static string getSTNameRaw(int st_id);
 
+		[MethodImplAttribute(MethodImplOptions.InternalCall)]
+		extern static void saveUserFileRaw(string filename);
+
 /***************** API Methods ***************************************/
 
 		public static Cairo.Color getColorOfTile(uint row, uint column) {
@@ -198,6 +201,10 @@ namespace csapi {
 
 		public static string getSTName(int st_id) {
 			return getSTNameRaw(st_id);
+		}
+
+		public static void saveUserFile(string filename) {
+			saveUserFileRaw(filename);
 		}
 	}
 }
