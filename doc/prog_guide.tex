@@ -114,11 +114,14 @@ The different blocks are as follows:
 			name. This allows for names with multi-byte characters
 		to be properly encoded.}, followed by a colon,
 		followed by the name itself. The name shall be followed by
-		a colon, followed by two colon-separated numbers defining
-		the length and width, respectively, of the Grid which
-		represents the shape of the Stand Template. This shall be
-		followed with a colon, a Grid Definition (see below), and
-		finally terminated with a semicolon. This semicolon ends
+		a colon, followed by three colon-separated integers 
+		defining the color of the stand in HTML RGB notation.
+		Naturally, these numbers shall be within the range 0--255.
+		After these shall follow a colon, then two colon-separated
+		numbers defining the height and width, respectively, of
+		the Grid which represents the shape of the Stand Template. This
+		shall be followed with a colon, a Grid Definition (see below),
+		and finally terminated with a semicolon. This semicolon ends
 		the Stand Template definition.
 
 		The block shall be ended with a close parenthesis.
@@ -129,13 +132,8 @@ The different blocks are as follows:
 
 		The format of Stand definitions inside the block are
 		identical to the definitions of Stand Templates, with the
-		following modifications:
+		following modification:
 		\begin{itemize}
-			\item Between the name and the height/width pair
-				shall be three colon-separated integers
-				defining the color of the stand in
-				HTML RGB notation. Naturally, these
-				numbers shall be within the range 0--255.
 			\item After the Grid Definition shall follow not a
 				semicolon, but a colon. After this shall
 				follow the row and column, respectively, of
@@ -163,13 +161,13 @@ The following is an example of a fully-featured save file:
 MMGS:1;
 
 standtemplates[2](
-7:L Block:4:4:
+7:L Block:0:255:0:255:4:4:
 0 S 0 0
 0 S 0 0
 0 S S 0
 0 0 0 0;
 
-6:Square:2:2:
+6:Square:255:0:0:255:2:2:
 S S
 S S;
 )
