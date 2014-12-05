@@ -442,5 +442,73 @@ static void print_grid(FILE *f, grid g) {
 	}
 }
 
+// for keeping track of stands
+typedef struct stand_node {
+	stand s;
+	struct stand_node *next;
+} *stand_node;
 static void print_stands(FILE *f) {
+	// get a list of all stands in main_grid
+	tile *t = main_grid->lookup;
+	uint64_t len = main_grid->height * main_grid->width;
+	stand_node head = NULL;
+	stand_node tail = NULL;
+	for (uint64_t i = 0; i < len; i++, t++) {
+		stand current;
+		if ((current = (*t)->stand.stand_stand.s)) {
+			// check if encountered stand is already in our queue
+			stand_node check = head;
+			while (check && check->s != current)
+				check = check->next;
+			if (check && check->s == current)
+				continue;
+			
+			if (!head) {
+				head = (stand_node)
+					malloc(sizeof(struct stand_node));
+				if (!head) // out of mem
+					goto out_fail;
+				tail = head;
+				head->s = current;
+				head->next = NULL;
+			} else {
+				tail->next = (stand_node)
+					malloc(sizeof(struct stand_node));
+				if (!tail->next) // out of mem
+					goto out_fail;
+				tail = tail->next;
+				tail->s = current;
+				tail->next = NULL;
+			}
+		}
+	}
+
+	// print stands in list
+	stand_node sn = head;
+	while (sn) {
+		stand ss = sn->s;
+		grid sgrid = ss->source;
+		fprintf(f, "%zu:%s:%" PRIu8 ":%" PRIu8 ":%" PRIu8 ":%" PRIu8
+			":%" PRIu32 ":%" PRIu32 ":\n",
+				strlen(ss->name), ss->name,
+				(uint8_t) (ss->red * 255.0),
+				(uint8_t) (ss->green * 255.0),
+				(uint8_t) (ss->blue * 255.0),
+				(uint8_t) (ss->alpha * 255.0),
+				sgrid->width, sgrid->height);
+		print_grid(f, sgrid);
+		fprintf(f, ":%" PRIu64 ":%" PRIu64 ";\n\n",
+			ss->row, ss->column);
+		sn = sn->next;
+	}
+
+	fprintf(f, ")\n\n");
+
+	out_fail:;
+		stand_node del = head;
+		while (del) {
+			stand_node temp = del->next;
+			free(del);
+			del = temp;
+		}
 }
