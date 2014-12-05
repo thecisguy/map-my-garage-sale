@@ -86,6 +86,7 @@ public partial class MainWindow: Gtk.Window
     private Dictionary<string, int> selectedStandInformation;
     private bool isStandSelected = false;
     private int DrawType;
+    private string curFileName = "untitled.mmgs";
 
     //Drag and Drop target values
     private enum TargetType
@@ -475,6 +476,7 @@ public partial class MainWindow: Gtk.Window
                         EngineAPI.loadUserFile(fileName);
                         RefreshUI(splits[splits.Length - 1]); //get just the name not the path
                     }
+                    this.curFileName = fileName;
                     break;
                 }
             default:
@@ -521,8 +523,10 @@ public partial class MainWindow: Gtk.Window
                     if (System.IO.File.Exists(fileName))
                     {
                         string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
+                        EngineAPI.saveUserFile(fileName);
                         RefreshUI(splits[splits.Length - 1]); //get just the name not the path
                     }
+                    this.curFileName = fileName;
                     break;
                 }
             default:
@@ -534,7 +538,7 @@ public partial class MainWindow: Gtk.Window
 
     private void SaveMap()
     {
-        //need api call to complete this
+        EngineAPI.saveUserFile(this.curFileName);
     }
 
     /// <summary>
@@ -894,7 +898,7 @@ public partial class MainWindow: Gtk.Window
 
     protected void saveButton_Clicked(object sender, EventArgs e)
     {
-        //Save map - need call
+        SaveMap();
     }
 
     protected void newMapButton_Clicked(object sender, EventArgs e)
