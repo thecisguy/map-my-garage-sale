@@ -454,6 +454,7 @@ static void print_stands(FILE *f) {
 	uint64_t len = main_grid->height * main_grid->width;
 	stand_node head = NULL;
 	stand_node tail = NULL;
+	uint64_t num_stands = 0;
 	for (uint64_t i = 0; i < len; i++, t++) {
 		stand current;
 		if ((current = (*t)->stand.stand_stand.s)) {
@@ -463,7 +464,8 @@ static void print_stands(FILE *f) {
 				check = check->next;
 			if (check && check->s == current)
 				continue;
-			
+
+			num_stands++;
 			if (!head) {
 				head = (stand_node)
 					malloc(sizeof(struct stand_node));
@@ -484,6 +486,8 @@ static void print_stands(FILE *f) {
 		}
 	}
 
+	fprintf(f, "stands[%" PRIi64 "](\n", num_stands);
+	
 	// print stands in list
 	stand_node sn = head;
 	while (sn) {
