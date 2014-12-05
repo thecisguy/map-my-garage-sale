@@ -918,6 +918,7 @@ public partial class MainWindow: Gtk.Window
         {
             string fileName = btn.Filename;
             EngineAPI.loadUserFile(fileName);
+            this.curFileName = fileName;
             string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
             RefreshUI(splits[splits.Length - 1]); //get just the name not the path
         }
