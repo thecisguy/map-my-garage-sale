@@ -3,7 +3,7 @@
 \usepackage{underscore}
 
 \title{Map My Garage Sale: Programmer's Guide}
-\author{Blake Lowe}
+\author{Blake Lowe, Jordan Polaniec}
 
 \begin{document}
 
@@ -195,28 +195,37 @@ names of Stands and Stand Templates.
 \chapter{Frontend}
 
 \section{Design}
-Map My Garage Sales's User Interface was designed with the intent to make core
- functionality as accessible to the user as possible.  Ideally, the user will be able to 
-get from a blank map to dragging a newly created stand onto the map in under 10 
-clicks.  This should easily be possible, thus allowing them to create an effective map 
-of their garage sale with minimal overhead.  
 
+Map My Garage Sales's User Interface was designed to make core
+functionality accessible to the user. Ideally, the user will be able to 
+create a new stand in under 10 clicks, allowing the user to create an 
+effective map of their garage sale with minimal overhead. A visible grid can be toggled to help
+map out Stands as necessary.
 \subsection{Stand Placement \& Editing}
 Our workflow will move the user to the Create New Stand button to create a new 
-Stand and give it a Name, Width, Height and Color.  This Stand will then be placed
- in the list of available Stands for them to drag into the Map Area.  Each time they 
+Stand and give it a Name, Width, Height and Color and Shape. This Stand will then be placed
+in the list of available Stands for them to drag into the Map Area. Each time they 
 drag a Stand Template from the list of available Stands a new instance of that Stand 
-will be created shown on the Map Area.
-
+will be created and shown on the Map Area where they dropped it.
 
 \emph{Rotate Selected Stand} - Clicking this button will rotate a specific instance of
- a Stand they have selected in the Map Area by clicking the Rotate Stand button while 
-it is selected.  This will rotate the stand 90 degrees clockwise for each time they click 
+a Stand they have selected in the Map Area by clicking the Rotate Stand button while 
+it is selected. This will rotate the stand 90 degrees clockwise for each time they click 
 the Rotate Stand button.
 
-\emph{Rename Stand} - Clicking the Rename Stand button while a Stand Template is 
-selected in the list of available Stands will bring up a dialog to rename the Stand Template.  
+\begin{itemize}
+	\item NOTE - This will not rotate all Stands of this Stand Template type. Only the
+currently selected Stand will be rotated.
+\end{itemize}
 
+\emph{Rename Stand} - Clicking the Rename Stand button while a Stand Template is 
+selected in the list of available Stands will bring up a dialog to rename the Stand Template.
+\begin{itemize}
+	\item - The other way users can do this is by double-clicking the Name cell of 
+the selected Stand Template in the list of Stand Templates. This will cause that field to
+become editable and upon changing the name and pressing 'Enter' the Stand Template will
+be renamed.
+\end{itemize} 
 \begin{itemize}
 	\item NOTE - This will rename all instances of the Stand on the Map Area.
 \end{itemize}
@@ -224,29 +233,103 @@ selected in the list of available Stands will bring up a dialog to rename the St
 \emph{Delete Selected Stand} - Clicking the Delete Selected Stand button while a 
 Stand Template is selected will remove the instance of the Stand from the Map Area.
 
+\begin{itemize}
+\item NOTE - This will not delete the Stand Template; only the selected instance
+instance of the Stand on the mapping area.
+\end{itemize}
+
 \emph{Display Grid} - The Display Grid ToggleButton will turn on grid lines if users 
-find it eases the Stand placement process.
+find it eases the Stand placement process. Clicking this button again will turn the grid
+lines off.
 
-\emph{Stand Metadata} - Next to the Display Grid ToggleButton, the Name, Width
- and Height will be displayed about the currently selected Stand.
+\emph{Change Backdrop} - Clicking this button will bring up a file selection dialog 
+allowing the user to select a .png file to display behind the mapping area as a 
+helpful reference in where Stands should go in accordance to their garage.
 
-\section{Stetic \& Xamarin Studio}
+\emph{Stand Metadata} - Below the list of Stand Templates, the user will find a
+statusbar. This bar displays property information of the currently selected Stand
+Template or the currently selected Stand in the mapping area. Information such as
+the Stand Name, Height and Width and ID will be displayed.
+
+\section{Frontend: Technical Design}
 The entire Frontend portion of Map My Garage Sale was developed using Xamarin
- Studio 5.  Xamarin Studio incorporates the Stetic UI designer for use with the GTK
- Sharp library.  Early on, this was the main way the User Interface was designed, but
- further experience with the designer yielded unsatisfactory results and manual
- instantiation and initialization was used to create a large portion of the GUI.
+Studio 5 on Windows. Xamarin Studio incorporates the Stetic UI designer for use with the GTK
+Sharp library. Design of the User Interface was done with a combination of using the 
+Stetic designer as well an manual instantiation and adjustments of UI Controls for 
+increased flexibility. 
+\subsection{User Interface}
+GTK more or less resembles WinForms and thus suited to event-based programming.
+Many of the features accessed in the User Interface are the result of control-specific 
+events firing and the program reacting to them and making the necessary calls to the 
+service layer. A Table was used as the base layout and inside the cells of the Table are 
+VBox's and HBox's. The mapping area and Stand Templates NodeView are inserted
+directly into Table in order to maintain proper spacing. 
+
+Resizing is disabled in the User Interface due to the fact that directly impacted the 
+performance of the mapping area since scaling the area up drastically increases 
+overhead for redrawing the mapping area.
+
+A NodeView and NodeStore were used in create the list of available Stand Templates.
+A NodeView contains a NodeStore and each Node in the NodeStore can be considered 
+an item in the box. Each icon consists of a PixBuf object that is in memory and is
+disposed of when the application is closed.
+
+Buttons that contain an icon in them are custom Widgets. They are a Box combined with a label 
+and a passed in path to an image asset that exists in the subfolder 'Assets' in the root
+folder of the application.
 
 Non-generated code for User Interface initialization can be found in the SetupUI 
-methods in the respective classes in the root Frontend namespace.
+methods in the respective classes in the root Frontend namespace. This is code 
+generated by the Stetic designer and it should not be manually modified.
 
+\section{Mono}
+\section{Cairo}
+Cairo is a 2D graphics library that excels at drawing static graphics on drawables. 
+It has solid support in the Mono community and is fully binded to GTK-Sharp. This made 
+it a good choice over the System.Drawing library that Mono has implemented from 
+Microsoft's .NET.
 
-\section{Mono.Cairo}
+One additional option that was considered was binding the GooCanvas library to C-Sharp.
+This would have allowed the use of a Canvas style mapping area and would have 
+drastically reduced the amount of custom drawing functionality that needed to be 
+implemented. However, there is currently no binding of GooCanvas to C-Sharp publically 
+available and it would have put too much pressure on completing prior to using it in 
+Map My Garage Sale.
 
-\section{Map Design Area (Grid)}
+\subsection{Map Design Area (Grid)}
+Perhaps the most critical portion of the application is the actual mapping area. Cairo
+and a GTK DrawingArea object were used to create the grid. Cairo uses a Context object 
+to compose Strokes on a drawable. Since Cairo is not a Canvas based 2D graphics library, 
+heavy use of the DrawingArea's Expose Event is maintained. 
+Two objects exist to control what is draw to the mapping area. 
 
+\subsection{Grid}
+A static object holding properties such as the Height, Width, a backdrop image path and a bool 
+for drawing grid lines leverages Cairo for drawing information pulled from the engine. The 
+mapping area is drawn on a per Tile basis, where each Tile is 3 pixels. This Grid object loops 
+through the engine's internal grid in memory and pulls back color information for each Tile. This 
+coloris then applied to the drawable. The number of pixels per Tile was chosen based on getting the 
+best possible performance for the grid. Having a 1:1 ratio would put too much load on the user's
+machine for a drawing and the application's performance would decline to unacceptable levels.
+This object draws the optional grid lines using the engine's internal grid dimensions and
+creating a horizontal and vertical line every 50 pixels.
 
+The use of Cairo's Surface object was used in order to draw the optional backdrop image. 
+Cairo's Context object allows the setting of a Source such as a Cairo ImageSurface. 
+This Surface object can load a file from a specified path and allow Cairo to 'Paint' it to 
+a drawable. One caveat to this object is the image must be in a PNG file format in
+order for Cairo to be able to properly create the image from the native, wrapped,
+static method create_from_png that is called.
 
-\chapter{Engine--Frontend API}
-
+\subsection{Expose Event}
+This Expose Event is fired when the DrawingArea needs to be redrawn, such as when the Widget
+is shown or the event is queued up via a separate call. Map My Garage Sale takes advantage of
+the ability to queue these calls up to refresh the mapping area with updated information from the 
+service layer. In order to differentiate between what type of drawing should be done, a simple
+enum is used with a switch in the Expose Event. In order to avoid having to redraw the whole
+mapping area each time a change is made, a clipped region is created in some cases where the user
+has recently interacted with the mapping area. This clipped region, specified by a combination
+of the current mouse location and Height and Width boundaries allows only this area of the 
+drawable to be redrawn and updated.  In most other cases however, performance is not impeded 
+enough to warrant anything other than a full grid refresh.
 \end{document}
