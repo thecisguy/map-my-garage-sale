@@ -527,7 +527,6 @@ public partial class MainWindow: Gtk.Window
                     {
                         string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
                         EngineAPI.saveUserFile(applyExtensionIfNecessary(fileName));
-                        this.curFileName = fileName;
                         nameNoPath = splits[splits.Length - 1];
                         RefreshUI(nameNoPath); //get just the name not the path
                     }
@@ -545,7 +544,6 @@ public partial class MainWindow: Gtk.Window
                                         System.IO.File.Delete(fileName);
                                         string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
                                         EngineAPI.saveUserFile(applyExtensionIfNecessary(fileName));
-                                        this.curFileName = fileName;
                                         nameNoPath = splits[splits.Length - 1];
                                         RefreshUI(nameNoPath); //get just the name not the path
                                         break;
@@ -579,10 +577,12 @@ public partial class MainWindow: Gtk.Window
     {
         if(!filePath.Contains(STR_FILE_EXTENSION))
         {
+            this.curFileName = filePath + STR_FILE_EXTENSION;
             return filePath + STR_FILE_EXTENSION;
         }
         else
         {
+            this.curFileName = filePath + STR_FILE_EXTENSION;
             return filePath;
         }
     }
