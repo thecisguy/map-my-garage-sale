@@ -60,6 +60,7 @@ public partial class MainWindow: Gtk.Window
     private const string STR_MENU_BAR_CHANGEBACKDROP_ITEM = "Change Backdrop";
     private const string STR_DEFAULT_SAVE_FILE_NAME="";
     private const string STR_DIRTY_MARKER = "*";
+    private const string STR_FILE_EXTENSION = ".mmgs";
 
     //UI resource paths
     private const string RES_ADDSTAND_ICON = "Frontend.Assets.addstandicon.png";
@@ -522,11 +523,10 @@ public partial class MainWindow: Gtk.Window
             case ResponseType.Ok:
                 {
                     string nameNoPath = string.Empty;
-                    const string EXTENSION = ".mmgs"; //post-fix all saved files with this automatically so the user doesn't have to
                     if (!System.IO.File.Exists(fileName))
                     {
                         string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
-                        EngineAPI.saveUserFile(fileName + EXTENSION);
+                        EngineAPI.saveUserFile(applyExtensionIfNecessary(fileName));
                         this.curFileName = fileName;
                         nameNoPath = splits[splits.Length - 1];
                         RefreshUI(nameNoPath); //get just the name not the path
@@ -544,7 +544,7 @@ public partial class MainWindow: Gtk.Window
                                         //delete old file and save new one
                                         System.IO.File.Delete(fileName);
                                         string[] splits = fileName.Split(new string[]{ @"\" }, StringSplitOptions.None);
-                                        EngineAPI.saveUserFile(fileName + EXTENSION);
+                                        EngineAPI.saveUserFile(applyExtensionIfNecessary(fileName));
                                         this.curFileName = fileName;
                                         nameNoPath = splits[splits.Length - 1];
                                         RefreshUI(nameNoPath); //get just the name not the path
@@ -567,6 +567,23 @@ public partial class MainWindow: Gtk.Window
                 {
                     break;
                 }
+        }
+    }
+
+    /// <summary>
+    /// Checks and applies mmgs extension if necessary to file.
+    /// </summary>
+    /// <returns>The extension.</returns>
+    /// <param name="filePath">File path.</param>
+    private string applyExtensionIfNecessary(string filePath)
+    {
+        if(!filePath.Contains(STR_FILE_EXTENSION))
+        {
+            return filePath + STR_FILE_EXTENSION;
+        }
+        else
+        {
+            return filePath;
         }
     }
 
@@ -1089,8 +1106,8 @@ public partial class MainWindow: Gtk.Window
         Stand node = (Stand)selectedNode.SelectedNode; 
         if (node != null)
         {
-            metadataStatusBar.Push(0, "ID: " + node.StandID + " | " + node.Name + " | Color: (" + node.Color.R + ", " + node.Color.G + ", " + node.Color.B + ")");
-            metadataStatusBar.TooltipText = "ID: " + node.StandID + " | " + node.Name + " | Color: (" + node.Color.R + ", " + node.Color.G + ", " + node.Color.B + ")";
+            metadataStatusBar.Push(0, "ID: " + node.StandID + " | " + node.Name + " | Color: (" + node.Color.R.ToString("N") + ", " + node.Color.G.ToString("N") + ", " + node.Color.B.ToString("N") + ")");
+            metadataStatusBar.TooltipText = "ID: " + node.StandID + " | " + node.Name + " | Color: (" + node.Color.R.ToString("N") + ", " + node.Color.G.ToString("N") + ", " + node.Color.B.ToString("N") + ")";
         }
     }
 
