@@ -82,11 +82,74 @@ mirror can of course be synthesized easily by following a call to
 in the same direction.
 
 \section{Stands}
+Stands are the other major data type in the program. Stands represent physical
+item displays in the real world. They occupy space on Grids by applying
+themselves onto Tiles.
+
+These are the structures manupulated on the Main Grid by the user. They occupy
+space on Grids by applying themselves onto Tiles. They also carry color
+information, which is used to draw them.
+
+When examining a Grid, each Stand can be uniqely identified by its
+pointer. Stands may not overlap one another.
+
+Stands are constructed from pre-existing Stand Templates. Stand
+Templates include a small Grid over which its shape is applied. This
+Grid is only large enough to serve as the minimum bounding-
+box of its shape, plus enough added rows and columns to make the template
+a square. In addition, new Stand Templates can be defined by
+scanning a Grid for a Stand, and recreating it upon a new Grid. Again,
+the new Grid must be the minimum boundung box of its shape.
+
+This special Grid, called the ``source'' grid, carries the structure of the
+stand so that it can be applied onto a Grid by copying the layout of the source.
+The source grid should be conisdered freely mutable; many stand mutation
+methods operate by performing the change on the source Grid, then checking
+to see if the new variant can be re-applied to the owning Grid.
+
+To apply a stand, one must call two functions: \texttt{can_apply} and
+(if true) \texttt{do_apply}. This allows the engine to return information
+about the applicability of the stand, but remember information about its
+applicability, so that it doesn't have to recreate it during the second call.
+The frontend makes calls to these to apply Stands to the Grid. In addition,
+many of the Stand mutation methods call these functions after performing a
+modification to the Stand's source Grid.
+
+Tiles can contain a pointer to either a stand or a stand_template. This is
+achieved via a union type, defined in \texttt{grid.h}. It looks as follows:
+\begin{verbatim}
+enum stand_type {STAND, STAND_TEMPLATE};
+typedef union stand_like {
+	struct {
+		enum stand_type type;
+	} stand_proto;
+	struct {
+		enum stand_type type;
+		stand s;
+	} stand_stand;
+	struct {
+		enum stand_type type;
+		stand_template st;
+	} stand_st;
+} stand_like;
+\end{verbatim}
+Thus, a function operating on Tiles has a type-safe way of recognizing what
+kind of Stand object it holds and can deal with it accordingly. 
+
+Stands are owned by a Grid; it is illegal for Tiles on different Grids to
+have references to the same Stand instance at any given time (instead you
+should make a new Stand from the original Stand Template).
+
+Stands and Stand Templates exist on the heap, and must be destroyed
+to aviod leaking them.
 
 \section{Saving/Loading}
 The ability to save and load the program state is an essential part of
 any modern program. It is important, therefore, that the processes of
 marshalling and unmarshalling the data be performed correctly.
+
+In the engine, saving and loading are performed with the functions
+\texttt{save_file} and \texttt{load_file}.
 
 \subsection{File Format}
 We utilize an extensible, textual format to represent program data.
